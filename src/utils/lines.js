@@ -7,6 +7,7 @@ const CONCERNING = 45
 export const LINES = [
   {
     key: 'oil',
+    tint: '#FFE3C9',
     label: 'Not my oil money',
     reason: "Burns what you're against",
     category: 'climate',
@@ -16,6 +17,7 @@ export const LINES = [
   },
   {
     key: 'pay',
+    tint: '#FFE3EF',
     label: 'Pay your people',
     reason: 'Underpays the people',
     category: 'labor',
@@ -25,6 +27,7 @@ export const LINES = [
   },
   {
     key: 'senators',
+    tint: '#FFF0C2',
     label: 'Stop buying senators',
     reason: 'Lobbies on your dime',
     category: 'governance',
@@ -34,6 +37,7 @@ export const LINES = [
   },
   {
     key: 'weapons',
+    tint: '#FBDCCF',
     label: 'Weapons',
     reason: 'Makes weapons',
     category: null,
@@ -43,6 +47,7 @@ export const LINES = [
   },
   {
     key: 'data',
+    tint: '#ECE4FF',
     label: 'Hands off my data',
     reason: 'Loose with your data',
     category: 'privacy',
@@ -52,6 +57,7 @@ export const LINES = [
   },
   {
     key: 'bunnies',
+    tint: '#E3DEFA',
     label: 'Leave the bunnies alone',
     reason: 'Rough on animals',
     category: 'animals',
@@ -61,6 +67,7 @@ export const LINES = [
   },
   {
     key: 'fair',
+    tint: '#E2E5FF',
     label: 'Treat people fairly',
     reason: 'Falls short on fairness',
     category: 'equity',

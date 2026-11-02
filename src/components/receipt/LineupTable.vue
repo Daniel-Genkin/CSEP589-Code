@@ -15,7 +15,7 @@ const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
 <template>
   <div class="lineup sticker">
     <div class="lineup__head">
-      <h2 class="h-2">The lineup</h2>
+      <h2 class="h-2">The lineup. <span class="lineup__blue">Names, slices, receipts.</span></h2>
       <p v-if="note" class="label-mono lineup__note">{{ note }}</p>
     </div>
     <div class="lineup__scroll">
@@ -24,7 +24,13 @@ const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
         <span>Your slice</span>
         <span>The problem</span>
       </div>
-      <div v-for="row in result.lineup" :key="row.symbol" class="lineup__row" :class="{ 'is-flagged': row.crossed.length }">
+      <div
+        v-for="row in result.lineup"
+        :key="row.symbol"
+        class="lineup__row"
+        :class="{ 'is-flagged': row.crossed.length }"
+        :style="row.crossed.length ? { background: row.crossed[0].tint } : null"
+      >
         <div class="lineup__grid">
           <div class="who">
             <span class="who__tick">{{ row.symbol }}</span>
@@ -70,14 +76,16 @@ const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
 }
 .lineup__head {
   display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
+  flex-direction: column;
   gap: 12px;
   padding: 28px 28px 20px;
 }
 .lineup__head h2 {
-  font-size: clamp(40px, 5vw, 72px);
+  font-size: clamp(36px, 4vw, 76px);
+  line-height: 0.92;
+}
+.lineup__blue {
+  color: var(--signal);
 }
 .lineup__note {
   color: var(--muted);
@@ -102,9 +110,6 @@ const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
   padding: 18px 28px;
   border-top: 3px solid var(--ink-solid);
   min-width: 916px;
-}
-.lineup__row.is-flagged {
-  background: #ffe8c9;
 }
 .who {
   display: flex;
@@ -146,7 +151,7 @@ const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
 }
 .slice__bar span {
   display: block;
-  height: 16px;
+  height: 20px;
   border: 2px solid var(--ink-solid);
   border-radius: 999px;
 }
@@ -157,9 +162,9 @@ const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
   gap: 10px;
 }
 .problem__chip {
-  font-size: 15px;
+  font-size: 16px;
   font-weight: 700;
-  padding: 6px 14px;
+  padding: 8px 16px;
   border: 2px solid var(--ink-solid);
   border-radius: 999px;
 }
@@ -198,5 +203,50 @@ const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
   font-weight: 700;
   text-decoration: underline;
   text-underline-offset: 3px;
+}
+
+/* Too narrow for the table: stack each row as a card instead of side-scrolling. */
+@media (max-width: 960px) {
+  .lineup__scroll {
+    overflow-x: visible;
+  }
+  .lineup__labels {
+    display: none;
+  }
+  .lineup__grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 10px;
+    min-width: 0;
+  }
+  .lineup__row {
+    min-width: 0;
+    padding: 16px 18px;
+  }
+  .lineup__head {
+    padding: 22px 18px 16px;
+  }
+  .who__name {
+    font-size: 17px;
+    line-height: 1.2;
+  }
+  .slice {
+    gap: 10px;
+  }
+  .slice__pct {
+    flex: none;
+    width: 62px;
+    font-size: 28px;
+    line-height: 36px;
+  }
+  .problem__chip {
+    font-size: 15px;
+    padding: 6px 14px;
+  }
+}
+@media (max-width: 560px) {
+  .lineup {
+    border-radius: 22px;
+    box-shadow: 6px 6px 0 var(--ink-solid);
+  }
 }
 </style>

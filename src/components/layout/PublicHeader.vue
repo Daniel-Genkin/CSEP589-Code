@@ -26,8 +26,9 @@ const steps = [
       <div class="site-header__actions">
         <RouterLink v-if="session.isAuthed" to="/app" class="btn btn-primary">Open my dashboard ↗</RouterLink>
         <template v-else>
+          <RouterLink to="/browse" class="site-header__login">Browse</RouterLink>
           <RouterLink to="/login" class="site-header__login">Log in</RouterLink>
-          <RouterLink :to="{ path: '/', hash: '#fund' }" class="btn btn-primary">Check my fund ↗</RouterLink>
+          <RouterLink to="/check" class="btn btn-primary">Check my holdings ↗</RouterLink>
         </template>
       </div>
     </div>

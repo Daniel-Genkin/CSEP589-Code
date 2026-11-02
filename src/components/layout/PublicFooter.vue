@@ -11,9 +11,9 @@ import { BRAND_NAME, BRAND_TAGLINE } from '@/config/brand'
         <p class="site-footer__tagline">{{ BRAND_TAGLINE }} <span class="wink">No judgment, just receipts.</span></p>
       </div>
       <nav class="site-footer__links" aria-label="Footer">
-        <RouterLink :to="{ path: '/', hash: '#fund' }">Check a fund</RouterLink>
+        <RouterLink to="/check">Check my holdings</RouterLink>
+        <RouterLink to="/browse">Browse companies</RouterLink>
         <RouterLink to="/s/demo">See an example</RouterLink>
-        <RouterLink to="/pricing">Pricing</RouterLink>
         <RouterLink to="/login">Log in</RouterLink>
       </nav>
     </div>

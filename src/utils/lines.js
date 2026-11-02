@@ -122,3 +122,102 @@ export function checkFund(symbol, lineKeys) {
   if (!fund || fund.type !== 'etf') return null
   return { fund, ...checkHoldings(fund.fund.constituents, lineKeys) }
 }
+
+// Look through funds: a portfolio's real exposure to each company, in % of the whole portfolio.
+// positions: [{ symbol, weight }] where weight is the % of the portfolio (should sum to ~100).
+export function lookThrough(positions) {
+  const byCompany = new Map()
+  const unknown = []
+  for (const pos of positions) {
+    const sec = getSecurity(pos.symbol)
+    if (!sec) {
+      unknown.push(pos.symbol)
+      continue
+    }
+    const parts = sec.type === 'etf' ? sec.fund.constituents.map((c) => ({ symbol: c.symbol, weight: (c.weight * pos.weight) / 100 })) : [{ symbol: sec.symbol, weight: pos.weight }]
+    for (const part of parts) byCompany.set(part.symbol, (byCompany.get(part.symbol) ?? 0) + part.weight)
+  }
+  return { holdings: [...byCompany].map(([symbol, weight]) => ({ symbol, weight })), unknown }
+}
+
+export function checkPortfolio(positions, lineKeys) {
+  const { holdings, unknown } = lookThrough(positions)
+  return { ...checkHoldings(holdings, lineKeys), unknown }
+}
+
+// Turn "VOO 60, NOVA 25%, QQQ $1,200" (or one per line) into positions that sum to 100.
+export function parseHoldings(text) {
+  const entries = text
+    .split(/[\n,;]+/)
+    .map((chunk) => chunk.trim())
+    .filter(Boolean)
+    .map((chunk) => {
+      const match = chunk.match(/^\$?([A-Za-z.]{1,6})\s*[:=-]?\s*\$?([\d,.]+)?\s*%?$/)
+      if (!match) return null
+      return { symbol: match[1].toUpperCase(), amount: match[2] ? parseFloat(match[2].replace(/,/g, '')) : null }
+    })
+    .filter(Boolean)
+  if (!entries.length) return []
+  const withAmounts = entries.filter((e) => e.amount)
+  const equal = 100 / entries.length
+  const total = withAmounts.reduce((sum, e) => sum + e.amount, 0)
+  return entries.map((e) => ({
+    symbol: e.symbol,
+    weight: withAmounts.length === entries.length && total > 0 ? (e.amount / total) * 100 : equal,
+  }))
+}
+
+// Premade portfolios so visitors get a result without sharing anything.
+export const EXAMPLE_PORTFOLIOS = [
+  {
+    key: 'roth',
+    name: 'First-job Roth IRA',
+    blurb: 'The default: an index fund and a little tech.',
+    positions: [
+      { symbol: 'VOO', weight: 70 },
+      { symbol: 'QQQ', weight: 20 },
+      { symbol: 'NOVA', weight: 10 },
+    ],
+  },
+  {
+    key: 'app',
+    name: 'Brand-loyal app account',
+    blurb: 'A total-market fund plus the companies you use every day.',
+    positions: [
+      { symbol: 'VTI', weight: 50 },
+      { symbol: 'LOOP', weight: 20 },
+      { symbol: 'QUIK', weight: 15 },
+      { symbol: 'VOLT', weight: 15 },
+    ],
+  },
+  {
+    key: 'safe',
+    name: 'The "safe" dividend mix',
+    blurb: 'Steady payers, as recommended by your uncle.',
+    positions: [
+      { symbol: 'SCHD', weight: 60 },
+      { symbol: 'VOO', weight: 30 },
+      { symbol: 'BURG', weight: 10 },
+    ],
+  },
+  {
+    key: 'green',
+    name: 'Climate-curious',
+    blurb: 'Clean energy and an "ESG" fund. Surely this one is clean?',
+    positions: [
+      { symbol: 'ICLN', weight: 40 },
+      { symbol: 'ESGU', weight: 40 },
+      { symbol: 'SOLR', weight: 20 },
+    ],
+  },
+]
+
+// Borrow someone's lines. These are made-up sample profiles, never real people:
+// real partners (creators, nonprofits) would publish their own lines later.
+export const TRUSTED_PROFILES = [
+  { key: 'climate', name: 'Climate Cass', handle: '@climatecass', kind: 'Sample creator', bg: '#E85A2A', lines: ['oil', 'senators'] },
+  { key: 'labor', name: 'Union Hall Weekly', handle: 'sample newsletter', kind: 'Sample newsletter', bg: '#F07AB6', lines: ['pay', 'fair'] },
+  { key: 'privacy', name: 'Data Detox Club', handle: 'sample campus club', kind: 'Sample club', bg: '#8A6CF2', lines: ['data', 'senators'] },
+  { key: 'animals', name: 'Bunny Brigade', handle: 'sample nonprofit', kind: 'Sample nonprofit', bg: '#F7C54E', lines: ['bunnies', 'oil'] },
+  { key: 'peace', name: 'Peace Fund Pals', handle: 'sample group', kind: 'Sample group', bg: '#3A2A9E', fg: '#FFF4D6', lines: ['weapons', 'senators'] },
+]

@@ -8,8 +8,11 @@ const routes = [
     path: '/',
     component: PublicLayout,
     children: [
-      { path: '', name: 'home', component: () => import('@/views/LandingView.vue'), meta: { title: 'Invest in what you believe in' } },
+      { path: '', name: 'home', component: () => import('@/views/LandingView.vue'), meta: { title: 'Know what you own' } },
       { path: 'pricing', name: 'pricing', component: () => import('@/views/PricingView.vue'), meta: { title: 'Pricing' } },
+      { path: 'check', name: 'check', component: () => import('@/views/CheckView.vue'), meta: { title: 'Quick check' } },
+      { path: 'browse', name: 'browse', component: () => import('@/views/BrowseView.vue'), meta: { title: 'Browse companies' } },
+      { path: 'company/:symbol', name: 'company', component: () => import('@/views/CompanyView.vue'), meta: { title: 'Company' } },
     ],
   },
   { path: '/signup', name: 'signup', component: () => import('@/views/auth/SignupView.vue'), meta: { title: 'Create your account', guestOnly: true } },

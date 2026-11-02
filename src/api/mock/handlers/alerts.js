@@ -176,7 +176,7 @@ export default [
             ? `Heads up: ${detail.security.symbol} is about to change`
             : `Heads up: something changed with ${name}`
       return {
-        from: 'Rallie <alerts@rallie.app>',
+        from: 'Rally <alerts@rally.app>',
         to: user.email,
         subject,
         preheader: alert.summary,

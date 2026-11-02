@@ -1,7 +1,7 @@
 // Reads holdings out of a brokerage screenshot with Claude.
 // Demo only: the API key is pasted by the presenter and kept in this browser's localStorage.
 // It is never committed or sent anywhere except Anthropic's API.
-const KEY_STORAGE = 'rallie.demo.anthropicKey'
+const KEY_STORAGE = 'rally.demo.anthropicKey'
 const MODEL = 'claude-haiku-5-5'
 
 export function getDemoKey() {

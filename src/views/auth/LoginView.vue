@@ -40,8 +40,8 @@ async function submit() {
 }
 
 function useDemo() {
-  form.email = 'maya@rallie.app'
-  form.password = 'rallie-demo'
+  form.email = 'maya@rally.app'
+  form.password = 'rally-demo'
   submit()
 }
 

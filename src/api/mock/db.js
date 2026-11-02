@@ -1,7 +1,7 @@
 // In-browser stand-in for the backend database. Persisted to localStorage so the demo survives reloads.
 import { createSeed } from './seed'
 
-const STORAGE_KEY = 'rallie.mock-db.v1'
+const STORAGE_KEY = 'rally.mock-db.v1'
 
 function load() {
   try {

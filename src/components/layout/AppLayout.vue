@@ -40,7 +40,7 @@ const nav = computed(() => [
 <template>
   <div class="app-shell">
     <aside class="sidebar">
-      <RouterLink to="/app" class="sidebar__logo" aria-label="Rallie home"><BrandLogo :size="34" inverse /></RouterLink>
+      <RouterLink to="/app" class="sidebar__logo" aria-label="Rally home"><BrandLogo :size="34" inverse /></RouterLink>
       <RouterLink to="/app/scan/new" class="btn btn-primary btn-block sidebar__cta"><Plus :size="18" /> New scan</RouterLink>
 
       <nav class="sidebar__nav" aria-label="App">
@@ -74,7 +74,7 @@ const nav = computed(() => [
 
     <div class="app-main">
       <header class="topbar">
-        <RouterLink to="/app" class="topbar__logo" aria-label="Rallie home"><BrandLogo :size="28" /></RouterLink>
+        <RouterLink to="/app" class="topbar__logo" aria-label="Rally home"><BrandLogo :size="28" /></RouterLink>
         <div class="topbar__actions">
           <RouterLink to="/app/scan/new" class="btn btn-soft btn-sm topbar__scan hide-sm"><Plus :size="16" /> New scan</RouterLink>
           <NotificationBell />

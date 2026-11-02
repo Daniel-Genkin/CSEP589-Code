@@ -80,7 +80,7 @@ router.beforeEach(async (to) => {
 })
 
 router.afterEach((to) => {
-  document.title = to.meta.title ? `${to.meta.title} · Rallie` : 'Rallie'
+  document.title = to.meta.title ? `${to.meta.title} · Rally` : 'Rally'
 })
 
 export default router

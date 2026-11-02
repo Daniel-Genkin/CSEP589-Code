@@ -78,7 +78,7 @@ const learn = [
   },
   {
     q: 'Do values-aligned picks earn less?',
-    a: 'Not necessarily. Research is mixed and it depends on the company. Rallie focuses on values, so pair it with your own research on price and risk.',
+    a: 'Not necessarily. Research is mixed and it depends on the company. Rally focuses on values, so pair it with your own research on price and risk.',
   },
 ]
 </script>

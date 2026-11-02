@@ -3,7 +3,7 @@
 import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
-const KEY = 'rallie.lines.v1'
+const KEY = 'rally.lines.v1'
 
 function load() {
   try {

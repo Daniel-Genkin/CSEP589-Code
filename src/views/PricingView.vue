@@ -18,7 +18,7 @@ const modalOpen = ref(false)
 
 const faqs = [
   {
-    q: 'Is Rallie financial advice?',
+    q: 'Is Rally financial advice?',
     a: "No. We research how companies line up with values like climate and fair pay, then explain it in plain English. We never tell you what to buy or sell. That's always your call.",
   },
   {

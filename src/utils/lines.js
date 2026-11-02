@@ -223,7 +223,7 @@ export const TRUSTED_PROFILES = [
 ]
 
 // A basket = a fund minus companies the user chose to drop. The rest of the fund is
-// scaled back up to 100%. The user picks; Rallie never recommends what to remove.
+// scaled back up to 100%. The user picks; Rally never recommends what to remove.
 export function checkBasket(symbol, removed, lineKeys) {
   const fund = getSecurity(symbol)
   if (!fund || fund.type !== 'etf') return null

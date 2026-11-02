@@ -17,7 +17,7 @@ const previewValues = [
   <div class="auth">
     <div class="auth__main">
       <header class="auth__header">
-        <RouterLink to="/" aria-label="Rallie home"><BrandLogo /></RouterLink>
+        <RouterLink to="/" aria-label="Rally home"><BrandLogo /></RouterLink>
         <slot name="header" />
       </header>
       <div class="auth__body">
@@ -26,7 +26,7 @@ const previewValues = [
         </div>
       </div>
       <p class="auth__legal">
-        By continuing you agree to our Terms and Privacy Policy. Rallie shares research, not financial advice.
+        By continuing you agree to our Terms and Privacy Policy. Rally shares research, not financial advice.
       </p>
     </div>
 

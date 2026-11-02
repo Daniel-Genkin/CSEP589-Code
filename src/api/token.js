@@ -1,4 +1,4 @@
-const KEY = 'rallie.session'
+const KEY = 'rally.session'
 
 export const tokenStore = {
   get: () => localStorage.getItem(KEY),

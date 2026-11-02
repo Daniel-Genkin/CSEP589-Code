@@ -61,7 +61,7 @@ export function createSeed() {
       {
         id: userId,
         name: 'Maya Chen',
-        email: 'maya@rallie.app',
+        email: 'maya@rally.app',
         createdAt: isoAgo(140 * DAY),
         values: ['climate', 'labor', 'privacy'],
         referralCode: 'MAYA7Q',

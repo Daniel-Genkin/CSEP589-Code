@@ -182,7 +182,7 @@ async function toggleWatch() {
       </Transition>
 
       <p class="disclaimer">
-        Rallie shares values research, not financial advice. Always consider your own goals before buying or selling.
+        Rally shares values research, not financial advice. Always consider your own goals before buying or selling.
       </p>
 
       <ShareModal :open="shareOpen" :scan-id="data.scan.id" :security="security" @close="shareOpen = false" />

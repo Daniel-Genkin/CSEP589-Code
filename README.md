@@ -22,6 +22,7 @@ npm run build      # production build in dist/
 
 | Flow | Routes |
 | --- | --- |
+| Receipt check | `/receipt` (no account; `?fund=VOO` preselects a fund): pick an ETF and your lines → **Print my receipt** → the breakdown stays blurred until you join the waitlist. **Download receipt** saves a shareable image. The waitlist only saves to this browser's localStorage for now (`src/stores/waitlist.js`). |
 | Ad-hoc scan | `/app/scan/new` (link a brokerage or build a list) → `/app/scan/:id/progress` → `/app/scan/:id` (results ranked by score, filter by value/type) → `/app/scan/:id/:symbol` (values, news, **Inside the fund**, **Rebalance outlook**) |
 | Sign-up | `/signup`: account → values (skippable) → done. Google/Apple are mocked. |
 | Continuous monitoring | `/app/monitoring` (watchlist, alert settings, **Check now**) → `/preview/email/:alertId` (the email) → `/app/alerts/:alertId` (what happened, score impact, exposure, sources) |

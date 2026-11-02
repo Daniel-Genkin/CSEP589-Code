@@ -10,6 +10,7 @@ const routes = [
     children: [
       { path: '', name: 'home', component: () => import('@/views/LandingView.vue'), meta: { title: 'Know what you own' } },
       { path: 'pricing', name: 'pricing', component: () => import('@/views/PricingView.vue'), meta: { title: 'Pricing' } },
+      { path: 'receipt', name: 'receipt', component: () => import('@/views/ReceiptView.vue'), meta: { title: 'Print your receipt' } },
       { path: 'check', name: 'check', component: () => import('@/views/CheckView.vue'), meta: { title: 'Quick check' } },
       { path: 'browse', name: 'browse', component: () => import('@/views/BrowseView.vue'), meta: { title: 'Browse companies' } },
       { path: 'company/:symbol', name: 'company', component: () => import('@/views/CompanyView.vue'), meta: { title: 'Company' } },

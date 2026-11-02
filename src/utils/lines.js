@@ -221,3 +221,15 @@ export const TRUSTED_PROFILES = [
   { key: 'animals', name: 'Bunny Brigade', handle: 'sample nonprofit', kind: 'Sample nonprofit', bg: '#F7C54E', lines: ['bunnies', 'oil'] },
   { key: 'peace', name: 'Peace Fund Pals', handle: 'sample group', kind: 'Sample group', bg: '#3A2A9E', fg: '#FFF4D6', lines: ['weapons', 'senators'] },
 ]
+
+// A basket = a fund minus companies the user chose to drop. The rest of the fund is
+// scaled back up to 100%. The user picks; Rallie never recommends what to remove.
+export function checkBasket(symbol, removed, lineKeys) {
+  const fund = getSecurity(symbol)
+  if (!fund || fund.type !== 'etf') return null
+  const drop = new Set(removed)
+  const removedPct = fund.fund.constituents.filter((c) => drop.has(c.symbol)).reduce((sum, c) => sum + c.weight, 0)
+  const scale = 100 / (100 - removedPct)
+  const kept = fund.fund.constituents.filter((c) => !drop.has(c.symbol)).map((c) => ({ symbol: c.symbol, weight: c.weight * scale }))
+  return { fund, removedPct, before: checkFund(symbol, lineKeys), after: checkHoldings(kept, lineKeys) }
+}

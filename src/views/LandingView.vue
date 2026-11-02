@@ -7,10 +7,12 @@ import ReceiptStats from '@/components/receipt/ReceiptStats.vue'
 import TrustedPicker from '@/components/receipt/TrustedPicker.vue'
 import { BRAND_NAME } from '@/config/brand'
 import { DEMO_FUNDS, checkFund } from '@/utils/lines'
+import { useLinesStore } from '@/stores/lines'
+import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 
 const fundSymbol = ref('VOO')
-const lineKeys = ref(['oil', 'pay', 'senators'])
+const { lineKeys } = storeToRefs(useLinesStore())
 
 const result = computed(() => checkFund(fundSymbol.value, lineKeys.value))
 const fund = computed(() => result.value.fund)

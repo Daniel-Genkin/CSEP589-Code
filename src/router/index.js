@@ -44,6 +44,7 @@ const routes = [
         component: () => import('@/views/app/HoldingDetailView.vue'),
         meta: { title: 'Analysis' },
       },
+      { path: 'baskets', name: 'baskets', component: () => import('@/views/app/BasketView.vue'), meta: { title: 'Baskets' } },
       { path: 'monitoring', name: 'monitoring', component: () => import('@/views/app/MonitoringView.vue'), meta: { title: 'Monitoring' } },
       { path: 'alerts', name: 'alerts', component: () => import('@/views/app/AlertsView.vue'), meta: { title: 'Alerts' } },
       { path: 'alerts/:alertId', name: 'alert', component: () => import('@/views/app/AlertDetailView.vue'), meta: { title: 'Alert' } },

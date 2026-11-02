@@ -6,7 +6,12 @@ import ScoreChip from '@/components/ui/ScoreChip.vue'
 import ScoreRing from '@/components/ui/ScoreRing.vue'
 import SecurityLogo from '@/components/ui/SecurityLogo.vue'
 import { useAsync } from '@/composables/useAsync'
+import LinePicker from '@/components/receipt/LinePicker.vue'
+import TrustedPicker from '@/components/receipt/TrustedPicker.vue'
 import { useAlertsStore } from '@/stores/alerts'
+import { useLinesStore } from '@/stores/lines'
+import { checkPortfolio } from '@/utils/lines'
+import { storeToRefs } from 'pinia'
 import { useSessionStore } from '@/stores/session'
 import { formatDate, timeAgo } from '@/utils/format'
 import { BAND_ORDER, BANDS, CATEGORY_MAP } from '@/utils/scoring'
@@ -26,6 +31,7 @@ import { computed, onMounted, ref, watch } from 'vue'
 
 const session = useSessionStore()
 const alerts = useAlertsStore()
+const { lineKeys, baskets } = storeToRefs(useLinesStore())
 
 const { data: scans, loading } = useAsync(() => scansService.list())
 const { data: monitoring } = useAsync(() => (session.isPro ? monitoringService.get() : Promise.resolve(null)))
@@ -37,6 +43,15 @@ watch(latest, async (scan) => {
 })
 
 onMounted(() => alerts.ensureLoaded().catch(() => {}))
+
+// Your real holdings (looking inside funds) checked against your lines.
+const myReceipt = computed(() => {
+  const results = latestScan.value?.results
+  if (!results?.length) return null
+  const positions = results.map((r) => ({ symbol: r.symbol, weight: r.weight ?? 100 / results.length }))
+  const check = checkPortfolio(positions, lineKeys.value)
+  return { pct: Math.round(check.crossingPct), names: check.crossers.slice(0, 3).map((r) => r.name) }
+})
 
 const greeting = (() => {
   const hour = new Date().getHours()
@@ -211,6 +226,32 @@ const learn = [
       </div>
 
       <!-- Alerts -->
+      <!-- Your lines and baskets -->
+      <section class="card card-pad dash-span-3 lines-card">
+        <div class="card-head">
+          <div>
+            <p class="card-title">Your lines</p>
+            <p class="card-sub">What you won't fund. Change them anytime; your baskets use them too.</p>
+          </div>
+          <RouterLink to="/app/baskets" class="btn btn-primary btn-sm">Build a basket <ArrowRight :size="16" /></RouterLink>
+        </div>
+        <p v-if="myReceipt" class="lines-card__receipt">
+          <span class="lines-card__pct">{{ myReceipt.pct }}%</span>
+          <span v-if="!lineKeys.length">Pick a line to see who crosses it.</span>
+          <span v-else-if="myReceipt.names.length">of your portfolio crosses your lines, mostly {{ myReceipt.names.join(', ') }}.</span>
+          <span v-else>of your portfolio crosses your lines. <span class="wink">For now.</span></span>
+        </p>
+        <LinePicker v-model="lineKeys" tone="light" />
+        <TrustedPicker v-model="lineKeys" tone="light" class="lines-card__trusted" />
+        <div v-if="baskets.length" class="lines-card__baskets">
+          <p class="label-mono lines-card__label">Your baskets</p>
+          <RouterLink v-for="b in baskets.slice(0, 3)" :key="b.id" to="/app/baskets" class="lines-card__basket">
+            <strong>{{ b.name }}</strong>
+            <span class="muted text-sm">{{ b.from }} minus {{ b.removed.length }}</span>
+          </RouterLink>
+        </div>
+      </section>
+
       <section v-if="recentAlerts.length" class="card card-pad dash-span-2">
         <div class="card-head">
           <p class="card-title">Recent alerts</p>
@@ -683,5 +724,48 @@ const learn = [
   .history__symbols {
     display: none;
   }
+}
+.lines-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.lines-card__receipt {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  font-size: 17px;
+  font-weight: 600;
+}
+.lines-card__pct {
+  font-family: var(--font-display);
+  font-size: 48px;
+  line-height: 1;
+  color: var(--flare);
+  -webkit-text-stroke: 1.5px var(--ink-solid);
+}
+.lines-card__trusted {
+  margin-top: 4px;
+}
+.lines-card__baskets {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  padding-top: 14px;
+  border-top: 2px solid var(--line);
+}
+.lines-card__label {
+  color: var(--deep-violet);
+}
+.lines-card__basket {
+  display: inline-flex;
+  gap: 8px;
+  align-items: baseline;
+  padding: 8px 14px;
+  border: var(--outline-thin);
+  border-radius: 999px;
+  background: var(--sun-100);
 }
 </style>

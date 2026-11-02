@@ -2,6 +2,7 @@
 import { LINES } from '@/utils/lines'
 
 const model = defineModel({ type: Array, required: true })
+defineProps({ tone: { type: String, default: 'dark' } }) // 'dark' = on Signal Blue, 'light' = on Cream
 
 function toggle(key) {
   model.value = model.value.includes(key) ? model.value.filter((k) => k !== key) : [...model.value, key]
@@ -9,7 +10,7 @@ function toggle(key) {
 </script>
 
 <template>
-  <div class="line-picker">
+  <div class="line-picker" :class="`line-picker--${tone}`">
     <button
       v-for="line in LINES"
       :key="line.key"
@@ -39,6 +40,13 @@ function toggle(key) {
   color: var(--cream);
   font-size: 19px;
   font-weight: 600;
+}
+.line-picker--light .line-chip {
+  min-height: 46px;
+  padding: 0 18px;
+  font-size: 16px;
+  border-color: var(--ink-solid);
+  color: var(--ink);
 }
 .line-chip.is-on {
   border: 3px solid var(--ink-solid);

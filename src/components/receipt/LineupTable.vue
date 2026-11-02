@@ -1,5 +1,5 @@
 <script setup>
-import { ref } from 'vue'
+import { computed, ref } from 'vue'
 
 const props = defineProps({
   result: { type: Object, required: true },
@@ -7,8 +7,9 @@ const props = defineProps({
 })
 const open = ref(null)
 const toggle = (symbol) => (open.value = open.value === symbol ? null : symbol)
-// Bar width scaled to the biggest slice in the lineup.
-const barWidth = (weight) => `${Math.max(8, (weight / (props.result.lineup[0]?.weight || 1)) * 100)}%`
+// Bar width scaled to the biggest slice in the lineup (rows are sorted flagged-first, not by size).
+const maxWeight = computed(() => Math.max(1e-9, ...props.result.lineup.map((r) => r.weight)))
+const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
 </script>
 
 <template>

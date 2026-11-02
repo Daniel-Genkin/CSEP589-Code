@@ -4,11 +4,12 @@
 import { LINE_MAP, TRUSTED_PROFILES } from '@/utils/lines'
 
 const model = defineModel({ type: Array, required: true })
+defineProps({ tone: { type: String, default: 'dark' } })
 const isActive = (profile) => profile.lines.length === model.value.length && profile.lines.every((k) => model.value.includes(k))
 </script>
 
 <template>
-  <div class="trusted">
+  <div class="trusted" :class="`trusted--${tone}`">
     <p class="label-mono trusted__label">Or borrow someone's lines</p>
     <div class="trusted__row">
       <button
@@ -37,6 +38,12 @@ const isActive = (profile) => profile.lines.length === model.value.length && pro
 }
 .trusted__label {
   color: var(--cream);
+}
+.trusted--light .trusted__label {
+  color: var(--deep-violet);
+}
+.trusted--light .profile.is-on {
+  outline-color: var(--ink-solid);
 }
 .trusted__row {
   display: flex;

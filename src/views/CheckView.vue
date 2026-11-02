@@ -5,6 +5,8 @@ import ReceiptStats from '@/components/receipt/ReceiptStats.vue'
 import TrustedPicker from '@/components/receipt/TrustedPicker.vue'
 import { getDemoKey, readHoldingsFromScreenshot, setDemoKey } from '@/utils/claudeVision'
 import { EXAMPLE_PORTFOLIOS, checkPortfolio, parseHoldings } from '@/utils/lines'
+import { useLinesStore } from '@/stores/lines'
+import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 
 const tabs = [
@@ -16,7 +18,7 @@ const tab = ref('example')
 
 const positions = ref(EXAMPLE_PORTFOLIOS[0].positions)
 const source = ref(EXAMPLE_PORTFOLIOS[0].name)
-const lineKeys = ref(['oil', 'pay', 'senators'])
+const { lineKeys } = storeToRefs(useLinesStore())
 
 const result = computed(() => checkPortfolio(positions.value, lineKeys.value))
 

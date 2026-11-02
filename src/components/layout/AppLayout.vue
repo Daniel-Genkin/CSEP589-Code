@@ -3,7 +3,7 @@ import BrandLogo from '@/components/ui/BrandLogo.vue'
 import PlanBadge from '@/components/ui/PlanBadge.vue'
 import { useAlertsStore } from '@/stores/alerts'
 import { useSessionStore } from '@/stores/session'
-import { Bell, CreditCard, House, Plus, Radar, ScanSearch, Settings, Sparkles } from '@lucide/vue'
+import { Bell, CreditCard, House, Plus, Radar, ScanSearch, Settings, ShoppingBasket, Sparkles } from '@lucide/vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import NotificationBell from './NotificationBell.vue'
@@ -16,6 +16,7 @@ const alerts = useAlertsStore()
 const nav = computed(() => [
   { label: 'Home', to: '/app', icon: House, match: (p) => p === '/app' },
   { label: 'Scans', to: '/app/scan/new', icon: ScanSearch, match: (p) => p.startsWith('/app/scan') },
+  { label: 'Baskets', to: '/app/baskets', icon: ShoppingBasket, match: (p) => p.startsWith('/app/baskets') },
   {
     label: 'Monitoring',
     short: 'Monitor',
@@ -31,7 +32,7 @@ const nav = computed(() => [
     match: (p) => p.startsWith('/app/alerts'),
     count: alerts.unreadCount,
   },
-  { label: 'Plan & billing', short: 'Plan', to: '/app/plan', icon: CreditCard, match: (p) => p.startsWith('/app/plan') },
+  { label: 'Plan & billing', short: 'Plan', to: '/app/plan', icon: CreditCard, match: (p) => p.startsWith('/app/plan'), desktopOnly: true },
   { label: 'Settings', to: '/app/settings', icon: Settings, match: (p) => p.startsWith('/app/settings'), desktopOnly: true },
 ])
 </script>

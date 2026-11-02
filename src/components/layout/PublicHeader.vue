@@ -35,8 +35,6 @@ const steps = computed(() => {
       <div class="site-header__actions">
         <RouterLink v-if="session.isAuthed" to="/app" class="btn btn-primary">Open my dashboard ↗</RouterLink>
         <template v-else>
-          <RouterLink to="/browse" class="site-header__login">Browse</RouterLink>
-          <RouterLink to="/login" class="site-header__login">Log in</RouterLink>
           <button type="button" class="btn btn-primary" @click="waitlist.isOpen = true">Join the waitlist</button>
           <RouterLink to="/receipt" class="btn btn-flare">Check my fund ↗</RouterLink>
         </template>
@@ -90,24 +88,12 @@ const steps = computed(() => {
   gap: 18px;
   margin-left: auto;
 }
-.site-header__login {
-  color: var(--cream);
-  font-weight: 700;
-}
-.site-header__login:hover {
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
 @media (max-width: 1320px) {
   .site-header__steps {
     display: none;
   }
 }
-/* Browse and Log in are in the footer too; phones keep just the two buttons. */
 @media (max-width: 640px) {
-  .site-header__login {
-    display: none;
-  }
   .site-header__actions {
     gap: 10px;
     margin-left: 0;

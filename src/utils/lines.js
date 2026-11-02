@@ -212,16 +212,6 @@ export const EXAMPLE_PORTFOLIOS = [
   },
 ]
 
-// Borrow someone's lines. These are made-up sample profiles, never real people:
-// real partners (creators, nonprofits) would publish their own lines later.
-export const TRUSTED_PROFILES = [
-  { key: 'climate', name: 'Climate Cass', handle: '@climatecass', kind: 'Sample creator', bg: '#E85A2A', lines: ['oil', 'senators'] },
-  { key: 'labor', name: 'Union Hall Weekly', handle: 'sample newsletter', kind: 'Sample newsletter', bg: '#F07AB6', lines: ['pay', 'fair'] },
-  { key: 'privacy', name: 'Data Detox Club', handle: 'sample campus club', kind: 'Sample club', bg: '#8A6CF2', lines: ['data', 'senators'] },
-  { key: 'animals', name: 'Bunny Brigade', handle: 'sample nonprofit', kind: 'Sample nonprofit', bg: '#F7C54E', lines: ['bunnies', 'oil'] },
-  { key: 'peace', name: 'Peace Fund Pals', handle: 'sample group', kind: 'Sample group', bg: '#3A2A9E', fg: '#FFF4D6', lines: ['weapons', 'senators'] },
-]
-
 // A basket = a fund minus companies the user chose to drop. The rest of the fund is
 // scaled back up to 100%. The user picks; Rally never recommends what to remove.
 export function checkBasket(symbol, removed, lineKeys) {

@@ -2,7 +2,6 @@
 import LinePicker from '@/components/receipt/LinePicker.vue'
 import LineupTable from '@/components/receipt/LineupTable.vue'
 import ReceiptStats from '@/components/receipt/ReceiptStats.vue'
-import TrustedPicker from '@/components/receipt/TrustedPicker.vue'
 import { getDemoKey, readHoldingsFromScreenshot, setDemoKey } from '@/utils/claudeVision'
 import { EXAMPLE_PORTFOLIOS, checkPortfolio, parseHoldings } from '@/utils/lines'
 import { useLinesStore } from '@/stores/lines'
@@ -159,7 +158,6 @@ const portfolioLabel = computed(() => (positions.value.length === 1 ? `your ${po
     <section class="container check__lines">
       <h2 class="h-2 shout-shadow">Draw your lines.</h2>
       <LinePicker v-model="lineKeys" />
-      <TrustedPicker v-model="lineKeys" />
     </section>
 
     <section class="container check__result">

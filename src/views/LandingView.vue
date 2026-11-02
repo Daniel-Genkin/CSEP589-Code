@@ -6,7 +6,6 @@ import HeroReceipt from '@/components/receipt/HeroReceipt.vue'
 import LinePicker from '@/components/receipt/LinePicker.vue'
 import LineupTable from '@/components/receipt/LineupTable.vue'
 import ReceiptStats from '@/components/receipt/ReceiptStats.vue'
-import TrustedPicker from '@/components/receipt/TrustedPicker.vue'
 import { BRAND_NAME } from '@/config/brand'
 import { DEMO_FUNDS, checkFund } from '@/utils/lines'
 import { useLinesStore } from '@/stores/lines'
@@ -59,7 +58,6 @@ const fmtCount = (n) => n.toLocaleString('en-US')
         <p class="label-mono">Step 02 · Tap what you won't fund</p>
       </div>
       <LinePicker v-model="lineKeys" />
-      <TrustedPicker v-model="lineKeys" class="lines__trusted" />
     </section>
 
     <!-- Step 03: the receipt -->
@@ -240,9 +238,6 @@ const fmtCount = (n) => n.toLocaleString('en-US')
 .lines__head h2 {
   color: var(--cream);
   font-size: clamp(48px, 7vw, 104px);
-}
-.lines__trusted {
-  margin-top: 12px;
 }
 
 .stats {

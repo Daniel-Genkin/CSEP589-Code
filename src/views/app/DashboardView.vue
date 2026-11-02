@@ -7,7 +7,6 @@ import ScoreRing from '@/components/ui/ScoreRing.vue'
 import SecurityLogo from '@/components/ui/SecurityLogo.vue'
 import { useAsync } from '@/composables/useAsync'
 import LinePicker from '@/components/receipt/LinePicker.vue'
-import TrustedPicker from '@/components/receipt/TrustedPicker.vue'
 import { useAlertsStore } from '@/stores/alerts'
 import { useLinesStore } from '@/stores/lines'
 import { checkPortfolio } from '@/utils/lines'
@@ -242,7 +241,6 @@ const learn = [
           <span v-else>of your portfolio crosses your lines.</span>
         </p>
         <LinePicker v-model="lineKeys" tone="light" />
-        <TrustedPicker v-model="lineKeys" tone="light" class="lines-card__trusted" />
         <div v-if="baskets.length" class="lines-card__baskets">
           <p class="label-mono lines-card__label">Your baskets</p>
           <RouterLink v-for="b in baskets.slice(0, 3)" :key="b.id" to="/app/baskets" class="lines-card__basket">
@@ -744,9 +742,6 @@ const learn = [
   line-height: 1;
   color: var(--flare);
   -webkit-text-stroke: 1.5px var(--ink-solid);
-}
-.lines-card__trusted {
-  margin-top: 4px;
 }
 .lines-card__baskets {
   display: flex;

@@ -92,13 +92,18 @@ const restart = (el, cls) => {
   el.classList.add(cls)
 }
 
+// The printer buzzes and the paper feeds out of the slot.
+function feedPaper() {
+  restart(paper.value, 'reprint')
+  restart(receipt.value, 'printing')
+}
+
 function printOut() {
   printed.value = true
   busy.value = true
   printCount.value += 1
   linesStore.lineKeys = [...picked.value] // carries over to the landing page and dashboard
-  restart(paper.value, 'reprint')
-  restart(receipt.value, 'printing')
+  feedPaper()
   clearTimeout(busyTimer)
   busyTimer = setTimeout(() => (busy.value = false), prefersReducedMotion() ? 0 : 1200)
 }
@@ -147,6 +152,7 @@ const barAway = ref(false)
 let observer
 watch(barText, () => restart(bar.value, 'bump'), { flush: 'post' })
 onMounted(() => {
+  feedPaper() // the blank receipt prints out as you arrive
   if (!('IntersectionObserver' in window)) return
   observer = new IntersectionObserver(
     ([entry]) => {

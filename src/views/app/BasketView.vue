@@ -1,7 +1,6 @@
 <script setup>
 import SampleBadge from '@/components/brand/SampleBadge.vue'
 import LinePicker from '@/components/receipt/LinePicker.vue'
-import TrustedPicker from '@/components/receipt/TrustedPicker.vue'
 import { useToast } from '@/composables/useToast'
 import { useLinesStore } from '@/stores/lines'
 import { DEMO_FUNDS, checkBasket } from '@/utils/lines'
@@ -72,7 +71,6 @@ const pct = (n) => `${n.toFixed(1)}%`
     <section class="card card-pad block">
       <p class="label-mono step">02 · Your lines</p>
       <LinePicker v-model="lineKeys" tone="light" />
-      <TrustedPicker v-model="lineKeys" tone="light" class="block__trusted" />
     </section>
 
     <section class="card card-pad block">
@@ -145,9 +143,6 @@ const pct = (n) => `${n.toFixed(1)}%`
   display: flex;
   flex-direction: column;
   gap: 14px;
-}
-.block__trusted {
-  margin-top: 6px;
 }
 .step {
   color: var(--deep-violet);

@@ -15,7 +15,7 @@ const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
 <template>
   <div class="lineup sticker">
     <div class="lineup__head">
-      <h2 class="h-2">The lineup. <span class="blue">Names, slices, receipts.</span></h2>
+      <h2 class="h-2">The lineup</h2>
       <p v-if="note" class="label-mono lineup__note">{{ note }}</p>
     </div>
     <div class="lineup__scroll">
@@ -43,7 +43,7 @@ const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
                 {{ open === row.symbol ? 'Hide receipts' : 'Receipts →' }}
               </button>
             </template>
-            <span v-else class="passes">Passes your lines. <span class="wink">For now.</span></span>
+            <span v-else class="passes">Passes your lines</span>
           </div>
         </div>
         <ul v-if="open === row.symbol" class="receipts">
@@ -59,9 +59,6 @@ const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
 </template>
 
 <style scoped>
-.blue {
-  color: var(--signal);
-}
 .pink-ink {
   color: var(--bubblegum);
 }
@@ -176,9 +173,6 @@ const barWidth = (weight) => `${Math.max(8, (weight / maxWeight.value) * 100)}%`
   font-size: 17px;
   font-weight: 600;
   color: var(--ink-2);
-}
-.passes .wink {
-  font-size: 21px;
 }
 .receipts {
   margin-top: 14px;

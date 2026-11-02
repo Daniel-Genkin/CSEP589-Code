@@ -20,7 +20,7 @@ const money = computed(() => `$${props.result.perTenK.toLocaleString('en-US')}`)
       <p class="stat__number">{{ pct }}%</p>
       <p class="stat__caption">
         <template v-if="!hasLines">Pick a line to see who crosses it.</template>
-        <template v-else-if="pct === 0">Of {{ label }} crosses your lines. <span class="wink">For now.</span></template>
+        <template v-else-if="pct === 0">Of {{ label }} crosses your lines.</template>
         <template v-else>Of {{ label }} just got awkward.</template>
       </p>
     </div>
@@ -76,10 +76,6 @@ const money = computed(() => `$${props.result.perTenK.toLocaleString('en-US')}`)
   font-size: 34px;
   line-height: 1.05;
   text-transform: uppercase;
-}
-.stat__caption .wink {
-  text-transform: none;
-  color: var(--sun);
 }
 .stats__side {
   flex: 1 1 300px;

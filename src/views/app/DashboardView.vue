@@ -239,7 +239,7 @@ const learn = [
           <span class="lines-card__pct">{{ myReceipt.pct }}%</span>
           <span v-if="!lineKeys.length">Pick a line to see who crosses it.</span>
           <span v-else-if="myReceipt.names.length">of your portfolio crosses your lines, mostly {{ myReceipt.names.join(', ') }}.</span>
-          <span v-else>of your portfolio crosses your lines. <span class="wink">For now.</span></span>
+          <span v-else>of your portfolio crosses your lines.</span>
         </p>
         <LinePicker v-model="lineKeys" tone="light" />
         <TrustedPicker v-model="lineKeys" tone="light" class="lines-card__trusted" />

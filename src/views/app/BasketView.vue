@@ -45,7 +45,7 @@ const pct = (n) => `${n.toFixed(1)}%`
     <div class="page-head">
       <div>
         <p class="eyebrow">Baskets</p>
-        <h1 class="page-title">Your fund, <span class="wink">minus the awkward part.</span></h1>
+        <h1 class="page-title">Build a basket</h1>
         <p class="page-sub">Start from a fund, draw your lines, and drop the companies you won't fund. You choose every company; we just show the receipts.</p>
       </div>
     </div>

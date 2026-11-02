@@ -36,8 +36,8 @@ const rows = computed(() => {
   <div class="browse ground-blue">
     <section class="container browse__head">
       <p class="label-mono browse__eyebrow">Browse · no account needed</p>
-      <h1 class="h-1 shout-shadow">Every score. <span class="pink">Every receipt.</span></h1>
-      <p class="browse__lead">Look up any fund or company we track and see what it's been up to.</p>
+      <h1 class="h-1 shout-shadow">Look up any company</h1>
+      <p class="browse__lead">Every fund and company we track, with its scores and the reasons behind them.</p>
     </section>
 
     <section class="container">
@@ -78,9 +78,6 @@ const rows = computed(() => {
 <style scoped>
 .browse {
   padding-bottom: 80px;
-}
-.pink {
-  color: var(--bubblegum);
 }
 .browse__head {
   padding-top: 40px;

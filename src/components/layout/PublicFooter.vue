@@ -8,7 +8,7 @@ import { BRAND_NAME, BRAND_TAGLINE } from '@/config/brand'
     <div class="container site-footer__inner">
       <div class="site-footer__brand">
         <BrandLogo :size="30" inverse />
-        <p class="site-footer__tagline">{{ BRAND_TAGLINE }} <span class="wink">No judgment, just receipts.</span></p>
+        <p class="site-footer__tagline">{{ BRAND_TAGLINE }}</p>
       </div>
       <nav class="site-footer__links" aria-label="Footer">
         <RouterLink to="/check">Check my holdings</RouterLink>
@@ -38,10 +38,6 @@ import { BRAND_NAME, BRAND_TAGLINE } from '@/config/brand'
 .site-footer__tagline {
   margin-top: 12px;
   font-size: 15px;
-}
-.site-footer__tagline .wink {
-  font-size: 19px;
-  color: var(--sun);
 }
 .site-footer__links {
   display: flex;

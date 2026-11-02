@@ -226,7 +226,7 @@ async function onChanged() {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--brand-400), var(--brand-600));
+  background: var(--brand-400);
 }
 .current__status {
   display: flex;

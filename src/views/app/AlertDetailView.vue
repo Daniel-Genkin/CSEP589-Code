@@ -271,13 +271,13 @@ async function undoStopWatching() {
   margin-bottom: 18px;
 }
 .hero--negative {
-  background: linear-gradient(160deg, var(--coral-50), var(--surface) 60%);
+  background: var(--coral-50);
 }
 .hero--positive {
-  background: linear-gradient(160deg, var(--brand-50), var(--surface) 60%);
+  background: var(--brand-50);
 }
 .hero--forecast {
-  background: linear-gradient(160deg, var(--sky-50), var(--surface) 60%);
+  background: var(--sky-50);
 }
 .hero__meta {
   display: flex;
@@ -474,7 +474,7 @@ async function undoStopWatching() {
   color: var(--subtle);
 }
 .why {
-  background: linear-gradient(160deg, var(--coral-50), var(--surface) 70%);
+  background: var(--coral-50);
 }
 .why__title {
   display: flex;

@@ -655,7 +655,7 @@ const KIND_ICONS = { negative: BellRing, positive: Sparkles, forecast: CalendarC
   width: 64px;
   height: 64px;
   border-radius: 22px;
-  background: linear-gradient(140deg, var(--brand-100), var(--lilac-100));
+  background: var(--brand-100);
   color: var(--brand-700);
 }
 .locked__title {

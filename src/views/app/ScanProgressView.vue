@@ -148,12 +148,14 @@ onBeforeUnmount(() => {
   position: absolute;
   inset: 0;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(128, 197, 157, 0.45), rgba(128, 197, 157, 0) 70%);
+  background: var(--sun);
+  opacity: 0.45;
   animation: breathe 3.2s ease-in-out infinite;
 }
 .orb__wave--2 {
   inset: 18px;
-  background: radial-gradient(circle, rgba(196, 186, 255, 0.5), rgba(196, 186, 255, 0) 70%);
+  background: var(--bubblegum);
+  opacity: 0.5;
   animation-delay: -1.6s;
 }
 .orb__core {
@@ -213,7 +215,7 @@ onBeforeUnmount(() => {
   display: block;
   height: 100%;
   border-radius: inherit;
-  background: linear-gradient(90deg, var(--brand-300), var(--brand-600));
+  background: var(--brand-300);
   transition: width 0.6s var(--ease);
 }
 .meter__label {

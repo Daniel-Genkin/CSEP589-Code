@@ -144,16 +144,13 @@ const intro = computed(() => {
 .email-page {
   min-height: 100vh;
   padding-bottom: 64px;
-  background:
-    radial-gradient(800px 400px at 50% -100px, rgba(128, 197, 157, 0.25), transparent 70%),
-    var(--bg-tint);
+  background: var(--bg-tint);
 }
 .bar {
   position: sticky;
   top: 0;
   z-index: 10;
   background: rgba(240, 237, 228, 0.85);
-  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
 .bar__inner {

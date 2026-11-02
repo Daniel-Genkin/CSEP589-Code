@@ -311,7 +311,7 @@ const nextStep = computed(() => {
   height: 68px;
   margin-bottom: 8px;
   border-radius: 22px;
-  background: linear-gradient(140deg, var(--brand-100), var(--sun-100));
+  background: var(--brand-100);
   color: var(--brand-700);
 }
 .success__title {

@@ -10,13 +10,21 @@ const props = defineProps({
 })
 
 const letter = computed(() => (props.name || props.symbol).trim()[0]?.toUpperCase() ?? '?')
+
+// Logos use the brand accents (no greens), picked consistently per ticker.
+const ACCENTS = ['#354BF4', '#E85A2A', '#8A6CF2', '#F07AB6', '#3A2A9E', '#D6472B', '#F7C54E']
+const fill = computed(() => {
+  let h = 0
+  for (const ch of props.symbol) h = (h * 31 + ch.charCodeAt(0)) >>> 0
+  return ACCENTS[h % ACCENTS.length]
+})
 </script>
 
 <template>
   <span
     class="logo"
     :class="{ 'logo--etf': type === 'etf' }"
-    :style="{ '--logo': color, width: `${size}px`, height: `${size}px`, fontSize: `${Math.round(size * 0.46)}px` }"
+    :style="{ '--logo': fill, width: `${size}px`, height: `${size}px`, fontSize: `${Math.round(size * 0.46)}px` }"
     aria-hidden="true"
   >
     {{ letter }}

@@ -48,7 +48,7 @@ defineProps({
 }
 .cat.is-mine {
   border-color: var(--brand-200);
-  background: linear-gradient(180deg, var(--brand-25), var(--surface));
+  background: var(--brand-25);
 }
 .cat__head {
   display: flex;

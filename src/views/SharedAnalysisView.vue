@@ -169,10 +169,7 @@ const signupLink = computed(() => ({
 <style scoped>
 .shared {
   min-height: 100vh;
-  background:
-    radial-gradient(900px 420px at 50% -120px, rgba(128, 197, 157, 0.35), transparent 70%),
-    radial-gradient(600px 360px at 90% 10%, rgba(196, 186, 255, 0.28), transparent 70%),
-    var(--bg);
+  background: var(--bg);
 }
 .shared__header-inner {
   display: flex;
@@ -206,7 +203,7 @@ const signupLink = computed(() => ({
   margin-bottom: 4px;
   border-radius: 50%;
   border: 3px solid var(--surface);
-  background: linear-gradient(135deg, var(--peach-100), var(--lilac-100));
+  background: var(--peach-100);
   box-shadow: var(--shadow);
   font-family: var(--font-display);
   font-size: 26px;
@@ -396,7 +393,7 @@ const signupLink = computed(() => ({
   gap: 10px;
   padding: 16px;
   text-align: center;
-  background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(255, 255, 255, 0.92));
+  background: rgba(255, 244, 214, 0.9);
   font-size: 14.5px;
 }
 .locked__icon {
@@ -419,10 +416,7 @@ const signupLink = computed(() => ({
   padding: 28px;
   border-radius: 30px;
   color: #fff;
-  background:
-    radial-gradient(circle at 90% 0%, rgba(128, 197, 157, 0.55), transparent 50%),
-    radial-gradient(circle at 0% 100%, rgba(123, 104, 238, 0.35), transparent 50%),
-    linear-gradient(160deg, var(--brand-700), var(--brand-900));
+  background: var(--signal);
   box-shadow: var(--shadow-lg);
 }
 .cta-card__title {

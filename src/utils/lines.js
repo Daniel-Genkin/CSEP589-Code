@@ -8,7 +8,7 @@ export const LINES = [
   {
     key: 'oil',
     label: 'Not my oil money',
-    reason: 'Burns what you are against',
+    reason: "Burns what you're against",
     category: 'climate',
     bg: '#E85A2A',
     fg: '#17161D',

@@ -184,9 +184,7 @@ async function nativeShare() {
   margin: 6px 0;
   padding: 20px;
   border-radius: 22px;
-  background:
-    radial-gradient(circle at 100% 0%, color-mix(in srgb, var(--accent) 18%, transparent), transparent 55%),
-    linear-gradient(160deg, #fffdf8, var(--brand-25));
+  background: var(--surface);
   border: 1px solid var(--line);
   box-shadow: var(--shadow-sm);
 }

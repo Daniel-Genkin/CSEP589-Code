@@ -196,9 +196,7 @@ async function toggleWatch() {
 }
 .hero {
   padding: 28px;
-  background:
-    radial-gradient(600px 220px at 100% 0%, color-mix(in srgb, var(--brand-100) 60%, transparent), transparent 70%),
-    var(--surface);
+  background: var(--surface);
 }
 .hero__top {
   display: flex;

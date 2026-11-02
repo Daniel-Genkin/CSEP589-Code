@@ -321,7 +321,7 @@ const runLinked = ({ connectionId, holdings }) => runScan({ source: 'linked', co
   flex-wrap: wrap;
   margin-bottom: 22px;
   padding: 20px 22px;
-  background: linear-gradient(120deg, var(--sun-50), var(--surface));
+  background: var(--sun-50);
 }
 .out__icon {
   display: grid;

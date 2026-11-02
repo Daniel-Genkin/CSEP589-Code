@@ -38,7 +38,8 @@ const NAMES = { free: 'Free', premium: 'Premium', pro: 'Pro' }
   color: var(--lilac-700);
 }
 .plan-badge--pro {
-  background: linear-gradient(120deg, var(--brand-100), #e6f5d9);
-  color: var(--brand-700);
+  background: var(--sun);
+  color: var(--ink);
+  border: 1.5px solid var(--ink-solid);
 }
 </style>

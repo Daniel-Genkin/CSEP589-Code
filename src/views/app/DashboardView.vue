@@ -63,7 +63,7 @@ const learn = [
   },
   {
     q: 'Do values-aligned picks earn less?',
-    a: 'Not necessarily. Research is mixed and it depends on the company. outvest focuses on values, so pair it with your own research on price and risk.',
+    a: 'Not necessarily. Research is mixed and it depends on the company. Rallie focuses on values, so pair it with your own research on price and risk.',
   },
 ]
 </script>
@@ -372,7 +372,6 @@ const learn = [
 }
 .snapshot__headline {
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
   font-size: 24px;
   font-weight: 560;
   line-height: 1.2;

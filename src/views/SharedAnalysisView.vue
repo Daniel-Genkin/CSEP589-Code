@@ -31,7 +31,7 @@ const signupLink = computed(() => ({
   <div class="shared">
     <header class="shared__header">
       <div class="container shared__header-inner">
-        <RouterLink to="/" aria-label="outvest home"><BrandLogo /></RouterLink>
+        <RouterLink to="/" aria-label="Rallie home"><BrandLogo /></RouterLink>
         <RouterLink v-if="session.isAuthed" to="/app" class="btn btn-secondary btn-sm">Open app</RouterLink>
         <RouterLink v-else :to="signupLink" class="btn btn-primary btn-sm">Get started free</RouterLink>
       </div>
@@ -45,7 +45,7 @@ const signupLink = computed(() => ({
 
       <div v-else-if="error" class="card">
         <EmptyState :icon="Link2Off" title="This link isn't available" text="It may have expired, or the person who shared it turned it off.">
-          <RouterLink to="/" class="btn btn-primary">Discover outvest</RouterLink>
+          <RouterLink to="/" class="btn btn-primary">Discover Rallie</RouterLink>
         </EmptyState>
       </div>
 
@@ -133,7 +133,7 @@ const signupLink = computed(() => ({
               <BrandLogo inverse :size="26" />
               <h2 class="cta-card__title">What's in <span class="cta-card__em">your</span> portfolio?</h2>
               <p class="cta-card__text">
-                outvest checks your stocks and ETFs against what you care about, in about two minutes.
+                Rallie checks your stocks and ETFs against what you care about, in about two minutes.
               </p>
               <ul class="cta-card__list">
                 <li><Check :size="16" /> Free to start, no card needed</li>
@@ -147,19 +147,19 @@ const signupLink = computed(() => ({
             </div>
 
             <div class="card card-pad how">
-              <p class="how__title"><Newspaper :size="16" /> How outvest works</p>
+              <p class="how__title"><Newspaper :size="16" /> How Rallie works</p>
               <ol class="how__list">
                 <li><span>1</span> Link a brokerage or type a few tickers.</li>
                 <li><span>2</span> We research every company against six values.</li>
                 <li><span>3</span> You get clear scores, the reasons and the news.</li>
               </ol>
-              <RouterLink to="/" class="link text-sm">Learn more about outvest →</RouterLink>
+              <RouterLink to="/" class="link text-sm">Learn more about Rallie →</RouterLink>
             </div>
           </aside>
         </div>
 
         <p class="disclaimer">
-          Shared from outvest. Scores reflect values research, not financial advice. Company data shown is illustrative.
+          Shared from Rallie. Scores reflect values research, not financial advice. Company data shown is illustrative.
         </p>
       </template>
     </main>
@@ -224,7 +224,6 @@ const signupLink = computed(() => ({
   border: 1px solid var(--line);
   box-shadow: var(--shadow-sm);
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
   font-size: 20px;
   font-style: italic;
   line-height: 1.4;
@@ -274,7 +273,6 @@ const signupLink = computed(() => ({
 }
 .analysis__band {
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
   font-size: 26px;
   font-weight: 600;
 }

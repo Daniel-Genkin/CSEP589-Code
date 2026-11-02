@@ -17,7 +17,7 @@ const previewValues = [
   <div class="auth">
     <div class="auth__main">
       <header class="auth__header">
-        <RouterLink to="/" aria-label="outvest home"><BrandLogo /></RouterLink>
+        <RouterLink to="/" aria-label="Rallie home"><BrandLogo /></RouterLink>
         <slot name="header" />
       </header>
       <div class="auth__body">
@@ -26,7 +26,7 @@ const previewValues = [
         </div>
       </div>
       <p class="auth__legal">
-        By continuing you agree to our Terms and Privacy Policy. outvest shares research, not financial advice.
+        By continuing you agree to our Terms and Privacy Policy. Rallie shares research, not financial advice.
       </p>
     </div>
 
@@ -103,11 +103,9 @@ const previewValues = [
   overflow: hidden;
   margin: 14px 14px 14px 0;
   border-radius: 32px;
-  background:
-    radial-gradient(circle at 20% 15%, rgba(128, 197, 157, 0.55), transparent 50%),
-    radial-gradient(circle at 85% 85%, rgba(123, 104, 238, 0.4), transparent 50%),
-    linear-gradient(160deg, var(--brand-700), var(--brand-900));
-  color: #fff;
+  border: var(--outline);
+  background: var(--signal);
+  color: var(--cream);
 }
 .auth__aside-inner {
   display: flex;
@@ -121,18 +119,19 @@ const previewValues = [
 }
 .auth__aside-title {
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
-  font-size: 38px;
-  font-weight: 540;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
+  font-size: 52px;
+  font-weight: 400;
+  line-height: 0.95;
+  text-transform: uppercase;
+  text-shadow: 4px 4px 0 var(--ink-solid);
 }
 .preview {
   padding: 20px;
   border-radius: 24px;
   background: var(--surface);
   color: var(--ink);
-  box-shadow: 0 30px 60px -30px rgba(0, 0, 0, 0.5);
+  border: var(--outline);
+  box-shadow: var(--shadow-lg);
   transform: rotate(-1.5deg);
 }
 .preview__head {
@@ -176,7 +175,7 @@ const previewValues = [
   display: flex;
   flex-direction: column;
   gap: 10px;
-  color: rgba(255, 255, 255, 0.9);
+  color: var(--cream);
 }
 .auth__quote blockquote {
   font-size: 18px;
@@ -184,7 +183,7 @@ const previewValues = [
 }
 .auth__quote figcaption {
   font-size: 14px;
-  color: rgba(255, 255, 255, 0.65);
+  color: #dfe2ff;
 }
 
 @media (max-width: 960px) {

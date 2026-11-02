@@ -1,6 +1,4 @@
-import '@fontsource-variable/fraunces/soft-italic.css'
-import '@fontsource-variable/fraunces/soft.css'
-import '@fontsource-variable/plus-jakarta-sans'
+// Fonts (Anton, Work Sans, IBM Plex Mono, Instrument Serif) load from Google Fonts in index.html.
 import { createPinia } from 'pinia'
 import { createApp } from 'vue'
 import App from './App.vue'

@@ -48,7 +48,7 @@ export function serializeUser(user) {
 
 export function requireMonitoringPlan(user) {
   if (!planOf(user).limits.monitoring) {
-    fail(402, ERROR_CODES.PLAN_REQUIRED, 'Continuous monitoring is part of outvest Pro.', { requiredPlan: 'pro' })
+    fail(402, ERROR_CODES.PLAN_REQUIRED, 'Continuous monitoring is part of Rallie Pro.', { requiredPlan: 'pro' })
   }
 }
 

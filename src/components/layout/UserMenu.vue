@@ -82,7 +82,7 @@ async function logout() {
   width: 270px;
   padding: 8px;
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: var(--outline);
   border-radius: 20px;
   box-shadow: var(--shadow-lg);
 }

@@ -55,7 +55,7 @@ function runAction(toast) {
   padding: 14px 14px 14px 16px;
   border-radius: 18px;
   background: var(--ink);
-  color: #fff;
+  color: var(--cream);
   box-shadow: var(--shadow-lg);
   pointer-events: auto;
 }
@@ -93,7 +93,7 @@ function runAction(toast) {
   background: rgba(255, 255, 255, 0.12);
   font-size: 13px;
   font-weight: 700;
-  color: #fff;
+  color: var(--cream);
   transition: background-color 0.2s;
 }
 .toast__action:hover {
@@ -109,7 +109,7 @@ function runAction(toast) {
   color: rgba(255, 255, 255, 0.6);
 }
 .toast__close:hover {
-  color: #fff;
+  color: var(--cream);
   background: rgba(255, 255, 255, 0.1);
 }
 

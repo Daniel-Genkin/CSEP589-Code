@@ -41,7 +41,8 @@ onMounted(() => requestAnimationFrame(() => (shown.value = { ...props.mix })))
   width: 100%;
   overflow: hidden;
   border-radius: var(--radius-pill);
-  background: #efebe2;
+  background: var(--bg-tint);
+  border: 1.5px solid var(--ink-solid);
 }
 .mix__segment {
   height: 100%;

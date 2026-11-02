@@ -1,942 +1,577 @@
 <script setup>
-import BandMixBar from '@/components/scan/BandMixBar.vue'
-import CategoryIcon from '@/components/ui/CategoryIcon.vue'
-import ScoreBar from '@/components/ui/ScoreBar.vue'
-import ScoreChip from '@/components/ui/ScoreChip.vue'
-import ScoreRing from '@/components/ui/ScoreRing.vue'
-import SecurityLogo from '@/components/ui/SecurityLogo.vue'
-import { useSessionStore } from '@/stores/session'
-import { CATEGORIES } from '@/utils/scoring'
-import {
-    ArrowRight,
-    BellRing,
-    Check,
-    Layers,
-    Link2,
-    Newspaper,
-    Quote,
-    ScanSearch,
-    Sparkles,
-    TriangleAlert,
-} from '@lucide/vue'
+import BrandSpiral from '@/components/brand/BrandSpiral.vue'
+import SampleBadge from '@/components/brand/SampleBadge.vue'
+import TickerBand from '@/components/brand/TickerBand.vue'
+import { BRAND_NAME } from '@/config/brand'
+import { DEMO_FUNDS, LINES, checkFund } from '@/utils/lines'
+import { computed, ref } from 'vue'
 
-const session = useSessionStore()
+const fundSymbol = ref('VOO')
+const lineKeys = ref(['oil', 'pay', 'senators'])
+const openReceipt = ref(null)
 
-const heroRows = [
-  { symbol: 'GRNB', name: 'Greenbloom Foods', color: '#54AE6C', score: 84, type: 'stock' },
-  { symbol: 'CLNE', name: 'Evergreen Clean Energy ETF', color: '#16A35A', score: 73, type: 'etf' },
-  { symbol: 'NOVA', name: 'Novabyte', color: '#4F5BD5', score: 67, type: 'stock' },
-  { symbol: 'QUIK', name: 'Quikcart', color: '#EE8A24', score: 44, type: 'stock' },
-]
+const result = computed(() => checkFund(fundSymbol.value, lineKeys.value))
+const fund = computed(() => result.value.fund)
+const pct = computed(() => Math.round(result.value.crossingPct))
 
-const steps = [
-  {
-    icon: Link2,
-    title: 'Add what you own, or want to',
-    text: 'Link your brokerage in a few taps (read-only) or type the tickers you’re curious about.',
-  },
-  {
-    icon: ScanSearch,
-    title: 'We do the homework',
-    text: 'We read filings, watchdog reports and news from 40+ sources, then score every company on six values.',
-  },
-  {
-    icon: Sparkles,
-    title: 'Get clear, calm answers',
-    text: 'Your most aligned picks land on top, with plain-English reasons and the news behind every score.',
-  },
-]
+function toggleLine(key) {
+  lineKeys.value = lineKeys.value.includes(key) ? lineKeys.value.filter((k) => k !== key) : [...lineKeys.value, key]
+}
+function toggleReceipt(symbol) {
+  openReceipt.value = openReceipt.value === symbol ? null : symbol
+}
 
-const etfRows = [
-  { symbol: 'NOVA', name: 'Novabyte', color: '#4F5BD5', weight: 7.2, score: 67 },
-  { symbol: 'QUIK', name: 'Quikcart', color: '#EE8A24', weight: 4.1, score: 44 },
-  { symbol: 'PTRX', name: 'Petrex Energy', color: '#4A4F55', weight: 2.4, score: 37 },
-]
-
-const testimonials = [
-  {
-    quote: 'I had no idea my “safe” index fund owned an oil company. Now I actually understand what I’m invested in.',
-    name: 'Priya, 22',
-    detail: 'First-time investor',
-  },
-  {
-    quote: 'The alerts are so chill. No panic, just “here’s what happened and why it matters to you.”',
-    name: 'Marcus, 25',
-    detail: 'Pro member',
-  },
-  {
-    quote: 'I sent my sister the Voltway breakdown before she bought. Turns out EVs aren’t automatically ethical.',
-    name: 'Lena, 20',
-    detail: 'College student',
-  },
-]
-
-const plans = [
-  { name: 'Free', price: '$0', note: '1 scan a month, up to 5 stocks' },
-  { name: 'Premium', price: '$4.99', note: 'Unlimited scans, anytime' },
-  { name: 'Pro', price: '$9.99', note: 'We monitor and email you', popular: true },
-]
+const fmtCount = (n) => n.toLocaleString('en-US')
+const fmtMoney = (n) => `$${n.toLocaleString('en-US')}`
+// Bar width scaled to the biggest slice in the lineup.
+const barWidth = (weight) => `${Math.max(8, (weight / result.value.lineup[0].weight) * 100)}%`
 </script>
 
 <template>
-  <div class="landing">
-    <!-- Hero -->
-    <section class="hero">
-      <div class="hero__glow hero__glow--mint" />
-      <div class="hero__glow hero__glow--lilac" />
-      <div class="container hero__inner">
-        <div class="hero__copy fade-up">
-          <span class="hero__pill"><Sparkles :size="14" /> Ethical investing, minus the jargon</span>
-          <h1 class="h-hero">Invest in what you <span class="accent">actually</span> believe in.</h1>
-          <p class="lead hero__lead">
-            outvest checks your stocks and ETFs against the things you care about (climate, fair pay, privacy and more)
-            and explains it all in plain English.
-          </p>
-          <div class="hero__actions">
-            <RouterLink :to="session.isAuthed ? '/app/scan/new' : '/signup'" class="btn btn-primary btn-lg">
-              Scan my investments free <ArrowRight :size="18" />
-            </RouterLink>
-            <RouterLink to="/s/demo" class="btn btn-secondary btn-lg">See an example</RouterLink>
-          </div>
-          <ul class="hero__trust">
-            <li><Check :size="16" /> Free to start</li>
-            <li><Check :size="16" /> No card needed</li>
-            <li><Check :size="16" /> 2-minute setup</li>
-          </ul>
-        </div>
+  <div class="landing ground-blue">
+    <!-- Hero + step 01 -->
+    <section class="container hero">
+      <BrandSpiral class="hero__spiral" :size="520" :rotate="-8" />
+      <div class="hero__copy">
+        <p class="label-mono hero__eyebrow">Investing with a point of view. Yours.</p>
+        <h1 class="h-hero shout-shadow">
+          You own {{ fmtCount(fund.holdingsCount) }} companies.<br />
+          <span class="pink">Meet them.</span>
+        </h1>
+        <p class="hero__lead">
+          One {{ fund.symbol }}. Hundreds of companies you've never met. {{ BRAND_NAME }} shows you who's in there, what they're up to,
+          and the <span class="wink">receipts</span>.
+        </p>
+      </div>
 
-        <div class="hero__visual fade-up" style="animation-delay: 0.12s">
-          <div class="hero-card">
-            <div class="hero-card__head">
-              <div>
-                <p class="hero-card__label">Your scan · 7 holdings</p>
-                <p class="hero-card__title">A mixed bag, with some bright spots</p>
+      <div id="fund" class="step">
+        <p class="label-mono">Step 01 · Which fund are we roasting?</p>
+        <div class="funds">
+          <button
+            v-for="f in DEMO_FUNDS"
+            :key="f.symbol"
+            type="button"
+            class="fund"
+            :class="{ 'is-on': fundSymbol === f.symbol }"
+            :style="{ background: f.bg }"
+            :aria-pressed="fundSymbol === f.symbol"
+            @click="fundSymbol = f.symbol"
+          >
+            <span class="fund__ticker">{{ f.symbol }}</span>
+            <span class="fund__nick">{{ f.nickname }}</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <TickerBand />
+
+    <!-- Step 02 -->
+    <section id="lines" class="container lines">
+      <div class="lines__head">
+        <h2 class="h-1 shout-shadow">Draw your lines.</h2>
+        <p class="label-mono">Step 02 · Tap what you won't fund</p>
+      </div>
+      <div class="lines__chips">
+        <button
+          v-for="line in LINES"
+          :key="line.key"
+          type="button"
+          class="line-chip"
+          :class="{ 'is-on': lineKeys.includes(line.key) }"
+          :style="lineKeys.includes(line.key) ? { background: line.bg, color: line.fg } : null"
+          :aria-pressed="lineKeys.includes(line.key)"
+          @click="toggleLine(line.key)"
+        >
+          {{ lineKeys.includes(line.key) ? '✓' : '+' }} {{ line.label }}
+        </button>
+      </div>
+    </section>
+
+    <!-- Step 03: the receipt -->
+    <section id="receipt" class="container stats">
+      <div class="stat stat--big sticker tilt-l">
+        <SampleBadge class="stat__badge" />
+        <p class="label-mono stat__eyebrow">Step 03 · The awkward part</p>
+        <p class="stat__number">{{ pct }}%</p>
+        <p class="stat__caption">
+          <template v-if="!lineKeys.length">Pick a line to see who crosses it.</template>
+          <template v-else-if="pct === 0">Of your {{ fund.symbol }} crosses your lines. <span class="wink">For now.</span></template>
+          <template v-else>Of your {{ fund.symbol }} just got awkward.</template>
+        </p>
+      </div>
+      <div class="stats__side">
+        <div class="stat stat--pink sticker tilt-r">
+          <p class="stat__mid">{{ result.bigNames.crossing }}<span> / {{ result.bigNames.total }}</span></p>
+          <p class="stat__small">Of the big names cross your lines.</p>
+        </div>
+        <div class="stat stat--flare sticker">
+          <p class="stat__mid">{{ fmtMoney(result.perTenK) }}</p>
+          <p class="stat__small">Of every $10K. Your money, their agenda.</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- The lineup -->
+    <section class="container">
+      <div class="lineup sticker">
+        <div class="lineup__head">
+          <h2 class="h-2">The lineup. <span class="blue">Names, slices, receipts.</span></h2>
+          <p class="label-mono lineup__note">Top {{ result.lineup.length }} of {{ fmtCount(fund.holdingsCount) }} · flagged first</p>
+        </div>
+        <div class="lineup__scroll">
+          <div class="lineup__grid lineup__labels label-mono">
+            <span>Who you're bankrolling <span class="pink-ink">(made-up names, real patterns)</span></span>
+            <span>Your slice</span>
+            <span>The problem</span>
+          </div>
+          <div v-for="row in result.lineup" :key="row.symbol" class="lineup__row" :class="{ 'is-flagged': row.crossed.length }">
+            <div class="lineup__grid">
+              <div class="who">
+                <span class="who__tick">{{ row.symbol }}</span>
+                <span class="who__name">{{ row.name }}</span>
               </div>
-              <ScoreRing :score="61" :size="64" />
+              <div class="slice">
+                <span class="slice__pct">{{ row.weight.toFixed(1) }}%</span>
+                <span class="slice__bar"><span :style="{ width: barWidth(row.weight), background: row.crossed[0]?.bg ?? 'var(--cream)' }" /></span>
+              </div>
+              <div class="problem">
+                <template v-if="row.crossed.length">
+                  <span v-for="line in row.crossed" :key="line.key" class="problem__chip" :style="{ background: line.bg, color: line.fg }">
+                    {{ line.reason }}
+                  </span>
+                  <button type="button" class="problem__link" :aria-expanded="openReceipt === row.symbol" @click="toggleReceipt(row.symbol)">
+                    {{ openReceipt === row.symbol ? 'Hide receipts' : 'Receipts →' }}
+                  </button>
+                </template>
+                <span v-else class="passes">Passes your lines. <span class="wink">For now.</span></span>
+              </div>
             </div>
-            <ul class="hero-card__rows">
-              <li v-for="(row, i) in heroRows" :key="row.symbol" class="hero-card__row">
-                <span class="hero-card__rank">{{ i + 1 }}</span>
-                <SecurityLogo :symbol="row.symbol" :name="row.name" :color="row.color" :type="row.type" :size="38" />
-                <span class="hero-card__id">
-                  <strong>{{ row.symbol }}</strong>
-                  <span>{{ row.name }}</span>
-                </span>
-                <ScoreChip :score="row.score" short size="sm" class="hide-sm" />
-                <ScoreRing :score="row.score" :size="40" />
+            <ul v-if="openReceipt === row.symbol" class="receipts">
+              <li v-for="line in row.crossed" :key="line.key">
+                <span class="receipts__tag" :style="{ background: line.bg, color: line.fg }">{{ line.label }}</span>
+                {{ line.receipt }}
               </li>
             </ul>
           </div>
-
-          <div class="float float--values">
-            <CategoryIcon category="climate" :size="34" />
-            <span>
-              <span class="float__label">Planet & Climate</span>
-              <span class="float__value">96 <span class="muted">/ 100</span></span>
-            </span>
-          </div>
-
-          <div class="float float--alert">
-            <span class="float__bell"><BellRing :size="17" /></span>
-            <span>
-              <span class="float__label">Heads up · QUIK</span>
-              <span class="float__text">Fined $14M over warehouse safety</span>
-            </span>
-          </div>
-        </div>
-      </div>
-
-      <div class="container">
-        <ul class="strip">
-          <li><strong>6</strong> values Gen Z actually cares about</li>
-          <li><strong>40+</strong> news & watchdog sources</li>
-          <li><strong>Every</strong> company inside your ETFs</li>
-          <li><strong>0</strong> jargon, judgment or pressure</li>
-        </ul>
-      </div>
-    </section>
-
-    <!-- How it works -->
-    <section id="how-it-works" class="section">
-      <div class="container">
-        <div class="section__head">
-          <span class="eyebrow">How it works</span>
-          <h2 class="h-1">From “what do I even own?” to clarity in two minutes.</h2>
-        </div>
-        <ol class="steps">
-          <li v-for="(step, i) in steps" :key="step.title" class="step card">
-            <span class="step__num">0{{ i + 1 }}</span>
-            <span class="step__icon"><component :is="step.icon" :size="22" /></span>
-            <h3 class="step__title">{{ step.title }}</h3>
-            <p class="step__text">{{ step.text }}</p>
-          </li>
-        </ol>
-      </div>
-    </section>
-
-    <!-- Values -->
-    <section id="values" class="section section--tint">
-      <div class="container">
-        <div class="section__head">
-          <span class="eyebrow">What we look at</span>
-          <h2 class="h-1">Six values, one combined score.</h2>
-          <p class="lead">
-            Every company gets a 0–100 score for each value. Together they make one combined score you can expand
-            anytime to see the why.
-          </p>
-        </div>
-        <div class="values">
-          <article v-for="cat in CATEGORIES" :key="cat.key" class="value card">
-            <CategoryIcon :category="cat.key" :size="46" />
-            <h3 class="value__title">{{ cat.label }}</h3>
-            <p class="value__text">{{ cat.description }}</p>
-          </article>
         </div>
       </div>
     </section>
 
-    <!-- ETFs -->
-    <section id="etfs" class="section">
-      <div class="container split">
-        <div class="split__copy">
-          <span class="eyebrow"><Layers :size="15" /> ETFs, unpacked</span>
-          <h2 class="h-1">One ETF can hold 500 companies. We check every one.</h2>
-          <p class="lead">
-            ETFs are a great way to start investing, but they can quietly include things you'd never pick yourself. We
-            break each fund into its companies, weight them by size, and forecast how the next rebalance could change
-            your score.
-          </p>
-          <ul class="checks">
-            <li><Check :size="18" /> See exactly where your money goes</li>
-            <li><Check :size="18" /> Spot surprises, like oil inside an “ESG” fund</li>
-            <li><Check :size="18" /> Get a heads-up before rebalances shift things</li>
-          </ul>
-        </div>
-        <div class="etf-card card">
-          <div class="etf-card__head">
-            <SecurityLogo symbol="BMKT" name="Broadline" color="#0F766E" type="etf" :size="46" />
-            <div class="grow">
-              <p class="etf-card__name">Broadline Total Market ETF</p>
-              <p class="muted text-sm">BMKT · 503 companies inside</p>
-            </div>
-            <ScoreRing :score="58" :size="56" />
-          </div>
-          <BandMixBar :mix="{ great: 9.6, good: 38.4, mixed: 30.3, low: 21.7 }" :legend="false" :height="12" />
-          <ul class="etf-card__rows">
-            <li v-for="row in etfRows" :key="row.symbol">
-              <SecurityLogo :symbol="row.symbol" :name="row.name" :color="row.color" :size="32" />
-              <span class="grow">{{ row.name }}</span>
-              <span class="muted num">{{ row.weight }}%</span>
-              <ScoreChip :score="row.score" short show-score size="sm" />
-            </li>
-          </ul>
-          <div class="etf-card__foot">
-            <TriangleAlert :size="16" />
-            Next rebalance likely adds more Petrex Energy. Projected score: 57.
-          </div>
-        </div>
+    <!-- The final ask -->
+    <section class="container final">
+      <BrandSpiral class="final__spiral" :size="300" :rotate="22" />
+      <h2 class="h-hero shout-shadow">Know what<br />you own.</h2>
+      <div class="final__actions">
+        <RouterLink to="/signup" class="btn btn-flare final__cta">Check my holdings ↗</RouterLink>
+        <RouterLink :to="{ path: '/login', query: { demo: 1 } }" class="final__snoop">or just snoop around the dashboard →</RouterLink>
       </div>
-    </section>
-
-    <!-- Monitoring -->
-    <section class="section section--tint">
-      <div class="container split split--reverse">
-        <div class="split__copy">
-          <span class="eyebrow"><BellRing :size="15" /> Continuous monitoring</span>
-          <h2 class="h-1">We keep watch, so you don't have to.</h2>
-          <p class="lead">
-            Companies change. With Pro, we watch your holdings around the clock and email you only when something is
-            worth a look, with a calm summary of what happened and how it affects the values you care about.
-          </p>
-          <RouterLink to="/pricing" class="btn btn-secondary">Explore Pro <ArrowRight :size="16" /></RouterLink>
-        </div>
-        <div class="mail card">
-          <div class="mail__meta">
-            <span class="mail__from">outvest alerts</span>
-            <span class="muted text-xs">2 hours ago</span>
-          </div>
-          <p class="mail__subject">Heads up: something changed with Quikcart</p>
-          <div class="mail__scores">
-            <ScoreRing :score="46" :size="58" muted />
-            <ArrowRight :size="18" class="muted" />
-            <ScoreRing :score="44" :size="58" />
-            <div>
-              <p class="strong">Mixed bag → Concerning</p>
-              <p class="muted text-sm">Workers & Fair Pay fell 9 points</p>
-            </div>
-          </div>
-          <div class="mail__bar">
-            <span class="text-sm">Workers & Fair Pay</span>
-            <ScoreBar :score="28" :previous="37" />
-          </div>
-          <p class="mail__text">
-            Inspectors fined Quikcart $14M after finding injury rates at 11 warehouses were nearly double the industry
-            average.
-          </p>
-          <span class="btn btn-primary btn-sm mail__btn">See what changed <ArrowRight :size="15" /></span>
-        </div>
-      </div>
-    </section>
-
-    <!-- Testimonials -->
-    <section class="section">
-      <div class="container">
-        <div class="section__head section__head--center">
-          <span class="eyebrow"><Newspaper :size="15" /> From our community</span>
-          <h2 class="h-1">Made for people who are new to this.</h2>
-        </div>
-        <div class="quotes">
-          <figure v-for="t in testimonials" :key="t.name" class="quote card">
-            <Quote :size="22" class="quote__mark" />
-            <blockquote>{{ t.quote }}</blockquote>
-            <figcaption>
-              <span class="avatar">{{ t.name[0] }}</span>
-              <span>
-                <strong>{{ t.name }}</strong>
-                <span class="muted text-sm">{{ t.detail }}</span>
-              </span>
-            </figcaption>
-          </figure>
-        </div>
-      </div>
-    </section>
-
-    <!-- Pricing teaser -->
-    <section class="section section--tint">
-      <div class="container">
-        <div class="section__head section__head--center">
-          <span class="eyebrow">Pricing</span>
-          <h2 class="h-1">Start free. Upgrade when it clicks.</h2>
-        </div>
-        <div class="mini-plans">
-          <RouterLink v-for="p in plans" :key="p.name" to="/pricing" class="mini-plan card" :class="{ 'is-popular': p.popular }">
-            <span v-if="p.popular" class="mini-plan__flag"><Sparkles :size="12" /> Most popular</span>
-            <span class="mini-plan__name">{{ p.name }}</span>
-            <span class="mini-plan__price num">{{ p.price }}<span>/mo</span></span>
-            <span class="muted text-sm">{{ p.note }}</span>
-          </RouterLink>
-        </div>
-        <p class="center"><RouterLink to="/pricing" class="link">Compare plans →</RouterLink></p>
-      </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="section">
-      <div class="container">
-        <div class="cta">
-          <h2 class="h-1">Your money. Your values.</h2>
-          <p>Find out what you're really invested in. It's free and takes about two minutes.</p>
-          <RouterLink :to="session.isAuthed ? '/app/scan/new' : '/signup'" class="btn btn-light btn-lg">
-            Get started free <ArrowRight :size="18" />
-          </RouterLink>
-        </div>
-      </div>
+      <p class="final__fine">Real fund names, sample holdings and made-up companies. Information, not investment advice. We're nosy, not your advisor.</p>
     </section>
   </div>
 </template>
 
 <style scoped>
 .landing {
-  overflow-x: clip;
+  overflow: hidden;
+  padding-bottom: 24px;
+}
+.pink {
+  color: var(--bubblegum);
+}
+.blue {
+  color: var(--signal);
+}
+.pink-ink {
+  color: var(--bubblegum);
 }
 
 /* Hero */
 .hero {
   position: relative;
-  padding: 56px 0 24px;
+  padding-top: 40px;
+  padding-bottom: 72px;
 }
-.hero__glow {
+.hero__spiral {
   position: absolute;
-  border-radius: 50%;
-  filter: blur(70px);
-  pointer-events: none;
+  right: -60px;
+  top: -30px;
+  z-index: 0;
 }
-.hero__glow--mint {
-  top: -120px;
-  right: 8%;
-  width: 520px;
-  height: 420px;
-  background: rgba(128, 197, 157, 0.35);
-}
-.hero__glow--lilac {
-  top: 160px;
-  right: 30%;
-  width: 360px;
-  height: 320px;
-  background: rgba(196, 186, 255, 0.35);
-}
-.hero__inner {
+.hero__copy {
   position: relative;
-  display: grid;
-  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
-  gap: 56px;
-  align-items: center;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 22px;
+  max-width: 1000px;
 }
-.hero__pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 22px;
-  padding: 7px 14px;
-  border-radius: var(--radius-pill);
-  background: var(--surface);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-xs);
-  font-size: 13.5px;
-  font-weight: 650;
-  color: var(--brand-700);
+.hero__eyebrow {
+  color: var(--sun);
+}
+.hero__copy h1 {
+  color: var(--cream);
 }
 .hero__lead {
-  max-width: 540px;
-  margin-top: 22px;
+  max-width: 620px;
+  font-size: 22px;
+  line-height: 1.45;
+  font-weight: 500;
 }
-.hero__actions {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 12px;
-  margin-top: 32px;
-}
-.hero__trust {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px 22px;
-  margin-top: 24px;
-  font-size: 14px;
-  font-weight: 600;
-  color: var(--muted);
-}
-.hero__trust li {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-}
-.hero__trust svg {
-  color: var(--brand-500);
-}
-.hero__visual {
-  position: relative;
-  padding: 66px 28px 80px;
-}
-.hero-card {
-  position: relative;
-  padding: 22px;
-  border-radius: 28px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-lg);
-}
-.hero-card__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding-bottom: 16px;
-  border-bottom: 1px solid var(--line);
-}
-.hero-card__label {
-  font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--subtle);
-}
-.hero-card__title {
-  margin-top: 4px;
-  font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
-  font-size: 21px;
-  font-weight: 560;
-  line-height: 1.2;
-}
-.hero-card__rows {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  margin-top: 10px;
-}
-.hero-card__row {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 9px 6px;
-}
-.hero-card__rank {
-  width: 16px;
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--subtle);
-}
-.hero-card__id {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-  line-height: 1.3;
-}
-.hero-card__id span {
-  font-size: 13px;
-  color: var(--muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-.float {
-  position: absolute;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px 12px 12px;
-  border-radius: 18px;
-  background: var(--surface);
-  border: 1px solid var(--line);
-  box-shadow: var(--shadow-lg);
-  animation: float 6s ease-in-out infinite;
-}
-.float > span:last-child {
-  display: flex;
-  flex-direction: column;
-}
-.float--values {
-  top: 2px;
-  left: -8px;
-}
-.float--alert {
-  right: -6px;
-  bottom: 0;
-  max-width: 290px;
-  animation-delay: -3s;
-}
-.float__label {
-  font-size: 12px;
-  font-weight: 700;
-  color: var(--muted);
-}
-.float__value {
-  font-size: 18px;
-  font-weight: 760;
-}
-.float__value .muted {
-  font-size: 13px;
-  font-weight: 600;
-}
-.float__text {
-  font-size: 14px;
-  font-weight: 650;
-  line-height: 1.35;
-}
-.float__bell {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  flex-shrink: 0;
-  border-radius: 12px;
-  background: var(--coral-100);
-  color: var(--coral-500);
-}
-.strip {
-  display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 16px;
-  margin-top: 56px;
-  padding: 22px 0;
-  border-top: 1px solid var(--line);
-  border-bottom: 1px solid var(--line);
-  font-size: 14px;
-  color: var(--muted);
-}
-.strip strong {
-  display: block;
-  font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
+.hero__lead .wink {
   font-size: 28px;
-  font-weight: 560;
-  color: var(--ink);
 }
 
-/* Sections */
-.section {
-  padding: 96px 0;
-}
-.section--tint {
-  background: linear-gradient(180deg, var(--bg-tint), var(--bg));
-}
-.section__head {
-  max-width: 720px;
-  margin-bottom: 44px;
-}
-.section__head .h-1 {
-  margin-top: 12px;
-}
-.section__head .lead {
-  margin-top: 16px;
-}
-.section__head--center {
-  margin-inline: auto;
-  text-align: center;
-}
-.center {
-  margin-top: 24px;
-  text-align: center;
-}
-
-.steps {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
 .step {
   position: relative;
-  padding: 28px;
+  z-index: 1;
+  margin-top: 44px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
-.step__num {
-  position: absolute;
-  top: 24px;
-  right: 26px;
+.funds {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+}
+.fund {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 76px;
+  padding: 12px 24px;
+  border: var(--outline);
+  border-radius: 20px;
+  color: var(--ink);
+  text-align: left;
+  transition: transform 0.15s var(--ease), box-shadow 0.15s var(--ease);
+}
+.fund:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 4px 4px 0 var(--ink-solid);
+}
+.fund.is-on {
+  box-shadow: var(--shadow);
+  transform: translate(-3px, -3px);
+  outline: 3px solid var(--cream);
+  outline-offset: 3px;
+}
+.fund__ticker {
   font-family: var(--font-display);
   font-size: 34px;
+  line-height: 1;
+}
+.fund__nick {
+  font-size: 15px;
   font-weight: 500;
-  color: var(--line-strong);
-}
-.step__icon {
-  display: grid;
-  place-items: center;
-  width: 48px;
-  height: 48px;
-  border-radius: 16px;
-  background: var(--brand-50);
-  color: var(--brand-600);
-}
-.step__title {
-  margin-top: 22px;
-  font-size: 19px;
-}
-.step__text {
-  margin-top: 8px;
-  color: var(--muted);
 }
 
-.values {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-}
-.value {
-  padding: 26px;
-  transition:
-    transform 0.3s var(--ease),
-    box-shadow 0.3s var(--ease);
-}
-.value:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow);
-}
-.value__title {
-  margin-top: 18px;
-  font-size: 18px;
-}
-.value__text {
-  margin-top: 6px;
-  color: var(--muted);
-}
-
-.split {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 64px;
-  align-items: center;
-}
-.split--reverse .split__copy {
-  order: 2;
-}
-.split__copy .h-1 {
-  margin-top: 14px;
-}
-.split__copy .lead {
-  margin-top: 18px;
-}
-.split__copy .btn {
-  margin-top: 28px;
-}
-.checks {
+/* Lines */
+.lines {
+  padding-top: 88px;
+  padding-bottom: 40px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  margin-top: 24px;
-  font-weight: 600;
+  gap: 20px;
 }
-.checks li {
+.lines__head {
   display: flex;
-  align-items: center;
-  gap: 10px;
-}
-.checks svg {
-  flex-shrink: 0;
-  padding: 3px;
-  border-radius: 50%;
-  background: var(--brand-100);
-  color: var(--brand-700);
-}
-
-.etf-card {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-  padding: 24px;
-  border-radius: 28px;
-  box-shadow: var(--shadow-lg);
-}
-.etf-card__head {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-}
-.etf-card__name {
-  font-weight: 750;
-}
-.etf-card__rows {
-  display: flex;
-  flex-direction: column;
-}
-.etf-card__rows li {
-  display: grid;
-  grid-template-columns: 32px minmax(0, 1fr) 52px 128px;
-  align-items: center;
-  gap: 12px;
-  padding: 10px 0;
-  border-top: 1px solid var(--line);
-  font-size: 14.5px;
-  font-weight: 600;
-}
-.etf-card__rows li > :nth-child(3) {
-  text-align: right;
-}
-.etf-card__rows li > :last-child {
-  justify-self: end;
-}
-.etf-card__foot {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 14px;
-  border-radius: 14px;
-  background: var(--sun-50);
-  color: #6b4d0c;
-  font-size: 13.5px;
-  font-weight: 600;
-}
-
-.mail {
-  padding: 24px;
-  border-radius: 28px;
-  box-shadow: var(--shadow-lg);
-}
-.mail__meta {
-  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
   justify-content: space-between;
-  align-items: center;
+  gap: 16px;
 }
-.mail__from {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--brand-700);
+.lines__head h2 {
+  color: var(--cream);
+  font-size: clamp(48px, 7vw, 104px);
 }
-.mail__subject {
-  margin-top: 8px;
-  font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
-  font-size: 22px;
-  font-weight: 560;
-  line-height: 1.25;
-}
-.mail__scores {
+.lines__chips {
   display: flex;
-  align-items: center;
-  gap: 14px;
-  margin-top: 18px;
-  padding: 16px;
-  border-radius: 18px;
-  background: var(--surface-muted);
+  flex-wrap: wrap;
+  gap: 12px;
 }
-.mail__bar {
+.line-chip {
+  min-height: 56px;
+  padding: 0 24px;
+  border: 3px dashed var(--cream);
+  border-radius: 999px;
+  color: var(--cream);
+  font-size: 19px;
+  font-weight: 600;
+}
+.line-chip.is-on {
+  border: 3px solid var(--ink-solid);
+  box-shadow: var(--shadow-sm);
+  font-weight: 700;
+}
+
+/* Stats */
+.stats {
+  padding-top: 40px;
+  padding-bottom: 56px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 28px;
+}
+.stat {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 8px;
-  margin-top: 16px;
-  font-weight: 600;
+  padding: 28px 30px;
+  color: var(--ink);
 }
-.mail__text {
-  margin-top: 16px;
-  color: var(--ink-2);
-  font-size: 14.5px;
+.stat--big {
+  flex: 1.35 1 380px;
+  background: var(--ink-solid);
+  color: var(--cream);
+  box-shadow: 10px 10px 0 var(--sun);
 }
-.mail__btn {
-  margin-top: 18px;
-  pointer-events: none;
+.stat__badge {
+  position: absolute;
+  top: -20px;
+  right: 24px;
 }
-
-.quotes {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
+.stat__eyebrow {
+  color: var(--sun);
 }
-.quote {
+.stat__number {
+  font-family: var(--font-display);
+  font-size: clamp(110px, 13vw, 190px);
+  line-height: 0.85;
+  color: var(--sun);
+}
+.stat__caption {
+  font-family: var(--font-display);
+  font-size: 34px;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+.stat__caption .wink {
+  text-transform: none;
+  color: var(--sun);
+}
+.stats__side {
+  flex: 1 1 300px;
   display: flex;
   flex-direction: column;
-  gap: 16px;
-  padding: 26px;
+  gap: 28px;
 }
-.quote__mark {
-  color: var(--brand-300);
-}
-.quote blockquote {
+.stat--pink {
   flex: 1;
-  font-size: 16.5px;
-  line-height: 1.55;
+  background: var(--bubblegum);
 }
-.quote figcaption {
+.stat--flare {
+  flex: 1;
+  background: var(--flare);
+  transform: rotate(-0.6deg);
+}
+.stat__mid {
+  font-family: var(--font-display);
+  font-size: 88px;
+  line-height: 0.9;
+}
+.stat__mid span {
+  font-size: 44px;
+}
+.stat__small {
+  font-family: var(--font-display);
+  font-size: 26px;
+  line-height: 1.05;
+  text-transform: uppercase;
+}
+
+/* Lineup */
+.lineup {
+  margin-top: 16px;
+  background: var(--cream);
+  color: var(--ink);
+  overflow: hidden;
+  box-shadow: 12px 12px 0 var(--ink-solid);
+}
+.lineup__head {
   display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 28px 28px 20px;
+}
+.lineup__head h2 {
+  font-size: clamp(40px, 5vw, 72px);
+}
+.lineup__note {
+  color: var(--muted);
+}
+.lineup__scroll {
+  overflow-x: auto;
+}
+.lineup__grid {
+  display: grid;
+  grid-template-columns: 2.1fr 1.5fr 2.2fr;
+  gap: 16px;
+  align-items: center;
+  min-width: 860px;
+}
+.lineup__labels {
+  padding: 14px 28px;
+  background: var(--ink-solid);
+  color: var(--cream);
+  min-width: 916px;
+}
+.lineup__row {
+  padding: 18px 28px;
+  border-top: 3px solid var(--ink-solid);
+  min-width: 916px;
+}
+.lineup__row.is-flagged {
+  background: #ffe8c9;
+}
+.who {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.who__tick {
+  font-family: var(--font-display);
+  font-size: 18px;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 2px solid var(--ink-solid);
+}
+.is-flagged .who__tick {
+  background: var(--ink-solid);
+  color: var(--sun);
+}
+.who__name {
+  font-size: 19px;
+  font-weight: 600;
+}
+.slice {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.slice__pct {
+  font-family: var(--font-display);
+  font-size: 30px;
+  width: 78px;
+}
+.slice__bar {
+  flex: 1;
+  max-width: 220px;
+}
+.slice__bar span {
+  display: block;
+  height: 16px;
+  border: 2px solid var(--ink-solid);
+  border-radius: 999px;
+}
+.problem {
+  display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 10px;
 }
-.quote figcaption > span:last-child {
-  display: flex;
-  flex-direction: column;
-  line-height: 1.3;
-}
-
-.mini-plans {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 18px;
-  max-width: 900px;
-  margin: 0 auto;
-}
-.mini-plan {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding: 26px;
-  transition:
-    transform 0.3s var(--ease),
-    box-shadow 0.3s var(--ease);
-}
-.mini-plan:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow);
-}
-.mini-plan.is-popular {
-  border-color: var(--brand-300);
-}
-.mini-plan__flag {
-  position: absolute;
-  top: -12px;
-  left: 22px;
-  display: inline-flex;
-  align-items: center;
-  gap: 4px;
-  padding: 3px 10px;
-  border-radius: var(--radius-pill);
-  background: var(--ink);
-  color: #fff;
-  font-size: 11.5px;
-  font-weight: 700;
-}
-.mini-plan__name {
-  font-weight: 700;
-  color: var(--muted);
-}
-.mini-plan__price {
-  font-size: 36px;
-  font-weight: 780;
-  letter-spacing: -0.03em;
-}
-.mini-plan__price span {
+.problem__chip {
   font-size: 15px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border: 2px solid var(--ink-solid);
+  border-radius: 999px;
+}
+.problem__link {
+  font-weight: 700;
+  font-size: 15px;
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.passes {
+  font-size: 17px;
   font-weight: 600;
-  color: var(--muted);
+  color: var(--ink-2);
+}
+.passes .wink {
+  font-size: 21px;
+}
+.receipts {
+  margin-top: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px 18px;
+  border: 2px solid var(--ink-solid);
+  border-radius: 14px;
+  background: var(--surface);
+  font-size: 15.5px;
+}
+.receipts__tag {
+  display: inline-block;
+  margin-right: 8px;
+  padding: 2px 10px;
+  border: 2px solid var(--ink-solid);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
-.cta {
+/* Final ask */
+.final {
   position: relative;
-  overflow: hidden;
-  padding: 72px 32px;
-  border-radius: 36px;
-  text-align: center;
-  color: #fff;
-  background:
-    radial-gradient(circle at 15% 20%, rgba(128, 197, 157, 0.5), transparent 45%),
-    radial-gradient(circle at 85% 80%, rgba(123, 104, 238, 0.35), transparent 45%),
-    linear-gradient(150deg, var(--brand-700), var(--brand-900));
+  padding-top: 88px;
+  padding-bottom: 96px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 28px;
 }
-.cta .h-1 {
-  color: #fff;
+.final h2 {
+  color: var(--cream);
 }
-.cta p {
-  max-width: 480px;
-  margin: 14px auto 30px;
-  font-size: 18px;
-  color: rgba(255, 255, 255, 0.82);
+.final__spiral {
+  position: absolute;
+  right: 24px;
+  bottom: 60px;
+}
+.final__actions {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 28px;
+}
+.final__cta {
+  --btn-h: 76px;
+  padding: 0 40px;
+  border-width: 3px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 32px;
+  text-transform: uppercase;
+  box-shadow: 8px 8px 0 var(--ink-solid);
+}
+.final__snoop {
+  font-weight: 700;
+  font-size: 20px;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+.final__fine {
+  position: relative;
+  background: var(--ink-solid);
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 15px;
 }
 
-@media (max-width: 1023px) {
-  .hero__inner,
-  .split {
-    grid-template-columns: minmax(0, 1fr);
-    gap: 40px;
+@media (max-width: 900px) {
+  .hero__spiral {
+    opacity: 0.35;
   }
-  .split--reverse .split__copy {
-    order: 0;
-  }
-  .hero__visual {
-    max-width: 560px;
-    margin: 0 auto;
-    width: 100%;
-  }
-  .steps,
-  .values,
-  .quotes {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .strip {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-@media (max-width: 640px) {
-  .hero {
-    padding-top: 32px;
-  }
-  .section {
-    padding: 64px 0;
-  }
-  .steps,
-  .values,
-  .quotes,
-  .mini-plans {
-    grid-template-columns: minmax(0, 1fr);
-  }
-  .hero__visual {
-    padding: 58px 0 84px;
-  }
-  .float {
-    padding: 10px 14px 10px 10px;
-  }
-  .float--values {
-    top: 0;
-    left: 0;
-  }
-  .float--alert {
-    right: 0;
-    bottom: 0;
-    max-width: 270px;
-  }
-  .hero__actions .btn {
-    width: 100%;
-  }
-  .cta {
-    padding: 56px 22px;
-    border-radius: 28px;
+  .final__spiral {
+    display: none;
   }
 }
 </style>

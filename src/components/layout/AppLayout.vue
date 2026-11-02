@@ -39,7 +39,7 @@ const nav = computed(() => [
 <template>
   <div class="app-shell">
     <aside class="sidebar">
-      <RouterLink to="/app" class="sidebar__logo" aria-label="outvest home"><BrandLogo /></RouterLink>
+      <RouterLink to="/app" class="sidebar__logo" aria-label="Rallie home"><BrandLogo :size="34" inverse /></RouterLink>
       <RouterLink to="/app/scan/new" class="btn btn-primary btn-block sidebar__cta"><Plus :size="18" /> New scan</RouterLink>
 
       <nav class="sidebar__nav" aria-label="App">
@@ -73,7 +73,7 @@ const nav = computed(() => [
 
     <div class="app-main">
       <header class="topbar">
-        <RouterLink to="/app" class="topbar__logo" aria-label="outvest home"><BrandLogo :size="28" /></RouterLink>
+        <RouterLink to="/app" class="topbar__logo" aria-label="Rallie home"><BrandLogo :size="28" /></RouterLink>
         <div class="topbar__actions">
           <RouterLink to="/app/scan/new" class="btn btn-soft btn-sm topbar__scan hide-sm"><Plus :size="16" /> New scan</RouterLink>
           <NotificationBell />
@@ -124,8 +124,9 @@ const nav = computed(() => [
   width: 264px;
   height: 100vh;
   padding: 22px 18px;
-  border-right: 1px solid var(--line);
-  background: var(--surface-muted);
+  border-right: var(--outline);
+  background: var(--signal);
+  color: var(--cream);
 }
 .sidebar__logo {
   padding: 4px 10px 22px;
@@ -146,19 +147,20 @@ const nav = computed(() => [
   border-radius: 14px;
   font-size: 15px;
   font-weight: 600;
-  color: var(--ink-2);
+  color: var(--cream);
+  border: 2px solid transparent;
   transition:
     background-color 0.2s,
     color 0.2s;
 }
 .sidebar__link:hover {
-  background: rgba(22, 36, 29, 0.045);
-  color: var(--ink);
+  background: rgba(23, 22, 29, 0.18);
 }
 .sidebar__link.is-active {
-  background: var(--surface);
-  color: var(--brand-700);
-  box-shadow: var(--shadow-xs), inset 0 0 0 1px var(--line);
+  background: var(--cream);
+  color: var(--ink);
+  border-color: var(--ink-solid);
+  box-shadow: var(--shadow-sm);
 }
 .sidebar__count {
   min-width: 22px;
@@ -167,16 +169,18 @@ const nav = computed(() => [
   display: grid;
   place-items: center;
   border-radius: var(--radius-pill);
-  background: var(--coral-500);
-  color: #fff;
+  border: 2px solid var(--ink-solid);
+  background: var(--flare);
+  color: var(--ink);
   font-size: 11.5px;
   font-weight: 800;
 }
 .sidebar__tag {
   padding: 2px 8px;
   border-radius: var(--radius-pill);
-  background: var(--brand-100);
-  color: var(--brand-700);
+  border: 1.5px solid var(--ink-solid);
+  background: var(--sun);
+  color: var(--ink);
   font-size: 11px;
   font-weight: 750;
 }
@@ -189,8 +193,9 @@ const nav = computed(() => [
   justify-content: space-between;
   padding: 14px 12px;
   border-radius: 16px;
-  border: 1px solid var(--line);
-  background: var(--surface);
+  border: var(--outline-thin);
+  background: var(--cream);
+  color: var(--ink);
 }
 .upsell {
   display: flex;
@@ -198,10 +203,10 @@ const nav = computed(() => [
   gap: 4px;
   padding: 18px;
   border-radius: 20px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(128, 197, 157, 0.45), transparent 55%),
-    linear-gradient(160deg, var(--brand-700), var(--brand-900));
-  color: #fff;
+  border: var(--outline);
+  background: var(--ink-solid);
+  box-shadow: 5px 5px 0 var(--sun);
+  color: var(--cream);
   transition: transform 0.25s var(--ease);
 }
 .upsell:hover {
@@ -214,7 +219,8 @@ const nav = computed(() => [
   height: 30px;
   margin-bottom: 6px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--sun);
+  color: var(--ink);
 }
 .upsell__title {
   font-weight: 750;
@@ -222,13 +228,13 @@ const nav = computed(() => [
 .upsell__text {
   font-size: 13px;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.78);
+  color: #d8d3dd;
 }
 .upsell__link {
   margin-top: 6px;
   font-size: 13.5px;
   font-weight: 700;
-  color: var(--brand-200);
+  color: var(--sun);
 }
 
 /* Main */
@@ -246,8 +252,8 @@ const nav = computed(() => [
   align-items: center;
   height: 68px;
   padding: 0 32px;
-  background: rgba(247, 245, 239, 0.85);
-  backdrop-filter: saturate(1.4) blur(12px);
+  background: var(--bg);
+  border-bottom: 2px solid var(--ink-solid);
 }
 .topbar__logo {
   display: none;
@@ -298,9 +304,8 @@ const nav = computed(() => [
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--line);
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(14px);
+    border-top: var(--outline);
+    background: var(--cream);
   }
   .tabbar__link {
     display: flex;
@@ -335,7 +340,7 @@ const nav = computed(() => [
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    border: 2px solid #fff;
+    border: 2px solid var(--cream);
     background: var(--coral-500);
     box-sizing: content-box;
   }

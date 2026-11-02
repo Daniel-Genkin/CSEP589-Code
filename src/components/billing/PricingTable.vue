@@ -148,7 +148,6 @@ function ctaClass(plan) {
 }
 .plan__name {
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
   font-size: 28px;
   font-weight: 560;
   letter-spacing: -0.02em;

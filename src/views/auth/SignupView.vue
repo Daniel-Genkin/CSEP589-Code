@@ -102,7 +102,7 @@ function finish() {
       <div v-if="referralCode" class="invite">
         <Gift :size="18" />
         <span>
-          <strong>{{ inviter ? `${inviter} invited you to outvest` : 'You were invited to outvest' }}</strong>
+          <strong>{{ inviter ? `${inviter} invited you to Rallie` : 'You were invited to Rallie' }}</strong>
           Join free and check your own stocks the same way.
         </span>
       </div>

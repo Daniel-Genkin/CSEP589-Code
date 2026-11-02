@@ -1,4 +1,4 @@
-const KEY = 'outvest.session'
+const KEY = 'rallie.session'
 
 export const tokenStore = {
   get: () => localStorage.getItem(KEY),

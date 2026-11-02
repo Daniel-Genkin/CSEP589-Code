@@ -59,7 +59,7 @@ const intro = computed(() => {
         <div class="client__from">
           <BrandLogo :size="38" :show-wordmark="false" />
           <div class="client__from-text">
-            <p><strong>outvest</strong> <span class="muted">&lt;alerts@outvest.app&gt;</span></p>
+            <p><strong>Rallie</strong> <span class="muted">&lt;alerts@rallie.app&gt;</span></p>
             <p class="muted text-sm">to {{ email.to }}</p>
           </div>
           <span class="muted text-sm client__time">{{ sentAt }}</span>
@@ -124,11 +124,11 @@ const intro = computed(() => {
           <p class="mail__calm">
             No need to act right away. Take a breath, read the full summary, and decide what feels right for you.
           </p>
-          <p class="mail__sign">— The outvest team</p>
+          <p class="mail__sign">— The Rallie team</p>
 
           <div class="mail__footer">
             <p>
-              You're getting this because you watch {{ alert.symbol }} with outvest Pro.
+              You're getting this because you watch {{ alert.symbol }} with Rallie Pro.
               <RouterLink to="/app/monitoring">Manage alerts</RouterLink> ·
               <RouterLink to="/app/monitoring">Unsubscribe</RouterLink>
             </p>
@@ -299,7 +299,6 @@ const intro = computed(() => {
 .mail__title {
   margin-top: 16px;
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
   font-size: 22px;
   font-weight: 560;
   line-height: 1.25;

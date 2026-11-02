@@ -64,7 +64,7 @@ watch(
 }
 .ring__track {
   fill: none;
-  stroke: color-mix(in srgb, var(--ring-color) 15%, #efece4);
+  stroke: color-mix(in srgb, var(--ring-color) 18%, #f8e8bd);
 }
 .ring__value {
   fill: none;

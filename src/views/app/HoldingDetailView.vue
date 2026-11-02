@@ -182,7 +182,7 @@ async function toggleWatch() {
       </Transition>
 
       <p class="disclaimer">
-        outvest shares values research, not financial advice. Always consider your own goals before buying or selling.
+        Rallie shares values research, not financial advice. Always consider your own goals before buying or selling.
       </p>
 
       <ShareModal :open="shareOpen" :scan-id="data.scan.id" :security="security" @close="shareOpen = false" />
@@ -241,7 +241,6 @@ async function toggleWatch() {
 }
 .hero__band {
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
   font-size: 22px;
   font-weight: 600;
 }

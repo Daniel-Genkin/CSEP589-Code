@@ -5,7 +5,7 @@ import { ArrowLeft, Compass } from '@lucide/vue';
 
 <template>
   <div class="not-found">
-    <RouterLink to="/" aria-label="outvest home"><BrandLogo /></RouterLink>
+    <RouterLink to="/" aria-label="Rallie home"><BrandLogo /></RouterLink>
     <div class="not-found__body">
       <span class="not-found__icon"><Compass :size="30" /></span>
       <h1 class="h-1">This page wandered off.</h1>

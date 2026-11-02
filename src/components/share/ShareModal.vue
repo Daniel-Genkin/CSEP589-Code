@@ -38,7 +38,7 @@ const url = computed(() => (share.value ? `${window.location.origin}${share.valu
 const meta = computed(() => (props.security ? band(props.security.score) : null))
 const message = computed(() =>
   props.security
-    ? `I checked ${props.security.name} (${props.security.symbol}) on outvest: ${props.security.score}/100, ${meta.value.label.toLowerCase()}. Take a look before you invest:`
+    ? `I checked ${props.security.name} (${props.security.symbol}) on Rallie: ${props.security.score}/100, ${meta.value.label.toLowerCase()}. Take a look before you invest:`
     : '',
 )
 const channels = computed(() => {
@@ -49,7 +49,7 @@ const channels = computed(() => {
     {
       label: 'Email',
       icon: Mail,
-      href: `mailto:?subject=${encodeURIComponent(`${props.security?.name} on outvest`)}&body=${text}`,
+      href: `mailto:?subject=${encodeURIComponent(`${props.security?.name} on Rallie`)}&body=${text}`,
     },
     {
       label: 'X',
@@ -84,7 +84,7 @@ async function copy() {
 
 async function nativeShare() {
   try {
-    await navigator.share({ title: `${props.security.name} on outvest`, text: message.value, url: url.value })
+    await navigator.share({ title: `${props.security.name} on Rallie`, text: message.value, url: url.value })
   } catch {
     // User cancelled the share sheet.
   }
@@ -212,7 +212,6 @@ async function nativeShare() {
 .share-card__band {
   margin-top: 12px;
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
   font-size: 20px;
   font-weight: 600;
 }

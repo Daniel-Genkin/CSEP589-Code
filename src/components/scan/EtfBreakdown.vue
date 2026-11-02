@@ -215,7 +215,8 @@ a.holdings__row:hover {
   flex: 1;
   height: 6px;
   border-radius: var(--radius-pill);
-  background: #efebe2;
+  background: var(--bg-tint);
+  border: 1.5px solid var(--ink-solid);
   overflow: hidden;
 }
 .holdings__track span {
@@ -225,7 +226,7 @@ a.holdings__row:hover {
   background: var(--lilac-500);
 }
 .holdings__track--others span {
-  background: repeating-linear-gradient(-45deg, #c9c1f5 0 4px, #ddd7fa 4px 8px);
+  background: repeating-linear-gradient(-45deg, #c9bdf8 0 4px, #e5ddfd 4px 8px);
 }
 .holdings__score {
   display: flex;

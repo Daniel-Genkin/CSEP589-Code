@@ -60,8 +60,8 @@ defineProps({
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 2px 6px rgba(22, 36, 29, 0.2);
+  background: var(--cream);
+  border: 2px solid var(--ink-solid);
   transition: transform 0.25s var(--ease);
 }
 input:checked + .toggle__track {

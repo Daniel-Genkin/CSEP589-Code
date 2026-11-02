@@ -20,12 +20,12 @@ export const ALERT_POOL = [
     sourceNewsIds: ['loop-1', 'loop-2'],
   },
   {
-    symbol: 'CLNE',
+    symbol: 'ICLN',
     kind: 'forecast',
-    title: 'Evergreen Clean Energy ETF will drop Chipworks at its next rebalance',
+    title: 'iShares Global Clean Energy ETF will drop Chipworks at its next rebalance',
     summary: 'Good news ahead of time: the projected score ticks up once Chipworks is removed.',
     whatHappened:
-      "Evergreen announced that Chipworks no longer earns enough of its revenue from clean energy to stay in the fund. It will be removed at the next rebalance, and its slice will be spread across the remaining companies.",
+      "iShares announced that Chipworks no longer earns enough of its revenue from clean energy to stay in the fund. It will be removed at the next rebalance, and its slice will be spread across the remaining companies.",
     sourceNewsIds: ['clne-1'],
   },
   {
@@ -61,7 +61,7 @@ export function createSeed() {
       {
         id: userId,
         name: 'Maya Chen',
-        email: 'maya@outvest.app',
+        email: 'maya@rallie.app',
         createdAt: isoAgo(140 * DAY),
         values: ['climate', 'labor', 'privacy'],
         referralCode: 'MAYA7Q',
@@ -103,7 +103,7 @@ export function createSeed() {
         id: 'scn_4m8q1x',
         userId,
         source: 'manual',
-        holdings: [{ symbol: 'SOLR' }, { symbol: 'PTCH' }, { symbol: 'KIND' }, { symbol: 'FSTF' }],
+        holdings: [{ symbol: 'SOLR' }, { symbol: 'PTCH' }, { symbol: 'ESGU' }, { symbol: 'FSTF' }],
         createdAt: isoAgo(16 * DAY),
         durationMs: 8000,
       },
@@ -111,7 +111,7 @@ export function createSeed() {
         id: 'scn_9p3t6w',
         userId,
         source: 'manual',
-        holdings: [{ symbol: 'TCHL' }, { symbol: 'MNTL' }, { symbol: 'BURG' }],
+        holdings: [{ symbol: 'QQQ' }, { symbol: 'MNTL' }, { symbol: 'BURG' }],
         createdAt: isoAgo(41 * DAY),
         durationMs: 8000,
       },
@@ -129,7 +129,7 @@ export function createSeed() {
     ],
     monitoring: {
       [userId]: {
-        symbols: ['BMKT', 'NOVA', 'VOLT', 'CLNE', 'QUIK', 'GRNB', 'LOOP'],
+        symbols: ['VOO', 'NOVA', 'VOLT', 'ICLN', 'QUIK', 'GRNB', 'LOOP'],
         settings: defaultMonitoringSettings(),
         lastCheckedAt: isoAgo(12 * MINUTE),
         poolCursor: 0,
@@ -196,12 +196,12 @@ export function createSeed() {
       {
         id: 'alt_bmkt_rebalance',
         userId,
-        symbol: 'BMKT',
+        symbol: 'VOO',
         kind: 'forecast',
-        title: "BMKT's next rebalance will likely add more Petrex Energy",
+        title: "VOO's next rebalance will likely add more Petrex Energy",
         summary: 'A forecast, not a change yet: the projected score dips slightly after the next rebalance.',
         whatHappened:
-          "An oil rally pushed up Petrex Energy's market value. Because BMKT holds companies in proportion to their size, its next quarterly rebalance will likely grow its Petrex slice and add FastFit Fashion for the first time.",
+          "An oil rally pushed up Petrex Energy's market value. Because VOO holds companies in proportion to their size, its next quarterly rebalance will likely grow its Petrex slice and add FastFit Fashion for the first time.",
         sourceNewsIds: ['bmkt-1', 'ptrx-3'],
         createdAt: isoAgo(6 * DAY),
         readAt: isoAgo(5 * DAY),

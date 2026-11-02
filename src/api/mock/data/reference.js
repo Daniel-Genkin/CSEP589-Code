@@ -64,10 +64,10 @@ export const BROKERAGES = [
 
 // Holdings returned by any mock brokerage connection (dollar values).
 export const SAMPLE_PORTFOLIO = [
-  { symbol: 'BMKT', value: 1240 },
+  { symbol: 'VOO', value: 1240 },
   { symbol: 'NOVA', value: 620 },
   { symbol: 'VOLT', value: 410 },
-  { symbol: 'CLNE', value: 380 },
+  { symbol: 'ICLN', value: 380 },
   { symbol: 'QUIK', value: 350 },
   { symbol: 'GRNB', value: 210 },
   { symbol: 'LOOP', value: 190 },

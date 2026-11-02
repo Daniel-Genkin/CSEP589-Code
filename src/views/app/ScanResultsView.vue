@@ -181,7 +181,6 @@ function openShare(item) {
 }
 .summary__headline {
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
   font-size: 28px;
   font-weight: 560;
   line-height: 1.15;

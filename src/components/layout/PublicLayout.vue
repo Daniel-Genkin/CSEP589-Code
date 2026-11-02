@@ -1,4 +1,5 @@
 <script setup>
+import WaitlistDialog from '@/components/waitlist/WaitlistDialog.vue';
 import PublicFooter from './PublicFooter.vue';
 import PublicHeader from './PublicHeader.vue';
 </script>
@@ -14,5 +15,6 @@ import PublicHeader from './PublicHeader.vue';
       </RouterView>
     </main>
     <PublicFooter />
+    <WaitlistDialog />
   </div>
 </template>

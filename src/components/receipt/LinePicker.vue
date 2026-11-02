@@ -52,5 +52,17 @@ function toggle(key) {
   border: 3px solid var(--ink-solid);
   box-shadow: var(--shadow-sm);
   font-weight: 700;
+  animation: chip-pop 0.3s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes chip-pop {
+  0% {
+    transform: scale(1);
+  }
+  45% {
+    transform: scale(1.1) rotate(-2deg);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 </style>

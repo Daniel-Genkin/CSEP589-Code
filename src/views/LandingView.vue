@@ -1,6 +1,8 @@
 <script setup>
 import BrandSpiral from '@/components/brand/BrandSpiral.vue'
-import TickerBand from '@/components/brand/TickerBand.vue'
+import RoamingSpiral from '@/components/brand/RoamingSpiral.vue'
+import TickerTape from '@/components/brand/TickerTape.vue'
+import HeroReceipt from '@/components/receipt/HeroReceipt.vue'
 import LinePicker from '@/components/receipt/LinePicker.vue'
 import LineupTable from '@/components/receipt/LineupTable.vue'
 import ReceiptStats from '@/components/receipt/ReceiptStats.vue'
@@ -8,55 +10,47 @@ import TrustedPicker from '@/components/receipt/TrustedPicker.vue'
 import { BRAND_NAME } from '@/config/brand'
 import { DEMO_FUNDS, checkFund } from '@/utils/lines'
 import { useLinesStore } from '@/stores/lines'
+import { useWaitlistStore } from '@/stores/waitlist'
 import { storeToRefs } from 'pinia'
-import { computed, ref } from 'vue'
+import { computed, ref, useTemplateRef } from 'vue'
 
 const fundSymbol = ref('VOO')
 const { lineKeys } = storeToRefs(useLinesStore())
 
 const result = computed(() => checkFund(fundSymbol.value, lineKeys.value))
 const fund = computed(() => result.value.fund)
+const waitlist = useWaitlistStore()
+const tape = useTemplateRef('tape')
 const fmtCount = (n) => n.toLocaleString('en-US')
 </script>
 
 <template>
   <div class="landing ground-blue">
-    <!-- Hero + step 01 -->
+    <RoamingSpiral :floor="() => tape?.$el" />
+
+    <!-- Hero -->
     <section class="container hero">
-      <BrandSpiral class="hero__spiral" :size="520" :rotate="-8" />
       <div class="hero__copy">
         <p class="label-mono hero__eyebrow">Investing with a point of view. Yours.</p>
-        <h1 class="h-hero shout-shadow">
-          You own {{ fmtCount(fund.holdingsCount) }} companies.<br />
-          <span class="pink">Meet them.</span>
+        <h1 class="hero__title shout-shadow">
+          <span>Who's in your fund?</span>
+          <span class="pink">Check the receipts.</span>
         </h1>
         <p class="hero__lead">
-          One {{ fund.symbol }}. Hundreds of companies you've never met. {{ BRAND_NAME }} shows you who's in there, what they're up to,
+          One S&amp;P 500 fund. Hundreds of companies you've never met. {{ BRAND_NAME }} shows you who's in there, what they're up to,
           and the <span class="wink">receipts</span>.
         </p>
       </div>
 
-      <div id="fund" class="step">
-        <p class="label-mono">Step 01 · Which fund are we roasting?</p>
-        <div class="funds">
-          <button
-            v-for="f in DEMO_FUNDS"
-            :key="f.symbol"
-            type="button"
-            class="fund"
-            :class="{ 'is-on': fundSymbol === f.symbol }"
-            :style="{ background: f.bg }"
-            :aria-pressed="fundSymbol === f.symbol"
-            @click="fundSymbol = f.symbol"
-          >
-            <span class="fund__ticker">{{ f.symbol }}</span>
-            <span class="fund__nick">{{ f.nickname }}</span>
-          </button>
-        </div>
+      <HeroReceipt />
+
+      <div class="hero__cta">
+        <p class="label-mono">See who your fund is funding</p>
+        <RouterLink to="/receipt" class="btn btn-primary big-cta">Check my funds ↗</RouterLink>
       </div>
     </section>
 
-    <TickerBand />
+    <TickerTape ref="tape" :result="result" />
 
     <!-- Step 02 -->
     <section id="lines" class="container lines">
@@ -82,9 +76,29 @@ const fmtCount = (n) => n.toLocaleString('en-US')
     <section class="container final">
       <BrandSpiral class="final__spiral" :size="300" :rotate="22" />
       <h2 class="h-hero shout-shadow">Know what<br />you own.</h2>
+
+      <div id="fund" class="step">
+        <p class="label-mono">Which fund do you own?</p>
+        <div class="funds">
+          <button
+            v-for="f in DEMO_FUNDS"
+            :key="f.symbol"
+            type="button"
+            class="fund"
+            :class="{ 'is-on': fundSymbol === f.symbol }"
+            :style="{ background: f.bg }"
+            :aria-pressed="fundSymbol === f.symbol"
+            @click="fundSymbol = f.symbol"
+          >
+            <span class="fund__ticker">{{ f.symbol }}</span>
+            <span class="fund__nick">{{ f.nickname }}</span>
+          </button>
+        </div>
+      </div>
+
       <div class="final__actions">
-        <RouterLink to="/check" class="btn btn-flare final__cta">Check my holdings ↗</RouterLink>
-        <RouterLink to="/browse" class="final__snoop">or browse every company →</RouterLink>
+        <RouterLink :to="{ path: '/receipt', query: { fund: fundSymbol } }" class="btn btn-flare big-cta">Check my holdings ↗</RouterLink>
+        <button type="button" class="btn btn-primary big-cta" @click="waitlist.isOpen = true">Join the waitlist</button>
       </div>
       <p class="final__fine">Real fund names, sample holdings and made-up companies. Information, not investment advice. We're nosy, not your advisor.</p>
     </section>
@@ -93,6 +107,7 @@ const fmtCount = (n) => n.toLocaleString('en-US')
 
 <style scoped>
 .landing {
+  position: relative;
   overflow: hidden;
   padding-bottom: 24px;
 }
@@ -105,12 +120,11 @@ const fmtCount = (n) => n.toLocaleString('en-US')
   position: relative;
   padding-top: 40px;
   padding-bottom: 72px;
-}
-.hero__spiral {
-  position: absolute;
-  right: -60px;
-  top: -30px;
-  z-index: 0;
+  max-width: 1388px;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 44px;
 }
 .hero__copy {
   position: relative;
@@ -119,6 +133,33 @@ const fmtCount = (n) => n.toLocaleString('en-US')
   flex-direction: column;
   gap: 22px;
   max-width: 1000px;
+}
+.hero__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(60px, 13vw, 184px);
+  line-height: 0.88;
+  text-transform: uppercase;
+}
+.hero__title span {
+  display: block;
+}
+.hero__cta {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+.big-cta {
+  --btn-h: 76px;
+  padding: 0 40px;
+  border-width: 3px;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 32px;
+  text-transform: uppercase;
+  box-shadow: 8px 8px 0 var(--ink-solid);
 }
 .hero__eyebrow {
   color: var(--sun);
@@ -139,7 +180,6 @@ const fmtCount = (n) => n.toLocaleString('en-US')
 .step {
   position: relative;
   z-index: 1;
-  margin-top: 44px;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -235,22 +275,6 @@ const fmtCount = (n) => n.toLocaleString('en-US')
   align-items: center;
   gap: 28px;
 }
-.final__cta {
-  --btn-h: 76px;
-  padding: 0 40px;
-  border-width: 3px;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 32px;
-  text-transform: uppercase;
-  box-shadow: 8px 8px 0 var(--ink-solid);
-}
-.final__snoop {
-  font-weight: 700;
-  font-size: 20px;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
 .final__fine {
   position: relative;
   background: var(--ink-solid);
@@ -260,11 +284,15 @@ const fmtCount = (n) => n.toLocaleString('en-US')
 }
 
 @media (max-width: 900px) {
-  .hero__spiral {
-    opacity: 0.35;
-  }
   .final__spiral {
     display: none;
+  }
+}
+@media (max-width: 560px) {
+  .big-cta {
+    --btn-h: 64px;
+    padding: 0 26px;
+    font-size: 24px;
   }
 }
 </style>

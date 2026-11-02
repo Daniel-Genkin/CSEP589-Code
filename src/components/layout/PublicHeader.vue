@@ -2,14 +2,23 @@
 import BrandLogo from '@/components/ui/BrandLogo.vue'
 import { BRAND_NAME } from '@/config/brand'
 import { useSessionStore } from '@/stores/session'
+import { useWaitlistStore } from '@/stores/waitlist'
+import { computed } from 'vue'
+import { useRoute } from 'vue-router'
 
+const route = useRoute()
 const session = useSessionStore()
+const waitlist = useWaitlistStore()
 
-const steps = [
-  { n: '01', label: 'Pick a fund', hash: '#fund', color: '#F7C54E' },
-  { n: '02', label: 'Draw your lines', hash: '#lines', color: '#F07AB6' },
-  { n: '03', label: 'See who crosses them', hash: '#receipt', color: '#E85A2A' },
-]
+// The same three steps live on the landing page and on /receipt; stay on the page you're on.
+const steps = computed(() => {
+  const onReceipt = route.name === 'receipt'
+  return [
+    { n: '01', label: 'Pick a fund', hash: onReceipt ? '#pick' : '#fund', color: '#F7C54E' },
+    { n: '02', label: 'Draw your lines', hash: '#lines', color: '#F07AB6' },
+    { n: '03', label: 'See who crosses them', hash: onReceipt ? '#print-step' : '#receipt', color: '#E85A2A' },
+  ].map((s) => ({ ...s, path: onReceipt ? '/receipt' : '/' }))
+})
 </script>
 
 <template>
@@ -18,7 +27,7 @@ const steps = [
       <RouterLink to="/" class="site-header__logo" :aria-label="`${BRAND_NAME} home`"><BrandLogo :size="38" inverse /></RouterLink>
 
       <nav class="site-header__steps" aria-label="How it works">
-        <RouterLink v-for="s in steps" :key="s.n" :to="{ path: '/', hash: s.hash }" class="step-pill">
+        <RouterLink v-for="s in steps" :key="s.n" :to="{ path: s.path, hash: s.hash }" class="step-pill">
           <span :style="{ color: s.color }">{{ s.n }}</span> {{ s.label }}
         </RouterLink>
       </nav>
@@ -28,7 +37,8 @@ const steps = [
         <template v-else>
           <RouterLink to="/browse" class="site-header__login">Browse</RouterLink>
           <RouterLink to="/login" class="site-header__login">Log in</RouterLink>
-          <RouterLink to="/check" class="btn btn-primary">Check my holdings ↗</RouterLink>
+          <button type="button" class="btn btn-primary" @click="waitlist.isOpen = true">Join the waitlist</button>
+          <RouterLink to="/receipt" class="btn btn-flare">Check my fund ↗</RouterLink>
         </template>
       </div>
     </div>
@@ -41,6 +51,7 @@ const steps = [
   z-index: 50;
 }
 .site-header__inner {
+  max-width: 1388px;
   display: flex;
   align-items: center;
   gap: 24px;
@@ -87,9 +98,22 @@ const steps = [
   text-decoration: underline;
   text-underline-offset: 4px;
 }
-@media (max-width: 1080px) {
+@media (max-width: 1320px) {
   .site-header__steps {
     display: none;
+  }
+}
+/* Browse and Log in are in the footer too; phones keep just the two buttons. */
+@media (max-width: 640px) {
+  .site-header__login {
+    display: none;
+  }
+  .site-header__actions {
+    gap: 10px;
+    margin-left: 0;
+  }
+  .site-header__actions .btn {
+    padding: 0 14px;
   }
 }
 </style>

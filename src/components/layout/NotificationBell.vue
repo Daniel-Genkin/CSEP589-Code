@@ -115,7 +115,7 @@ watch(
   width: min(400px, calc(100vw - 24px));
   padding: 8px;
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: var(--outline);
   border-radius: 22px;
   box-shadow: var(--shadow-lg);
 }

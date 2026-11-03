@@ -154,7 +154,7 @@ const KIND_ICONS = { negative: BellRing, positive: Sparkles, forecast: CalendarC
       <div class="locked__card card">
         <span class="locked__icon"><Radar :size="26" /></span>
         <PlanBadge plan-id="pro" />
-        <h1 class="locked__title">Let outvest keep watch</h1>
+        <h1 class="locked__title">Let Rally keep watch</h1>
         <p class="locked__text">
           Companies change. Pro checks your holdings around the clock and emails you when something's worth a look,
           with a calm summary of what happened and how it affects the values you care about.
@@ -655,7 +655,7 @@ const KIND_ICONS = { negative: BellRing, positive: Sparkles, forecast: CalendarC
   width: 64px;
   height: 64px;
   border-radius: 22px;
-  background: linear-gradient(140deg, var(--brand-100), var(--lilac-100));
+  background: var(--brand-100);
   color: var(--brand-700);
 }
 .locked__title {

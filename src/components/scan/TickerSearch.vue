@@ -7,7 +7,7 @@ import { computed, ref, watch } from 'vue'
 
 const props = defineProps({
   selected: { type: Array, default: () => [] },
-  placeholder: { type: String, default: 'Search a company or ticker, like NOVA or Broadline' },
+  placeholder: { type: String, default: 'Search a company or ticker, like NOVA or VOO' },
 })
 const emit = defineEmits(['select', 'bulk'])
 

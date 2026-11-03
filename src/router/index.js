@@ -8,8 +8,12 @@ const routes = [
     path: '/',
     component: PublicLayout,
     children: [
-      { path: '', name: 'home', component: () => import('@/views/LandingView.vue'), meta: { title: 'Invest in what you believe in' } },
+      { path: '', name: 'home', component: () => import('@/views/LandingView.vue'), meta: { title: 'Know what you own' } },
       { path: 'pricing', name: 'pricing', component: () => import('@/views/PricingView.vue'), meta: { title: 'Pricing' } },
+      { path: 'receipt', name: 'receipt', component: () => import('@/views/ReceiptView.vue'), meta: { title: 'Print your receipt' } },
+      { path: 'check', name: 'check', component: () => import('@/views/CheckView.vue'), meta: { title: 'Quick check' } },
+      { path: 'browse', name: 'browse', component: () => import('@/views/BrowseView.vue'), meta: { title: 'Browse companies' } },
+      { path: 'company/:symbol', name: 'company', component: () => import('@/views/CompanyView.vue'), meta: { title: 'Company' } },
     ],
   },
   { path: '/signup', name: 'signup', component: () => import('@/views/auth/SignupView.vue'), meta: { title: 'Create your account', guestOnly: true } },
@@ -41,6 +45,7 @@ const routes = [
         component: () => import('@/views/app/HoldingDetailView.vue'),
         meta: { title: 'Analysis' },
       },
+      { path: 'baskets', name: 'baskets', component: () => import('@/views/app/BasketView.vue'), meta: { title: 'Baskets' } },
       { path: 'monitoring', name: 'monitoring', component: () => import('@/views/app/MonitoringView.vue'), meta: { title: 'Monitoring' } },
       { path: 'alerts', name: 'alerts', component: () => import('@/views/app/AlertsView.vue'), meta: { title: 'Alerts' } },
       { path: 'alerts/:alertId', name: 'alert', component: () => import('@/views/app/AlertDetailView.vue'), meta: { title: 'Alert' } },
@@ -76,7 +81,7 @@ router.beforeEach(async (to) => {
 })
 
 router.afterEach((to) => {
-  document.title = to.meta.title ? `${to.meta.title} · outvest` : 'outvest'
+  document.title = to.meta.title ? `${to.meta.title} · Rally` : 'Rally'
 })
 
 export default router

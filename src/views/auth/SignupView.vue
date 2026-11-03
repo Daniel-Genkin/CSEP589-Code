@@ -102,7 +102,7 @@ function finish() {
       <div v-if="referralCode" class="invite">
         <Gift :size="18" />
         <span>
-          <strong>{{ inviter ? `${inviter} invited you to outvest` : 'You were invited to outvest' }}</strong>
+          <strong>{{ inviter ? `${inviter} invited you to Rally` : 'You were invited to Rally' }}</strong>
           Join free and check your own stocks the same way.
         </span>
       </div>
@@ -237,7 +237,7 @@ function finish() {
   margin-bottom: 24px;
   padding: 14px 16px;
   border-radius: 16px;
-  background: linear-gradient(120deg, var(--peach-50), var(--lilac-50));
+  background: var(--peach-50);
   border: 1px solid var(--peach-100);
   font-size: 14px;
   color: var(--ink-2);
@@ -374,7 +374,7 @@ function finish() {
   height: 68px;
   margin-bottom: 18px;
   border-radius: 22px;
-  background: linear-gradient(140deg, var(--brand-100), var(--sun-100));
+  background: var(--brand-100);
   color: var(--brand-700);
 }
 .done__list {

@@ -31,7 +31,8 @@ watch(
   position: relative;
   width: 100%;
   border-radius: var(--radius-pill);
-  background: #efebe2;
+  background: var(--bg-tint);
+  border: 1.5px solid var(--ink-solid);
   overflow: hidden;
 }
 .bar__fill,
@@ -44,6 +45,6 @@ watch(
   transition: width 1s var(--ease);
 }
 .bar__previous {
-  background: repeating-linear-gradient(-45deg, #d9d2c2 0 4px, #e6e0d3 4px 8px);
+  background: repeating-linear-gradient(-45deg, #e2d4ad 0 4px, #f3e6c2 4px 8px);
 }
 </style>

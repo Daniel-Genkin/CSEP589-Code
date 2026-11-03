@@ -4,7 +4,7 @@ import AuthShell from '@/components/layout/AuthShell.vue'
 import GoogleIcon from '@/components/ui/GoogleIcon.vue'
 import { useSessionStore } from '@/stores/session'
 import { Apple, ArrowRight, Sparkles } from '@lucide/vue'
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
@@ -40,10 +40,15 @@ async function submit() {
 }
 
 function useDemo() {
-  form.email = 'maya@outvest.app'
-  form.password = 'outvest-demo'
+  form.email = 'maya@rally.app'
+  form.password = 'rally-demo'
   submit()
 }
+
+// "Snoop around the dashboard" links here with ?demo=1 to open the demo account directly.
+onMounted(() => {
+  if (route.query.demo) useDemo()
+})
 
 async function continueWith(provider) {
   error.value = ''

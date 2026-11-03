@@ -59,7 +59,7 @@ const intro = computed(() => {
         <div class="client__from">
           <BrandLogo :size="38" :show-wordmark="false" />
           <div class="client__from-text">
-            <p><strong>outvest</strong> <span class="muted">&lt;alerts@outvest.app&gt;</span></p>
+            <p><strong>Rally</strong> <span class="muted">&lt;alerts@rally.app&gt;</span></p>
             <p class="muted text-sm">to {{ email.to }}</p>
           </div>
           <span class="muted text-sm client__time">{{ sentAt }}</span>
@@ -124,11 +124,11 @@ const intro = computed(() => {
           <p class="mail__calm">
             No need to act right away. Take a breath, read the full summary, and decide what feels right for you.
           </p>
-          <p class="mail__sign">— The outvest team</p>
+          <p class="mail__sign">— The Rally team</p>
 
           <div class="mail__footer">
             <p>
-              You're getting this because you watch {{ alert.symbol }} with outvest Pro.
+              You're getting this because you watch {{ alert.symbol }} with Rally Pro.
               <RouterLink to="/app/monitoring">Manage alerts</RouterLink> ·
               <RouterLink to="/app/monitoring">Unsubscribe</RouterLink>
             </p>
@@ -144,16 +144,13 @@ const intro = computed(() => {
 .email-page {
   min-height: 100vh;
   padding-bottom: 64px;
-  background:
-    radial-gradient(800px 400px at 50% -100px, rgba(128, 197, 157, 0.25), transparent 70%),
-    var(--bg-tint);
+  background: var(--bg-tint);
 }
 .bar {
   position: sticky;
   top: 0;
   z-index: 10;
   background: rgba(240, 237, 228, 0.85);
-  backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--line);
 }
 .bar__inner {
@@ -299,7 +296,6 @@ const intro = computed(() => {
 .mail__title {
   margin-top: 16px;
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
   font-size: 22px;
   font-weight: 560;
   line-height: 1.25;

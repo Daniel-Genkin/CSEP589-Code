@@ -224,7 +224,7 @@ const runLinked = ({ connectionId, holdings }) => runScan({ source: 'linked', co
           <p class="card-sub">Search by ticker or company name.</p>
           <div class="search">
             <TickerSearch :selected="selectedSymbols" @select="add" @bulk="addBulk" />
-            <p class="search__tip">Tip: paste a list like <code>NOVA, VOLT, BMKT</code> and press Enter.</p>
+            <p class="search__tip">Tip: paste a list like <code>NOVA, VOLT, VOO</code> and press Enter.</p>
           </div>
           <div v-if="popular?.length" class="popular">
             <p class="popular__label">Popular with first-time investors</p>
@@ -321,7 +321,7 @@ const runLinked = ({ connectionId, holdings }) => runScan({ source: 'linked', co
   flex-wrap: wrap;
   margin-bottom: 22px;
   padding: 20px 22px;
-  background: linear-gradient(120deg, var(--sun-50), var(--surface));
+  background: var(--sun-50);
 }
 .out__icon {
   display: grid;

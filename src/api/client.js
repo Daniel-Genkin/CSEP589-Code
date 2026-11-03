@@ -26,7 +26,7 @@ async function httpRequest(method, path, { query, body } = {}) {
       body: body !== undefined ? JSON.stringify(body) : undefined,
     })
   } catch {
-    throw new ApiError(0, "We couldn't reach outvest. Check your connection and try again.", 'NETWORK')
+    throw new ApiError(0, "We couldn't reach Rally. Check your connection and try again.", 'NETWORK')
   }
 
   const data = response.status === 204 ? null : await response.json().catch(() => null)

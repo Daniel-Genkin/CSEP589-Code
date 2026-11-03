@@ -124,7 +124,6 @@ const rangeLabel = computed(() => {
 .rebalance__date {
   margin-top: 8px;
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
   font-size: 30px;
   font-weight: 560;
   letter-spacing: -0.02em;

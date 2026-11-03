@@ -117,15 +117,12 @@ function ctaClass(plan) {
   box-shadow: var(--shadow-sm);
 }
 .plan--popular {
-  border-color: transparent;
-  background:
-    linear-gradient(var(--surface), var(--surface)) padding-box,
-    linear-gradient(150deg, var(--brand-300), var(--lilac-500)) border-box;
-  border: 1.5px solid transparent;
+  background: var(--surface);
+  border: var(--outline);
   box-shadow: var(--shadow-lg);
 }
 .plan--current {
-  background: linear-gradient(180deg, var(--brand-25), var(--surface));
+  background: var(--brand-25);
   border-color: var(--brand-200);
 }
 .plan__flag {
@@ -148,7 +145,6 @@ function ctaClass(plan) {
 }
 .plan__name {
   font-family: var(--font-display);
-  font-variation-settings: 'SOFT' 100;
   font-size: 28px;
   font-weight: 560;
   letter-spacing: -0.02em;

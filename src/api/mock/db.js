@@ -1,7 +1,7 @@
 // In-browser stand-in for the backend database. Persisted to localStorage so the demo survives reloads.
 import { createSeed } from './seed'
 
-const STORAGE_KEY = 'outvest.mock-db.v1'
+const STORAGE_KEY = 'outvest.mock-db.v2'
 
 function load() {
   try {

@@ -1,239 +1,193 @@
 <script setup>
+import { isMockApi } from '@/api'
 import EmptyState from '@/components/ui/EmptyState.vue'
-import SecurityLogo from '@/components/ui/SecurityLogo.vue'
 import SegmentedControl from '@/components/ui/SegmentedControl.vue'
+import { useToast } from '@/composables/useToast'
 import { useAlertsStore } from '@/stores/alerts'
-import { useSessionStore } from '@/stores/session'
 import { timeAgo } from '@/utils/format'
-import { BANDS } from '@/utils/scoring'
-import { ArrowRight, BellOff, CalendarClock, CheckCheck, ChevronRight, Radar, ThumbsUp, TriangleAlert } from '@lucide/vue'
+import { ALERT_KINDS } from '@/utils/thesis'
+import { BellOff, CheckCheck, ChevronRight, Newspaper } from '@lucide/vue'
 import { computed, onMounted, ref } from 'vue'
 
 const alerts = useAlertsStore()
-const session = useSessionStore()
+const toast = useToast()
 const filter = ref('all')
+const checking = ref(false)
 
 onMounted(() => alerts.fetch().catch(() => {}))
-
-const KINDS = {
-  negative: { label: 'Heads up', icon: TriangleAlert },
-  positive: { label: 'Good news', icon: ThumbsUp },
-  forecast: { label: 'Forecast', icon: CalendarClock },
-}
 
 const options = computed(() => [
   { value: 'all', label: 'All', count: alerts.items.length },
   { value: 'unread', label: 'Unread', count: alerts.unreadCount },
-  { value: 'negative', label: 'Heads up' },
-  { value: 'positive', label: 'Good news' },
-  { value: 'forecast', label: 'Forecasts' },
 ])
+const shown = computed(() => (filter.value === 'unread' ? alerts.items.filter((a) => !a.readAt) : alerts.items))
 
-const visible = computed(() => {
-  if (filter.value === 'all') return alerts.items
-  if (filter.value === 'unread') return alerts.items.filter((a) => !a.readAt)
-  return alerts.items.filter((a) => a.kind === filter.value)
-})
+async function checkNow() {
+  checking.value = true
+  try {
+    const { alert, reason } = await alerts.check()
+    if (alert) toast.success('New alert', { description: alert.title, action: { label: 'Open', to: `/app/alerts/${alert.id}` } })
+    else if (reason === 'no-theses') toast.info('Nothing to check yet', { description: 'Publish or invest in a thesis and we’ll watch the news for it.' })
+    else toast.info('You’re caught up', { description: 'No new stories affect your theses right now.' })
+  } catch (err) {
+    toast.error('Couldn’t check for news', { description: err.message })
+  } finally {
+    checking.value = false
+  }
+}
 </script>
 
 <template>
-  <div class="page">
+  <div class="page alerts-page">
     <header class="page-head">
       <div>
         <h1 class="page-title">Alerts</h1>
-        <p class="page-sub">Everything worth knowing about your holdings, in one calm place.</p>
+        <p class="page-sub">Only when news affects one of your theses, plus a heads-up before each rebalance. No market noise.</p>
       </div>
-      <button v-if="alerts.unreadCount" type="button" class="btn btn-secondary" @click="alerts.markAllRead()">
-        <CheckCheck :size="17" /> Mark all as read
-      </button>
+      <div class="head-actions">
+        <button v-if="alerts.unreadCount" type="button" class="btn btn-ghost btn-sm" @click="alerts.markAllRead()">
+          <CheckCheck :size="16" /> Mark all read
+        </button>
+        <button v-if="isMockApi" type="button" class="btn btn-secondary btn-sm" :disabled="checking" @click="checkNow">
+          <span v-if="checking" class="spinner" />
+          <Newspaper v-else :size="16" />
+          Check for news
+        </button>
+      </div>
     </header>
 
-    <div v-if="!alerts.loaded" class="stack gap-3">
-      <div v-for="n in 4" :key="n" class="skeleton" style="height: 112px" />
+    <SegmentedControl v-model="filter" :options="options" label="Filter alerts" class="filter" />
+
+    <div v-if="alerts.loading && !alerts.loaded" class="list">
+      <div v-for="n in 3" :key="n" class="skeleton" style="height: 96px" />
     </div>
 
-    <template v-else-if="alerts.items.length">
-      <SegmentedControl v-model="filter" :options="options" label="Filter alerts" class="filters" />
-
-      <TransitionGroup v-if="visible.length" tag="ul" name="fade" class="list">
-        <li v-for="alert in visible" :key="alert.id">
-          <RouterLink :to="`/app/alerts/${alert.id}`" class="alert card" :class="[`alert--${alert.kind}`, { 'is-unread': !alert.readAt }]">
-            <span class="alert__kind"><component :is="KINDS[alert.kind].icon" :size="18" /></span>
-            <span class="alert__body">
-              <span class="alert__meta">
-                <span class="alert__label">{{ KINDS[alert.kind].label }}</span>
-                <span aria-hidden="true">·</span>
-                <span>{{ timeAgo(alert.createdAt) }}</span>
-                <span v-if="!alert.readAt" class="alert__new">New</span>
-              </span>
-              <span class="alert__title">{{ alert.title }}</span>
-              <span class="alert__summary">{{ alert.summary }}</span>
-              <span class="alert__security">
-                <SecurityLogo :symbol="alert.symbol" :name="alert.security.name" :color="alert.security.color" :type="alert.security.type" :size="24" />
-                {{ alert.security.name }}
-              </span>
+    <ul v-else-if="shown.length" class="list">
+      <li v-for="alert in shown" :key="alert.id">
+        <RouterLink :to="`/app/alerts/${alert.id}`" class="row card" :class="{ 'is-unread': !alert.readAt }">
+          <span class="row__icon" :class="`row__icon--${ALERT_KINDS[alert.kind].tone}`">
+            <component :is="ALERT_KINDS[alert.kind].icon" :size="19" />
+          </span>
+          <span class="row__body">
+            <span class="row__meta">
+              {{ ALERT_KINDS[alert.kind].label }} · {{ timeAgo(alert.createdAt) }}
+              <span v-if="!alert.readAt" class="row__new">New</span>
             </span>
-            <span class="alert__scores">
-              <span class="alert__score num" :style="{ color: BANDS[alert.bandBefore].color }">{{ alert.scoreBefore }}</span>
-              <ArrowRight :size="14" class="muted" />
-              <span class="alert__score num" :style="{ color: BANDS[alert.bandAfter].color }">{{ alert.scoreAfter }}</span>
-            </span>
-            <ChevronRight :size="18" class="alert__chevron hide-sm" />
-          </RouterLink>
-        </li>
-      </TransitionGroup>
-      <div v-else class="card">
-        <EmptyState :icon="CheckCheck" title="Nothing here" text="No alerts match this filter right now." />
-      </div>
-    </template>
+            <span class="row__title">{{ alert.title }}</span>
+            <span class="row__summary">{{ alert.summary }}</span>
+            <span v-if="alert.thesis" class="topic-chip row__thesis">{{ alert.thesis.title }}</span>
+          </span>
+          <ChevronRight :size="18" class="row__chevron" />
+        </RouterLink>
+      </li>
+    </ul>
 
     <div v-else class="card">
       <EmptyState
-        v-if="session.isPro"
         :icon="BellOff"
-        title="You're all caught up"
-        text="We haven't spotted anything worth your attention yet. When something changes, it will show up here and in your inbox."
-      >
-        <RouterLink to="/app/monitoring" class="btn btn-secondary">Manage monitoring</RouterLink>
-      </EmptyState>
-      <EmptyState
-        v-else
-        :icon="Radar"
-        title="Alerts come with Pro"
-        text="Pro keeps watch over your holdings and lets you know, calmly, when something changes how they line up with your values."
-      >
-        <RouterLink :to="{ path: '/app/plan', query: { upgrade: 'pro' } }" class="btn btn-primary">Upgrade to Pro</RouterLink>
-      </EmptyState>
+        :title="filter === 'unread' ? 'No unread alerts' : 'No alerts yet'"
+        text="We only alert you when news strengthens or weakens a claim in one of your theses, or before a rebalance."
+      />
     </div>
   </div>
 </template>
 
 <style scoped>
-.filters {
+.alerts-page {
+  max-width: 880px;
+}
+.head-actions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.filter {
   margin-bottom: 18px;
 }
 .list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 10px;
 }
-.alert {
-  position: relative;
+.row {
   display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 20px 22px;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 16px 18px;
   transition:
-    box-shadow 0.25s var(--ease),
-    border-color 0.25s var(--ease),
-    transform 0.25s var(--ease);
+    transform 0.2s var(--ease),
+    box-shadow 0.2s var(--ease);
 }
-.alert:hover {
-  border-color: var(--line-strong);
-  box-shadow: var(--shadow);
-  transform: translateY(-1px);
+.row:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 8px 8px 0 var(--ink-solid);
 }
-.alert.is-unread {
-  border-color: var(--brand-200);
+.row.is-unread {
+  background: var(--sun-50);
 }
-.alert__kind {
+.row__icon {
   display: grid;
   place-items: center;
-  align-self: flex-start;
-  width: 42px;
-  height: 42px;
+  width: 40px;
+  height: 40px;
   flex-shrink: 0;
-  border-radius: 14px;
+  border: 1.5px solid var(--ink-solid);
+  border-radius: 13px;
 }
-.alert--negative .alert__kind {
-  background: var(--score-low-bg);
-  color: var(--score-low);
-}
-.alert--positive .alert__kind {
+.row__icon--up {
   background: var(--score-great-bg);
   color: var(--score-great);
 }
-.alert--forecast .alert__kind {
-  background: var(--sky-100);
-  color: var(--sky-700);
-}
-.alert__body {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
-}
-.alert__meta {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  color: var(--muted);
-}
-.alert__label {
-  font-weight: 750;
-}
-.alert--negative .alert__label {
+.row__icon--down {
+  background: var(--score-low-bg);
   color: var(--score-low);
 }
-.alert--positive .alert__label {
-  color: var(--score-great);
+.row__icon--lilac {
+  background: var(--lilac-100);
+  color: var(--lilac-700);
 }
-.alert--forecast .alert__label {
-  color: var(--sky-700);
+.row__body {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  gap: 3px;
 }
-.alert__new {
-  padding: 1px 7px;
-  border-radius: var(--radius-pill);
-  background: var(--coral-500);
-  color: #fff;
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-}
-.alert__title {
-  font-size: 16.5px;
-  font-weight: 720;
-  line-height: 1.35;
-}
-.alert__summary {
-  font-size: 14px;
-  color: var(--ink-2);
-}
-.alert__security {
-  display: inline-flex;
+.row__meta {
+  display: flex;
   align-items: center;
   gap: 8px;
-  margin-top: 6px;
-  font-size: 13px;
+  font-size: 12.5px;
   font-weight: 650;
   color: var(--muted);
 }
-.alert__scores {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 14px;
-  background: var(--surface-muted);
+.row__new {
+  padding: 1px 8px;
+  border: 1.5px solid var(--ink-solid);
+  border-radius: var(--radius-pill);
+  background: var(--flare);
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
 }
-.alert__score {
-  font-size: 18px;
-  font-weight: 780;
+.row__title {
+  font-weight: 700;
+  line-height: 1.35;
 }
-.alert__chevron {
+.row__summary {
+  font-size: 14px;
+  color: var(--ink-2);
+}
+.row__thesis {
+  align-self: flex-start;
+  margin-top: 6px;
+}
+.row__chevron {
+  flex-shrink: 0;
+  margin-top: 10px;
   color: var(--subtle);
-}
-@media (max-width: 640px) {
-  .alert {
-    flex-wrap: wrap;
-    padding: 16px;
-    gap: 12px;
-  }
-  .alert__scores {
-    margin-left: 54px;
-  }
 }
 </style>

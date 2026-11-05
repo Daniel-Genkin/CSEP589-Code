@@ -46,8 +46,9 @@ const id = useId()
   max-width: 260px;
   padding: 10px 12px;
   border-radius: 12px;
+  border: var(--outline-thin);
   background: var(--ink);
-  color: #fff;
+  color: var(--cream);
   font-size: 13px;
   font-weight: 500;
   line-height: 1.45;
@@ -55,7 +56,7 @@ const id = useId()
   text-transform: none;
   text-align: left;
   white-space: normal;
-  box-shadow: var(--shadow);
+  box-shadow: 4px 4px 0 var(--sun);
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, 4px);

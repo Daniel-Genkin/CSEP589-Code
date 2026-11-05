@@ -3,14 +3,13 @@ import { ApiError, ERROR_CODES } from '../errors'
 import { db, persist } from './db'
 import alerts from './handlers/alerts'
 import auth from './handlers/auth'
-import billing from './handlers/billing'
-import monitoring from './handlers/monitoring'
-import scans from './handlers/scans'
-import securities from './handlers/securities'
-import shares from './handlers/shares'
+import community from './handlers/community'
+import copilot from './handlers/copilot'
+import invest from './handlers/invest'
+import theses from './handlers/theses'
 import { clone, sleep } from './utils'
 
-const routes = [...auth, ...securities, ...scans, ...monitoring, ...alerts, ...shares, ...billing].map((route) => {
+const routes = [...auth, ...copilot, ...theses, ...community, ...invest, ...alerts].map((route) => {
   const keys = []
   const pattern = route.path.replace(/:(\w+)/g, (_, key) => {
     keys.push(key)

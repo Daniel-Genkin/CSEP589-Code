@@ -29,9 +29,11 @@ defineProps({
   width: 56px;
   height: 56px;
   margin-bottom: 16px;
+  border: var(--outline-thin);
   border-radius: 18px;
-  background: var(--brand-50);
-  color: var(--brand-600);
+  background: var(--sun);
+  color: var(--ink);
+  box-shadow: var(--shadow-xs);
 }
 .empty__title {
   font-size: 18px;

@@ -52,8 +52,7 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(22, 36, 29, 0.36);
-  backdrop-filter: blur(6px);
+  background: rgba(23, 22, 29, 0.55);
   overflow-y: auto;
 }
 .modal {
@@ -63,6 +62,7 @@ onBeforeUnmount(() => {
   overflow-y: auto;
   padding: 30px;
   background: var(--surface);
+  border: var(--outline);
   border-radius: var(--radius-xl);
   box-shadow: var(--shadow-lg);
 }

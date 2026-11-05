@@ -1,9 +1,8 @@
 <script setup>
 import BrandLogo from '@/components/ui/BrandLogo.vue'
-import PlanBadge from '@/components/ui/PlanBadge.vue'
 import { useAlertsStore } from '@/stores/alerts'
 import { useSessionStore } from '@/stores/session'
-import { Bell, CreditCard, House, Plus, Radar, ScanSearch, Settings, Sparkles } from '@lucide/vue'
+import { Bell, House, Landmark, Lightbulb, Plus, Settings, Users, Wallet } from '@lucide/vue'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 import NotificationBell from './NotificationBell.vue'
@@ -15,15 +14,15 @@ const alerts = useAlertsStore()
 
 const nav = computed(() => [
   { label: 'Home', to: '/app', icon: House, match: (p) => p === '/app' },
-  { label: 'Scans', to: '/app/scan/new', icon: ScanSearch, match: (p) => p.startsWith('/app/scan') },
   {
-    label: 'Monitoring',
-    short: 'Monitor',
-    to: '/app/monitoring',
-    icon: Radar,
-    match: (p) => p.startsWith('/app/monitoring'),
-    tag: session.isPro ? null : 'Pro',
+    label: 'My theses',
+    short: 'Theses',
+    to: '/app/theses',
+    icon: Lightbulb,
+    match: (p) => p.startsWith('/app/theses') || p.startsWith('/app/pitch'),
   },
+  { label: 'Community', to: '/app/community', icon: Users, match: (p) => p.startsWith('/app/community') },
+  { label: 'Portfolio', to: '/app/portfolio', icon: Wallet, match: (p) => p.startsWith('/app/portfolio') },
   {
     label: 'Alerts',
     to: '/app/alerts',
@@ -31,7 +30,6 @@ const nav = computed(() => [
     match: (p) => p.startsWith('/app/alerts'),
     count: alerts.unreadCount,
   },
-  { label: 'Plan & billing', short: 'Plan', to: '/app/plan', icon: CreditCard, match: (p) => p.startsWith('/app/plan') },
   { label: 'Settings', to: '/app/settings', icon: Settings, match: (p) => p.startsWith('/app/settings'), desktopOnly: true },
 ])
 </script>
@@ -39,8 +37,8 @@ const nav = computed(() => [
 <template>
   <div class="app-shell">
     <aside class="sidebar">
-      <RouterLink to="/app" class="sidebar__logo" aria-label="outvest home"><BrandLogo /></RouterLink>
-      <RouterLink to="/app/scan/new" class="btn btn-primary btn-block sidebar__cta"><Plus :size="18" /> New scan</RouterLink>
+      <RouterLink to="/app" class="sidebar__logo" aria-label="Outvest home"><BrandLogo inverse /></RouterLink>
+      <RouterLink to="/app/pitch" class="btn btn-primary btn-block sidebar__cta"><Plus :size="18" /> New thesis</RouterLink>
 
       <nav class="sidebar__nav" aria-label="App">
         <RouterLink
@@ -53,29 +51,31 @@ const nav = computed(() => [
           <component :is="item.icon" :size="19" />
           <span class="grow">{{ item.label }}</span>
           <span v-if="item.count" class="sidebar__count">{{ item.count }}</span>
-          <span v-if="item.tag" class="sidebar__tag">{{ item.tag }}</span>
         </RouterLink>
       </nav>
 
       <div class="sidebar__bottom">
-        <RouterLink v-if="!session.isPro" to="/app/plan" class="upsell">
-          <span class="upsell__icon"><Sparkles :size="16" /></span>
-          <span class="upsell__title">Let us keep watch</span>
-          <span class="upsell__text">Pro monitors your holdings and emails you when something changes.</span>
-          <span class="upsell__link">See Pro →</span>
+        <RouterLink v-if="!session.hasAccount" to="/app/portfolio" class="upsell">
+          <span class="upsell__icon"><Wallet :size="16" /></span>
+          <span class="upsell__title">Invest from $10</span>
+          <span class="upsell__text">When a thesis is ready, open a brokerage account in about five minutes and buy the basket.</span>
+          <span class="upsell__link">How investing works →</span>
         </RouterLink>
-        <div v-else class="sidebar__plan">
-          <span class="muted text-sm">Your plan</span>
-          <PlanBadge :plan-id="session.planId" />
-        </div>
+        <RouterLink v-else to="/app/portfolio" class="sidebar__account">
+          <span class="sidebar__account-icon"><Landmark :size="16" /></span>
+          <span class="grow">
+            <span class="sidebar__account-title">Brokerage account</span>
+            <span class="muted text-xs">••{{ session.user.brokerage.last4 }} · registered partner</span>
+          </span>
+        </RouterLink>
       </div>
     </aside>
 
     <div class="app-main">
       <header class="topbar">
-        <RouterLink to="/app" class="topbar__logo" aria-label="outvest home"><BrandLogo :size="28" /></RouterLink>
+        <RouterLink to="/app" class="topbar__logo" aria-label="Outvest home"><BrandLogo :size="28" /></RouterLink>
         <div class="topbar__actions">
-          <RouterLink to="/app/scan/new" class="btn btn-soft btn-sm topbar__scan hide-sm"><Plus :size="16" /> New scan</RouterLink>
+          <RouterLink to="/app/pitch" class="btn btn-primary btn-sm topbar__new hide-sm"><Plus :size="16" /> New thesis</RouterLink>
           <NotificationBell />
           <UserMenu />
         </div>
@@ -124,8 +124,9 @@ const nav = computed(() => [
   width: 264px;
   height: 100vh;
   padding: 22px 18px;
-  border-right: 1px solid var(--line);
-  background: var(--surface-muted);
+  border-right: var(--outline);
+  background: var(--signal);
+  color: var(--cream);
 }
 .sidebar__logo {
   padding: 4px 10px 22px;
@@ -143,65 +144,87 @@ const nav = computed(() => [
   align-items: center;
   gap: 12px;
   padding: 11px 12px;
+  border: 2px solid transparent;
   border-radius: 14px;
   font-size: 15px;
   font-weight: 600;
-  color: var(--ink-2);
+  color: var(--cream);
   transition:
     background-color 0.2s,
     color 0.2s;
 }
 .sidebar__link:hover {
-  background: rgba(22, 36, 29, 0.045);
-  color: var(--ink);
+  background: rgba(23, 22, 29, 0.18);
 }
 .sidebar__link.is-active {
-  background: var(--surface);
-  color: var(--brand-700);
-  box-shadow: var(--shadow-xs), inset 0 0 0 1px var(--line);
+  background: var(--cream);
+  color: var(--ink);
+  border-color: var(--ink-solid);
+  box-shadow: var(--shadow-sm);
 }
 .sidebar__count {
+  display: grid;
+  place-items: center;
   min-width: 22px;
   height: 22px;
   padding: 0 7px;
-  display: grid;
-  place-items: center;
+  border: 2px solid var(--ink-solid);
   border-radius: var(--radius-pill);
-  background: var(--coral-500);
-  color: #fff;
+  background: var(--flare);
+  color: var(--ink);
   font-size: 11.5px;
   font-weight: 800;
-}
-.sidebar__tag {
-  padding: 2px 8px;
-  border-radius: var(--radius-pill);
-  background: var(--brand-100);
-  color: var(--brand-700);
-  font-size: 11px;
-  font-weight: 750;
 }
 .sidebar__bottom {
   margin-top: auto;
 }
-.sidebar__plan {
+.sidebar__account {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: 14px 12px;
+  gap: 10px;
+  padding: 12px;
+  border: var(--outline-thin);
   border-radius: 16px;
-  border: 1px solid var(--line);
-  background: var(--surface);
+  background: var(--cream);
+  color: var(--ink);
+  transition:
+    transform 0.2s var(--ease),
+    box-shadow 0.2s var(--ease);
+}
+.sidebar__account:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--shadow-sm);
+}
+.sidebar__account .grow {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.35;
+}
+.sidebar__account-icon {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--ink-solid);
+  border-radius: 11px;
+  background: var(--sun);
+  color: var(--ink);
+}
+.sidebar__account-title {
+  font-size: 14px;
+  font-weight: 700;
 }
 .upsell {
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding: 18px;
+  border: var(--outline);
   border-radius: 20px;
-  background:
-    radial-gradient(circle at 100% 0%, rgba(128, 197, 157, 0.45), transparent 55%),
-    linear-gradient(160deg, var(--brand-700), var(--brand-900));
-  color: #fff;
+  background: var(--ink-solid);
+  box-shadow: 5px 5px 0 var(--sun);
+  color: var(--cream);
   transition: transform 0.25s var(--ease);
 }
 .upsell:hover {
@@ -214,7 +237,8 @@ const nav = computed(() => [
   height: 30px;
   margin-bottom: 6px;
   border-radius: 10px;
-  background: rgba(255, 255, 255, 0.14);
+  background: var(--sun);
+  color: var(--ink);
 }
 .upsell__title {
   font-weight: 750;
@@ -222,13 +246,13 @@ const nav = computed(() => [
 .upsell__text {
   font-size: 13px;
   line-height: 1.45;
-  color: rgba(255, 255, 255, 0.78);
+  color: #d8d3dd;
 }
 .upsell__link {
   margin-top: 6px;
   font-size: 13.5px;
   font-weight: 700;
-  color: var(--brand-200);
+  color: var(--sun);
 }
 
 /* Main */
@@ -246,13 +270,13 @@ const nav = computed(() => [
   align-items: center;
   height: 68px;
   padding: 0 32px;
-  background: rgba(247, 245, 239, 0.85);
-  backdrop-filter: saturate(1.4) blur(12px);
+  border-bottom: 2px solid var(--ink-solid);
+  background: var(--bg);
 }
 .topbar__logo {
   display: none;
 }
-.topbar__scan {
+.topbar__new {
   display: none;
 }
 .topbar__actions {
@@ -266,7 +290,7 @@ const nav = computed(() => [
   width: 100%;
   max-width: 1120px;
   margin: 0 auto;
-  padding: 8px 40px 48px;
+  padding: 24px 40px 48px;
 }
 
 /* Mobile tab bar */
@@ -280,12 +304,11 @@ const nav = computed(() => [
   }
   .topbar {
     padding: 0 16px 0 20px;
-    border-bottom: 1px solid var(--line);
   }
   .topbar__logo {
     display: inline-flex;
   }
-  .topbar__scan {
+  .topbar__new {
     display: inline-flex;
   }
   .app-content {
@@ -298,9 +321,8 @@ const nav = computed(() => [
     display: grid;
     grid-template-columns: repeat(5, minmax(0, 1fr));
     padding: 8px 8px calc(8px + env(safe-area-inset-bottom));
-    border-top: 1px solid var(--line);
-    background: rgba(255, 255, 255, 0.94);
-    backdrop-filter: blur(14px);
+    border-top: var(--outline);
+    background: var(--cream);
   }
   .tabbar__link {
     display: flex;
@@ -314,7 +336,7 @@ const nav = computed(() => [
     color: var(--muted);
   }
   .tabbar__link.is-active {
-    color: var(--brand-700);
+    color: var(--ink);
   }
   .tabbar__icon {
     position: relative;
@@ -322,21 +344,23 @@ const nav = computed(() => [
     place-items: center;
     width: 46px;
     height: 28px;
+    border: 2px solid transparent;
     border-radius: var(--radius-pill);
     transition: background-color 0.2s;
   }
   .tabbar__link.is-active .tabbar__icon {
-    background: var(--brand-100);
+    border-color: var(--ink-solid);
+    background: var(--sun);
   }
   .tabbar__dot {
     position: absolute;
-    top: 2px;
-    right: 10px;
+    top: 0;
+    right: 8px;
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    border: 2px solid #fff;
-    background: var(--coral-500);
+    border: 2px solid var(--ink-solid);
+    background: var(--flare);
     box-sizing: content-box;
   }
 }

@@ -5,7 +5,7 @@ import { ArrowLeft, Compass } from '@lucide/vue';
 
 <template>
   <div class="not-found">
-    <RouterLink to="/" aria-label="outvest home"><BrandLogo /></RouterLink>
+    <RouterLink to="/" aria-label="Outvest home"><BrandLogo /></RouterLink>
     <div class="not-found__body">
       <span class="not-found__icon"><Compass :size="30" /></span>
       <h1 class="h-1">This page wandered off.</h1>
@@ -42,9 +42,12 @@ import { ArrowLeft, Compass } from '@lucide/vue';
   width: 72px;
   height: 72px;
   margin-bottom: 8px;
+  border: var(--outline);
   border-radius: 24px;
-  background: var(--lilac-100);
-  color: var(--lilac-700);
+  background: var(--sun);
+  color: var(--ink);
+  box-shadow: var(--shadow-sm);
+  transform: rotate(-4deg);
 }
 .not-found__actions {
   display: flex;

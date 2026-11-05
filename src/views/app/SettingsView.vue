@@ -1,14 +1,14 @@
 <script setup>
-import { authService, isMockApi, portfolioService } from '@/api'
-import CategoryIcon from '@/components/ui/CategoryIcon.vue'
+import { authService, investService, isMockApi } from '@/api'
+import BrokerageAccountForm from '@/components/invest/BrokerageAccountForm.vue'
+import UiModal from '@/components/ui/UiModal.vue'
 import UiToggle from '@/components/ui/UiToggle.vue'
 import { useAsync } from '@/composables/useAsync'
 import { useToast } from '@/composables/useToast'
 import { useAlertsStore } from '@/stores/alerts'
 import { useSessionStore } from '@/stores/session'
-import { formatMoney, timeAgo } from '@/utils/format'
-import { CATEGORIES } from '@/utils/scoring'
-import { Check, Link2, LogOut, RotateCcw, Unplug } from '@lucide/vue'
+import { formatDateLong } from '@/utils/format'
+import { ExternalLink, Landmark, LogOut, RotateCcw } from '@lucide/vue'
 import { reactive, ref } from 'vue'
 import { useRouter } from 'vue-router'
 
@@ -17,39 +17,36 @@ const session = useSessionStore()
 const alerts = useAlertsStore()
 const toast = useToast()
 
-const profile = reactive({ name: session.user.name, email: session.user.email })
+const profile = reactive({
+  name: session.user.name,
+  email: session.user.email,
+  handle: session.user.handle,
+  bio: session.user.bio,
+})
 const profileErrors = reactive({})
 const savingProfile = ref(false)
-const values = ref([...session.user.values])
-const savingValues = ref(false)
 const prefs = reactive({ ...session.user.preferences })
-const { data: connections } = useAsync(() => portfolioService.listConnections())
+const accountOpen = ref(false)
+const { data: account, run: reloadAccount } = useAsync(() => investService.getAccount())
+
+const ALERT_PREFS = [
+  { key: 'weakens', label: 'News that weakens a claim', description: 'The alerts that matter most: something cuts against your thesis.' },
+  { key: 'strengthens', label: 'News that strengthens a claim', description: 'Evidence that one of your claims is playing out.' },
+  { key: 'rebalance', label: 'Rebalance heads-ups', description: 'A few days before a basket you own is rebalanced.' },
+]
 
 async function saveProfile() {
-  Object.keys(profileErrors).forEach((k) => delete profileErrors[k])
+  Object.keys(profileErrors).forEach((key) => delete profileErrors[key])
   savingProfile.value = true
   try {
-    await session.update({ name: profile.name, email: profile.email })
+    await session.update({ ...profile })
+    profile.handle = session.user.handle
     toast.success('Profile updated')
   } catch (err) {
     if (err.details) Object.assign(profileErrors, err.details)
-    else toast.error("Couldn't save your profile", { description: err.message })
+    else toast.error('Couldn’t save your profile', { description: err.message })
   } finally {
     savingProfile.value = false
-  }
-}
-
-function toggleValue(key) {
-  values.value = values.value.includes(key) ? values.value.filter((k) => k !== key) : [...values.value, key]
-}
-
-async function saveValues() {
-  savingValues.value = true
-  try {
-    await session.update({ values: values.value })
-    toast.success('Your values are saved', { description: "We'll highlight them across your results." })
-  } finally {
-    savingValues.value = false
   }
 }
 
@@ -57,21 +54,17 @@ async function savePref(key, value) {
   prefs[key] = value
   try {
     await session.update({ preferences: { [key]: value } })
-    toast.success('Email preferences saved')
+    toast.success('Preferences saved')
   } catch (err) {
     prefs[key] = !value
-    toast.error("Couldn't save that change", { description: err.message })
+    toast.error('Couldn’t save that change', { description: err.message })
   }
 }
 
-async function disconnect(connection) {
-  try {
-    await portfolioService.unlink(connection.id)
-    connections.value = connections.value.filter((c) => c.id !== connection.id)
-    toast.info(`Disconnected ${connection.brokerageName}`, { description: 'We no longer have access to that account.' })
-  } catch (err) {
-    toast.error("Couldn't disconnect", { description: err.message })
-  }
+async function onAccountOpened() {
+  accountOpen.value = false
+  await reloadAccount()
+  toast.success('Your brokerage account is open')
 }
 
 async function logout() {
@@ -84,7 +77,7 @@ async function resetDemo() {
   const { resetMockDb } = await import('@/api/mock/db')
   resetMockDb()
   authService.clearSession()
-  window.location.assign('/')
+  window.location.assign(import.meta.env.BASE_URL)
 }
 </script>
 
@@ -93,14 +86,17 @@ async function resetDemo() {
     <header class="page-head">
       <div>
         <h1 class="page-title">Settings</h1>
-        <p class="page-sub">Your profile, your values, and how we keep in touch.</p>
+        <p class="page-sub">Your profile, your alerts and your brokerage account.</p>
       </div>
     </header>
 
     <section class="card card-pad block">
-      <div class="block__head">
-        <p class="card-title">Profile</p>
-        <p class="card-sub">The basics. We keep it minimal on purpose.</p>
+      <div class="block__head block__head--row">
+        <div>
+          <p class="card-title">Profile</p>
+          <p class="card-sub">Your name, handle and bio appear on theses you publish and on your public track record.</p>
+        </div>
+        <RouterLink :to="`/u/${session.user.handle}`" class="btn btn-ghost btn-sm"><ExternalLink :size="15" /> Public profile</RouterLink>
       </div>
       <form class="profile" novalidate @submit.prevent="saveProfile">
         <div class="field">
@@ -113,6 +109,27 @@ async function resetDemo() {
           <input id="settings-email" v-model="profile.email" type="email" class="input" :class="{ 'is-invalid': profileErrors.email }" autocomplete="email" />
           <span v-if="profileErrors.email" class="field-error">{{ profileErrors.email }}</span>
         </div>
+        <div class="field">
+          <label class="label" for="settings-handle">Handle</label>
+          <div class="handle">
+            <span class="handle__at">@</span>
+            <input id="settings-handle" v-model="profile.handle" class="input" :class="{ 'is-invalid': profileErrors.handle }" autocomplete="username" />
+          </div>
+          <span v-if="profileErrors.handle" class="field-error">{{ profileErrors.handle }}</span>
+        </div>
+        <div class="field profile__bio">
+          <label class="label" for="settings-bio">Bio</label>
+          <textarea
+            id="settings-bio"
+            v-model="profile.bio"
+            class="input"
+            :class="{ 'is-invalid': profileErrors.bio }"
+            maxlength="160"
+            placeholder="What do you know that the market doesn’t? e.g. “Building energy engineer in Seattle.”"
+          />
+          <span v-if="profileErrors.bio" class="field-error">{{ profileErrors.bio }}</span>
+          <span v-else class="field-hint">{{ profile.bio.length }}/160</span>
+        </div>
         <div class="profile__actions">
           <button type="submit" class="btn btn-primary" :disabled="savingProfile">
             <span v-if="savingProfile" class="spinner" />
@@ -124,50 +141,22 @@ async function resetDemo() {
 
     <section class="card card-pad block">
       <div class="block__head">
-        <p class="card-title">Your values</p>
-        <p class="card-sub">We'll highlight these in every scan and alert.</p>
-      </div>
-      <div class="values">
-        <button
-          v-for="cat in CATEGORIES"
-          :key="cat.key"
-          type="button"
-          class="value"
-          :class="{ 'is-on': values.includes(cat.key) }"
-          :aria-pressed="values.includes(cat.key)"
-          @click="toggleValue(cat.key)"
-        >
-          <CategoryIcon :category="cat.key" :size="36" />
-          <span class="value__label">{{ cat.label }}</span>
-          <span class="value__check"><Check :size="13" :stroke-width="3" /></span>
-        </button>
-      </div>
-      <button type="button" class="btn btn-primary block__save" :disabled="savingValues" @click="saveValues">
-        <span v-if="savingValues" class="spinner" />
-        Save values
-      </button>
-    </section>
-
-    <section class="card card-pad block">
-      <div class="block__head">
-        <p class="card-title">Email</p>
-        <p class="card-sub">
-          Monitoring alerts are managed in
-          <RouterLink v-if="session.isPro" to="/app/monitoring" class="link">Monitoring</RouterLink>
-          <template v-else>Monitoring (Pro)</template>.
-        </p>
+        <p class="card-title">Alerts</p>
+        <p class="card-sub">Outvest only alerts you when news affects one of your theses. Choose which ones you want.</p>
       </div>
       <div class="toggles">
         <UiToggle
-          :model-value="prefs.weeklyRecap"
-          label="Weekly recap"
-          description="A short Sunday summary of how your holdings are doing on your values."
-          @update:model-value="savePref('weeklyRecap', $event)"
+          v-for="pref in ALERT_PREFS"
+          :key="pref.key"
+          :model-value="prefs[pref.key]"
+          :label="pref.label"
+          :description="pref.description"
+          @update:model-value="savePref(pref.key, $event)"
         />
         <UiToggle
           :model-value="prefs.productEmails"
-          label="Tips & product news"
-          description="Bite-sized investing explainers and new features. About twice a month."
+          label="Product news by email"
+          description="New themes and features. About once a month."
           @update:model-value="savePref('productEmails', $event)"
         />
       </div>
@@ -175,29 +164,29 @@ async function resetDemo() {
 
     <section class="card card-pad block">
       <div class="block__head">
-        <p class="card-title">Connected accounts</p>
-        <p class="card-sub">Read-only connections to your brokerages.</p>
+        <p class="card-title">Brokerage account</p>
+        <p class="card-sub">Held with Outvest’s registered brokerage partner.</p>
       </div>
-      <ul v-if="connections?.length" class="conns">
-        <li v-for="c in connections" :key="c.id" class="conn">
-          <span class="conn__mark" :style="{ background: c.color }">{{ c.brokerageName[0] }}</span>
-          <span class="grow">
-            <strong>{{ c.brokerageName }}</strong>
-            <span class="muted text-sm"> · {{ c.holdings.length }} holdings · {{ formatMoney(c.totalValue) }} · synced {{ timeAgo(c.syncedAt) }}</span>
+      <div v-if="account" class="account">
+        <span class="account__icon"><Landmark :size="18" /></span>
+        <span class="grow">
+          <strong>Account ••{{ account.last4 }}</strong>
+          <span class="muted text-sm">
+            {{ account.legalName }} · opened {{ formatDateLong(account.openedAt) }} · funded from {{ account.bank.name }} ••{{ account.bank.last4 }}
           </span>
-          <button type="button" class="btn btn-ghost btn-sm" @click="disconnect(c)"><Unplug :size="15" /> Disconnect</button>
-        </li>
-      </ul>
-      <p v-else class="muted">No accounts connected.</p>
-      <RouterLink :to="{ path: '/app/scan/new', query: { mode: 'link' } }" class="btn btn-secondary btn-sm block__save">
-        <Link2 :size="15" /> Link an account
-      </RouterLink>
+        </span>
+        <span class="badge badge-brand">Open</span>
+      </div>
+      <div v-else class="account account--empty">
+        <span class="grow muted">No brokerage account yet. You only need one to invest; building and publishing theses is free.</span>
+        <button type="button" class="btn btn-secondary btn-sm" @click="accountOpen = true">Open an account</button>
+      </div>
     </section>
 
     <section v-if="isMockApi" class="card card-pad block block--demo">
       <div class="block__head">
         <p class="card-title">Demo data</p>
-        <p class="card-sub">This mockup stores everything in your browser. Reset it to start fresh with the sample account.</p>
+        <p class="card-sub">This mockup stores everything in your browser. Reset it to start fresh with the sample accounts.</p>
       </div>
       <button type="button" class="btn btn-danger btn-sm" @click="resetDemo"><RotateCcw :size="15" /> Reset demo data</button>
     </section>
@@ -205,6 +194,12 @@ async function resetDemo() {
     <div class="logout">
       <button type="button" class="btn btn-ghost" @click="logout"><LogOut :size="17" /> Log out</button>
     </div>
+
+    <UiModal :open="accountOpen" size="lg" label="Open a brokerage account" @close="accountOpen = false">
+      <h2 class="h-3">Open your brokerage account</h2>
+      <p class="muted modal-sub">About five minutes. After that, investing in any of your theses takes one tap.</p>
+      <BrokerageAccountForm @opened="onAccountOpened" />
+    </UiModal>
   </div>
 </template>
 
@@ -218,88 +213,62 @@ async function resetDemo() {
 .block__head {
   margin-bottom: 18px;
 }
-.block__save {
-  margin-top: 18px;
+.block__head--row {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
 }
 .profile {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 16px;
 }
+.profile__bio,
 .profile__actions {
   grid-column: 1 / -1;
 }
-.values {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 10px;
+.profile__bio textarea.input {
+  min-height: 80px;
 }
-.value {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px;
-  border: 1.5px solid var(--line);
-  border-radius: 16px;
-  text-align: left;
-  transition:
-    border-color 0.2s,
-    background-color 0.2s;
+.handle {
+  position: relative;
 }
-.value:hover {
-  border-color: var(--line-strong);
+.handle__at {
+  position: absolute;
+  top: 50%;
+  left: 16px;
+  transform: translateY(-50%);
+  font-weight: 700;
+  color: var(--muted);
 }
-.value.is-on {
-  border-color: var(--brand-400);
-  background: var(--brand-25);
-}
-.value__label {
-  flex: 1;
-  font-size: 14px;
-  font-weight: 650;
-  line-height: 1.3;
-}
-.value__check {
-  display: grid;
-  place-items: center;
-  width: 22px;
-  height: 22px;
-  flex-shrink: 0;
-  border-radius: 50%;
-  border: 1.5px solid var(--line-strong);
-  color: transparent;
-  transition: all 0.2s;
-}
-.value.is-on .value__check {
-  border-color: var(--brand-600);
-  background: var(--brand-600);
-  color: #fff;
+.handle .input {
+  padding-left: 34px;
 }
 .toggles {
   display: flex;
   flex-direction: column;
   gap: 18px;
 }
-.conn {
+.account {
   display: flex;
   align-items: center;
   gap: 12px;
-  padding: 12px 0;
-  border-top: 1px solid var(--line);
+  flex-wrap: wrap;
 }
-.conn:first-child {
-  border-top: 0;
+.account .grow {
+  display: flex;
+  flex-direction: column;
 }
-.conn__mark {
+.account__icon {
   display: grid;
   place-items: center;
-  width: 38px;
-  height: 38px;
-  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--ink-solid);
   border-radius: 12px;
-  color: #fff;
-  font-family: var(--font-display);
-  font-weight: 600;
+  background: var(--sun);
+  color: var(--ink);
 }
 .block--demo {
   border-style: dashed;
@@ -311,20 +280,15 @@ async function resetDemo() {
   justify-content: center;
   margin-top: 8px;
 }
+.modal-sub {
+  margin: 6px 0 18px;
+}
 @media (max-width: 720px) {
   .profile {
     grid-template-columns: minmax(0, 1fr);
   }
-  .values {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-  .conn {
-    flex-wrap: wrap;
-  }
-}
-@media (max-width: 480px) {
-  .values {
-    grid-template-columns: minmax(0, 1fr);
+  .block__head--row {
+    flex-direction: column;
   }
 }
 </style>

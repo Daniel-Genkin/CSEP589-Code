@@ -8,43 +8,48 @@ const routes = [
     path: '/',
     component: PublicLayout,
     children: [
-      { path: '', name: 'home', component: () => import('@/views/LandingView.vue'), meta: { title: 'Invest in what you believe in' } },
+      {
+        path: '',
+        name: 'home',
+        component: () => import('@/views/LandingView.vue'),
+        meta: { title: 'Turn your climate hot take into a real portfolio', ground: 'blue' },
+      },
       { path: 'pricing', name: 'pricing', component: () => import('@/views/PricingView.vue'), meta: { title: 'Pricing' } },
+      {
+        path: 't/:thesisId',
+        name: 'public-thesis',
+        component: () => import('@/views/ThesisPublicView.vue'),
+        meta: { title: 'Climate thesis', ground: 'blue' },
+      },
+      {
+        path: 'u/:handle',
+        name: 'profile',
+        component: () => import('@/views/ProfileView.vue'),
+        meta: { title: 'Track record', ground: 'blue' },
+      },
     ],
   },
   { path: '/signup', name: 'signup', component: () => import('@/views/auth/SignupView.vue'), meta: { title: 'Create your account', guestOnly: true } },
   { path: '/login', name: 'login', component: () => import('@/views/auth/LoginView.vue'), meta: { title: 'Log in', guestOnly: true } },
-  { path: '/s/:shareId', name: 'shared', component: () => import('@/views/SharedAnalysisView.vue'), meta: { title: 'Shared analysis' } },
-  {
-    path: '/preview/email/:alertId',
-    name: 'email-preview',
-    component: () => import('@/views/app/EmailPreviewView.vue'),
-    meta: { title: 'Email preview', requiresAuth: true },
-  },
   {
     path: '/app',
     component: AppLayout,
     meta: { requiresAuth: true },
     children: [
       { path: '', name: 'dashboard', component: () => import('@/views/app/DashboardView.vue'), meta: { title: 'Home' } },
-      { path: 'scan/new', name: 'scan-new', component: () => import('@/views/app/NewScanView.vue'), meta: { title: 'New scan' } },
+      { path: 'pitch', name: 'pitch', component: () => import('@/views/app/PitchView.vue'), meta: { title: 'New thesis' } },
+      { path: 'theses', name: 'theses', component: () => import('@/views/app/ThesesView.vue'), meta: { title: 'My theses' } },
+      { path: 'theses/:thesisId', name: 'thesis', component: () => import('@/views/app/ThesisView.vue'), meta: { title: 'Workshop' } },
       {
-        path: 'scan/:scanId/progress',
-        name: 'scan-progress',
-        component: () => import('@/views/app/ScanProgressView.vue'),
-        meta: { title: 'Scanning…' },
+        path: 'theses/:thesisId/invest',
+        name: 'invest',
+        component: () => import('@/views/app/InvestView.vue'),
+        meta: { title: 'Invest' },
       },
-      { path: 'scan/:scanId', name: 'scan-results', component: () => import('@/views/app/ScanResultsView.vue'), meta: { title: 'Scan results' } },
-      {
-        path: 'scan/:scanId/:symbol',
-        name: 'holding',
-        component: () => import('@/views/app/HoldingDetailView.vue'),
-        meta: { title: 'Analysis' },
-      },
-      { path: 'monitoring', name: 'monitoring', component: () => import('@/views/app/MonitoringView.vue'), meta: { title: 'Monitoring' } },
+      { path: 'community', name: 'community', component: () => import('@/views/app/CommunityView.vue'), meta: { title: 'Community' } },
+      { path: 'portfolio', name: 'portfolio', component: () => import('@/views/app/PortfolioView.vue'), meta: { title: 'Portfolio' } },
       { path: 'alerts', name: 'alerts', component: () => import('@/views/app/AlertsView.vue'), meta: { title: 'Alerts' } },
       { path: 'alerts/:alertId', name: 'alert', component: () => import('@/views/app/AlertDetailView.vue'), meta: { title: 'Alert' } },
-      { path: 'plan', name: 'plan', component: () => import('@/views/app/PlanView.vue'), meta: { title: 'Plan & billing' } },
       { path: 'settings', name: 'settings', component: () => import('@/views/app/SettingsView.vue'), meta: { title: 'Settings' } },
     ],
   },
@@ -59,7 +64,7 @@ const router = createRouter({
     if (to.hash) {
       // Wait for the page transition to render the target section.
       const delay = to.path === from.path ? 0 : 320
-      return new Promise((resolve) => setTimeout(() => resolve({ el: to.hash, top: 88, behavior: 'smooth' }), delay))
+      return new Promise((resolve) => setTimeout(() => resolve({ el: to.hash, top: 24, behavior: 'smooth' }), delay))
     }
     if (to.path === from.path) return false
     return { top: 0 }
@@ -72,11 +77,14 @@ router.beforeEach(async (to) => {
   if (to.matched.some((r) => r.meta.requiresAuth) && !session.isAuthed) {
     return { name: 'login', query: { redirect: to.fullPath } }
   }
-  if (to.meta.guestOnly && session.isAuthed) return { name: 'dashboard' }
+  if (to.meta.guestOnly && session.isAuthed) {
+    // Someone already signed in who arrives with a pitch goes straight to building it.
+    return typeof to.query.idea === 'string' ? { name: 'pitch', query: { idea: to.query.idea } } : { name: 'dashboard' }
+  }
 })
 
 router.afterEach((to) => {
-  document.title = to.meta.title ? `${to.meta.title} · outvest` : 'outvest'
+  document.title = to.meta.title ? `${to.meta.title} · Outvest` : 'Outvest'
 })
 
 export default router

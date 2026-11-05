@@ -1,10 +1,10 @@
 import { api } from '../client'
 
 export const alertsService = {
-  /** GET /alerts -> Alert[] (newest first) */
+  /** GET /alerts -> Alert[] (newest first). Alerts only fire when news affects one of your theses. */
   list: () => api.get('/alerts'),
 
-  /** GET /alerts/:id -> AlertDetail (what happened, score impact, exposure, sources) */
+  /** GET /alerts/:id -> AlertDetail (what happened, the claim it affects, companies in your basket, suggested action) */
   get: (alertId) => api.get(`/alerts/${alertId}`),
 
   /** POST /alerts/:id/read */
@@ -13,6 +13,6 @@ export const alertsService = {
   /** POST /alerts/read-all */
   markAllRead: () => api.post('/alerts/read-all'),
 
-  /** GET /alerts/:id/email -> rendered email payload (what the notification email contains) */
-  getEmail: (alertId) => api.get(`/alerts/${alertId}/email`),
+  /** POST /alerts/check -> { alert: Alert | null, reason: 'no-theses' | 'caught-up' | null } (demo: pulls the next relevant story) */
+  check: () => api.post('/alerts/check'),
 }

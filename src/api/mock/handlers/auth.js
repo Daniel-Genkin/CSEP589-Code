@@ -1,9 +1,11 @@
 import { ERROR_CODES } from '../../errors'
-import { CATEGORY_KEYS } from '../catalog'
 import { db } from '../db'
 import { fail, isValidEmail, serializeUser } from '../model'
-import { defaultMonitoringSettings } from '../seed'
+import { defaultPreferences } from '../seed'
 import { randomId } from '../utils'
+
+const HANDLE_PATTERN = /^[a-z0-9_]{3,20}$/
+const PREFERENCE_KEYS = Object.keys(defaultPreferences())
 
 function createSession(userId) {
   const token = `tok_${crypto.randomUUID()}`
@@ -11,21 +13,27 @@ function createSession(userId) {
   return token
 }
 
+function uniqueHandle(name) {
+  const base = (name.trim().split(/\s+/)[0].toLowerCase().replace(/[^a-z0-9_]/g, '') || 'investor').slice(0, 14).padEnd(3, '0')
+  let handle = base
+  while (db.users.some((u) => u.handle === handle)) handle = `${base}${Math.floor(100 + Math.random() * 900)}`
+  return handle
+}
+
 function createUser({ name, email, referralCode }) {
   const user = {
     id: randomId('usr'),
     name: name.trim(),
     email: email.trim().toLowerCase(),
+    handle: uniqueHandle(name),
+    bio: '',
     createdAt: new Date().toISOString(),
-    values: [],
     referralCode: `${name.trim().split(/\s+/)[0].slice(0, 4).toUpperCase()}${randomId('', 2).toUpperCase()}`,
     referredBy: referralCode || null,
-    subscription: { planId: 'free', interval: 'month', status: 'active', startedAt: new Date().toISOString(), renewsAt: null },
-    paymentMethod: null,
-    preferences: { productEmails: true, weeklyRecap: true },
+    preferences: defaultPreferences(),
+    brokerage: null,
   }
   db.users.push(user)
-  db.monitoring[user.id] = { symbols: [], settings: defaultMonitoringSettings(), lastCheckedAt: null, poolCursor: 0 }
   return user
 }
 
@@ -96,21 +104,41 @@ export default [
     method: 'PATCH',
     path: '/me',
     handler: ({ user, body }) => {
+      // Validate everything first so a rejected request never half-applies.
+      const errors = {}
+      const changes = {}
       if ('name' in body) {
-        if (!body.name?.trim()) fail(422, ERROR_CODES.VALIDATION, 'Name can’t be empty.', { name: 'Name can’t be empty.' })
-        user.name = body.name.trim().slice(0, 60)
+        if (!body.name?.trim()) errors.name = 'Name can’t be empty.'
+        else changes.name = body.name.trim().slice(0, 60)
       }
       if ('email' in body) {
-        if (!isValidEmail(body.email)) fail(422, ERROR_CODES.VALIDATION, 'Please enter a valid email.', { email: 'Please enter a valid email.' })
-        const existing = findByEmail(body.email)
-        if (existing && existing.id !== user.id) fail(409, ERROR_CODES.EMAIL_TAKEN, 'That email is already in use.', { email: 'Already in use.' })
-        user.email = body.email.trim().toLowerCase()
+        if (!isValidEmail(body.email)) errors.email = 'Please enter a valid email.'
+        else changes.email = body.email.trim().toLowerCase()
       }
-      if (Array.isArray(body.values)) user.values = body.values.filter((v) => CATEGORY_KEYS.includes(v))
-      if (body.preferences) {
-        user.preferences = {
-          productEmails: Boolean(body.preferences.productEmails ?? user.preferences.productEmails),
-          weeklyRecap: Boolean(body.preferences.weeklyRecap ?? user.preferences.weeklyRecap),
+      if ('handle' in body) {
+        const handle = String(body.handle ?? '').trim().replace(/^@/, '').toLowerCase()
+        if (!HANDLE_PATTERN.test(handle)) errors.handle = 'Use 3–20 lowercase letters, numbers or underscores.'
+        else changes.handle = handle
+      }
+      if ('bio' in body) {
+        const bio = String(body.bio ?? '').trim()
+        if (bio.length > 160) errors.bio = 'Keep it under 160 characters.'
+        else changes.bio = bio
+      }
+      if (Object.keys(errors).length) fail(422, ERROR_CODES.VALIDATION, Object.values(errors)[0], errors)
+
+      const emailOwner = changes.email ? findByEmail(changes.email) : null
+      if (emailOwner && emailOwner.id !== user.id) {
+        fail(409, ERROR_CODES.EMAIL_TAKEN, 'That email is already in use.', { email: 'Already in use.' })
+      }
+      if (changes.handle && db.users.some((u) => u.handle === changes.handle && u.id !== user.id)) {
+        fail(409, ERROR_CODES.HANDLE_TAKEN, 'That handle is taken.', { handle: 'That handle is taken.' })
+      }
+
+      Object.assign(user, changes)
+      if (body.preferences && typeof body.preferences === 'object') {
+        for (const key of PREFERENCE_KEYS) {
+          if (key in body.preferences) user.preferences[key] = Boolean(body.preferences[key])
         }
       }
       return serializeUser(user)

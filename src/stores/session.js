@@ -9,8 +9,7 @@ export const useSessionStore = defineStore('session', () => {
   let initializing = null
 
   const isAuthed = computed(() => Boolean(user.value))
-  const planId = computed(() => user.value?.plan.id ?? 'free')
-  const isPro = computed(() => Boolean(user.value?.plan.monitoring))
+  const hasAccount = computed(() => Boolean(user.value?.brokerage))
   const firstName = computed(() => firstNameOf(user.value?.name))
 
   function init() {
@@ -57,5 +56,5 @@ export const useSessionStore = defineStore('session', () => {
     return user.value
   }
 
-  return { user, ready, isAuthed, planId, isPro, firstName, init, refresh, login, signup, oauth, logout, update }
+  return { user, ready, isAuthed, hasAccount, firstName, init, refresh, login, signup, oauth, logout, update }
 })

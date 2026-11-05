@@ -1,34 +1,45 @@
 <script setup>
-import BrandLogo from '@/components/ui/BrandLogo.vue';
+import AppStoreButtons from '@/components/ui/AppStoreButtons.vue'
+import BrandLogo from '@/components/ui/BrandLogo.vue'
 </script>
 
 <template>
-  <footer class="site-footer">
+  <footer class="site-footer ground-ink">
     <div class="container">
       <div class="site-footer__top">
         <div class="site-footer__brand">
-          <BrandLogo :size="28" />
-          <p class="site-footer__tagline">Invest in what you believe in. Clear, calm research for first-time investors.</p>
+          <BrandLogo :size="30" inverse />
+          <p class="site-footer__tagline">
+            Turn your climate hot take into a real portfolio. Pitch it, test it with AI and the community, then invest from
+            $10.
+          </p>
+          <AppStoreButtons inverse class="site-footer__stores" />
         </div>
         <nav class="site-footer__cols" aria-label="Footer">
           <div>
             <p class="site-footer__heading">Product</p>
             <RouterLink :to="{ path: '/', hash: '#how-it-works' }">How it works</RouterLink>
-            <RouterLink :to="{ path: '/', hash: '#values' }">The 6 values</RouterLink>
-            <RouterLink :to="{ path: '/', hash: '#etfs' }">ETFs, unpacked</RouterLink>
+            <RouterLink :to="{ path: '/', hash: '#workshop' }">AI workshop</RouterLink>
+            <RouterLink :to="{ path: '/', hash: '#community' }">Community</RouterLink>
+            <RouterLink :to="{ path: '/', hash: '#invest' }">Invest</RouterLink>
             <RouterLink to="/pricing">Pricing</RouterLink>
           </div>
           <div>
             <p class="site-footer__heading">Get started</p>
             <RouterLink to="/signup">Create an account</RouterLink>
             <RouterLink to="/login">Log in</RouterLink>
-            <RouterLink to="/s/demo">See an example</RouterLink>
+            <RouterLink to="/t/th_heatpumps">See an example thesis</RouterLink>
+            <RouterLink :to="{ path: '/', hash: '#get-the-app' }">Get the app</RouterLink>
           </div>
         </nav>
       </div>
       <div class="site-footer__bottom">
-        <p>© {{ new Date().getFullYear() }} outvest. All company data shown is illustrative.</p>
-        <p>outvest provides values research, not financial advice. Investing involves risk, including loss of principal.</p>
+        <p>© {{ new Date().getFullYear() }} Outvest. Companies, tickers and performance shown are illustrative demo data.</p>
+        <p>
+          Outvest offers research tools, not investment advice. Investing is provided through Outvest’s registered
+          brokerage partner and involves risk, including loss of principal. Past performance doesn’t guarantee future
+          results.
+        </p>
       </div>
     </div>
   </footer>
@@ -36,10 +47,8 @@ import BrandLogo from '@/components/ui/BrandLogo.vue';
 
 <style scoped>
 .site-footer {
-  margin-top: 40px;
-  padding: 56px 0 40px;
-  border-top: 1px solid var(--line);
-  background: var(--surface-muted);
+  padding: 48px 0 32px;
+  border-top: 4px solid var(--sun);
 }
 .site-footer__top {
   display: flex;
@@ -48,12 +57,14 @@ import BrandLogo from '@/components/ui/BrandLogo.vue';
   flex-wrap: wrap;
 }
 .site-footer__brand {
-  max-width: 320px;
+  max-width: 380px;
 }
 .site-footer__tagline {
   margin-top: 14px;
-  color: var(--muted);
-  font-size: 14.5px;
+  font-size: 15px;
+}
+.site-footer__stores {
+  margin-top: 22px;
 }
 .site-footer__cols {
   display: flex;
@@ -65,31 +76,34 @@ import BrandLogo from '@/components/ui/BrandLogo.vue';
   gap: 10px;
 }
 .site-footer__cols a {
-  font-size: 14.5px;
-  color: var(--ink-2);
+  font-size: 15px;
+  font-weight: 600;
   transition: color 0.2s;
 }
 .site-footer__cols a:hover {
-  color: var(--brand-600);
+  color: var(--sun);
 }
 .site-footer__heading {
   margin-bottom: 4px;
+  font-family: var(--font-mono);
   font-size: 12.5px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
+  font-weight: 600;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
-  color: var(--subtle);
+  color: var(--sun);
 }
 .site-footer__bottom {
   display: flex;
-  justify-content: space-between;
-  gap: 16px;
-  flex-wrap: wrap;
-  margin-top: 40px;
-  padding-top: 24px;
-  border-top: 1px solid var(--line);
-  font-size: 13px;
-  color: var(--subtle);
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 36px;
+  padding-top: 20px;
+  border-top: 1px solid #3a3842;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  line-height: 1.6;
+  color: #b9b4c0;
 }
 @media (max-width: 640px) {
   .site-footer__cols {

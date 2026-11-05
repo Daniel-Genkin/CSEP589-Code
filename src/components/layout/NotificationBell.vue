@@ -1,9 +1,8 @@
 <script setup>
-import DeltaChip from '@/components/ui/DeltaChip.vue'
-import SecurityLogo from '@/components/ui/SecurityLogo.vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 import { useAlertsStore } from '@/stores/alerts'
 import { timeAgo } from '@/utils/format'
+import { ALERT_KINDS } from '@/utils/thesis'
 import { ArrowRight, Bell, CheckCheck } from '@lucide/vue'
 import { computed, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -49,22 +48,17 @@ watch(
         <ul v-if="latest.length" class="bell__list">
           <li v-for="alert in latest" :key="alert.id">
             <RouterLink :to="`/app/alerts/${alert.id}`" class="bell__item" :class="{ 'is-unread': !alert.readAt }">
-              <SecurityLogo
-                :symbol="alert.symbol"
-                :name="alert.security.name"
-                :color="alert.security.color"
-                :type="alert.security.type"
-                :size="34"
-              />
+              <span class="bell__kind" :class="`bell__kind--${ALERT_KINDS[alert.kind].tone}`">
+                <component :is="ALERT_KINDS[alert.kind].icon" :size="17" />
+              </span>
               <span class="bell__text">
                 <span class="bell__item-title">{{ alert.title }}</span>
-                <span class="bell__meta">{{ alert.symbol }} · {{ timeAgo(alert.createdAt) }}</span>
+                <span class="bell__meta">{{ alert.thesis?.title ?? ALERT_KINDS[alert.kind].label }} · {{ timeAgo(alert.createdAt) }}</span>
               </span>
-              <DeltaChip :value="alert.scoreAfter - alert.scoreBefore" />
             </RouterLink>
           </li>
         </ul>
-        <p v-else class="bell__empty">You're all caught up. We'll let you know if anything changes.</p>
+        <p v-else class="bell__empty">You’re all caught up. We only alert you when news affects one of your theses.</p>
 
         <RouterLink to="/app/alerts" class="bell__all">View all alerts <ArrowRight :size="15" /></RouterLink>
       </div>
@@ -88,7 +82,7 @@ watch(
 }
 .bell__button:hover,
 .bell__button.is-open {
-  background: rgba(22, 36, 29, 0.06);
+  background: rgba(23, 22, 29, 0.07);
 }
 .bell__count {
   position: absolute;
@@ -100,9 +94,9 @@ watch(
   height: 18px;
   padding: 0 4px;
   border-radius: var(--radius-pill);
-  border: 2px solid var(--bg);
-  background: var(--coral-500);
-  color: #fff;
+  border: 2px solid var(--ink-solid);
+  background: var(--flare);
+  color: var(--ink);
   font-size: 10px;
   font-weight: 800;
   line-height: 1;
@@ -115,7 +109,7 @@ watch(
   width: min(400px, calc(100vw - 24px));
   padding: 8px;
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: var(--outline);
   border-radius: 22px;
   box-shadow: var(--shadow-lg);
 }
@@ -157,13 +151,34 @@ watch(
   height: 6px;
   margin-top: -3px;
   border-radius: 50%;
-  background: var(--coral-500);
+  background: var(--flare);
 }
 .bell__text {
   display: flex;
   flex-direction: column;
   flex: 1;
   min-width: 0;
+}
+.bell__kind {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  flex-shrink: 0;
+  border: 1.5px solid var(--ink-solid);
+  border-radius: 11px;
+}
+.bell__kind--up {
+  background: var(--score-great-bg);
+  color: var(--score-great);
+}
+.bell__kind--down {
+  background: var(--score-low-bg);
+  color: var(--score-low);
+}
+.bell__kind--lilac {
+  background: var(--lilac-100);
+  color: var(--lilac-700);
 }
 .bell__item-title {
   font-size: 14px;

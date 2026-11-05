@@ -72,7 +72,7 @@ async function continueWith(provider) {
       <span class="demo__icon"><Sparkles :size="18" /></span>
       <span class="demo__text">
         <strong>Explore the demo account</strong>
-        <span>Maya's Pro account with scans, alerts and monitoring</span>
+        <span>Maya’s published heat pump thesis, invested baskets and thesis alerts</span>
       </span>
       <ArrowRight :size="18" />
     </button>

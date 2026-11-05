@@ -38,6 +38,6 @@ export const authService = {
   /** GET /me -> User */
   me: () => api.get('/me'),
 
-  /** PATCH /me { name?, email?, values?, preferences? } -> User */
+  /** PATCH /me { name?, email?, handle?, bio?, preferences? } -> User */
   updateMe: (patch) => api.patch('/me', patch),
 }

@@ -1,94 +1,112 @@
 <script setup>
-import { billingService } from '@/api'
-import ChangePlanModal from '@/components/billing/ChangePlanModal.vue'
-import PricingTable from '@/components/billing/PricingTable.vue'
+import AppStoreButtons from '@/components/ui/AppStoreButtons.vue'
 import { useSessionStore } from '@/stores/session'
-import { ChevronDown, ShieldCheck } from '@lucide/vue'
-import { onMounted, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { ArrowRight, Check, ChevronDown, ShieldCheck } from '@lucide/vue'
 
 const session = useSessionStore()
-const router = useRouter()
 
-const plans = ref([])
-const subscription = ref(null)
-const interval = ref('month')
-const selected = ref(null)
-const modalOpen = ref(false)
-
-const faqs = [
+const plans = [
   {
-    q: 'Is outvest financial advice?',
-    a: "No. We research how companies line up with values like climate and fair pay, then explain it in plain English. We never tell you what to buy or sell. That's always your call.",
+    name: 'Build, workshop and publish',
+    price: 'Free',
+    note: 'No card needed',
+    description: 'Everything you need to turn an idea into a thesis you’d put your name on.',
+    features: [
+      'Pitch ideas in plain language',
+      'AI copilot: claims, evidence checks and the strongest arguments against',
+      'Backtests of a similar basket against the S&P 500',
+      'Swap companies and update your thesis anytime',
+      'Publish to the community and build a public track record',
+      'Follow other members’ theses',
+    ],
   },
   {
-    q: 'How do you score companies?',
-    a: 'Every company gets a 0–100 score for six values, based on public filings, watchdog reports and news from 40+ sources. The combined score blends all six, and we always show the reasons behind each one.',
-  },
-  {
-    q: 'What counts as a scan?',
-    a: 'A scan is one check of a list of stocks or ETFs, linked from your brokerage or typed in by you. Free includes one scan a month with up to 5 holdings. Premium and Pro are unlimited.',
-  },
-  {
-    q: 'How does monitoring work?',
-    a: 'With Pro, we keep checking your holdings in the background. When news meaningfully changes a score, or an ETF rebalance is coming up, we email you a calm summary of what happened and why it matters.',
-  },
-  {
-    q: 'Can I cancel anytime?',
-    a: 'Yes. Switch plans or cancel from Plan & billing whenever you like. Unused time is credited automatically, and your past scans stay in your account.',
-  },
-  {
-    q: 'Is linking my brokerage safe?',
-    a: 'Linking is read-only: we can see what you hold but can never trade or move money. Your brokerage login goes straight to your broker, not to us, and you can disconnect anytime.',
+    name: 'Invest',
+    price: 'From $10',
+    note: 'Through Outvest’s registered brokerage partner',
+    description: 'When your thesis is ready, own the whole basket in one tap.',
+    features: [
+      'Open a brokerage account in the app in about five minutes',
+      'Buy your basket in fractional shares, starting at $10',
+      'Rebalancing on the schedule you pick',
+      'Alerts only when news affects your thesis',
+    ],
+    highlight: true,
   },
 ]
 
-onMounted(async () => {
-  const [planList, sub] = await Promise.all([
-    billingService.listPlans(),
-    session.isAuthed ? billingService.getSubscription() : Promise.resolve(null),
-  ])
-  plans.value = planList
-  subscription.value = sub
-  if (sub) interval.value = sub.interval
-})
-
-function choose(plan) {
-  if (!session.isAuthed) {
-    router.push({ name: 'signup', query: plan.id === 'free' ? {} : { plan: plan.id, interval: interval.value } })
-    return
-  }
-  selected.value = plan
-  modalOpen.value = true
-}
-
-async function onChanged() {
-  subscription.value = await billingService.getSubscription()
-}
+const faqs = [
+  {
+    q: 'Is Outvest financial advice?',
+    a: 'No. The copilot helps you test your own idea: it lays out the claims your thesis depends on, the evidence for and against them, the strongest counterarguments, and how a similar basket did in the past. Every decision is yours.',
+  },
+  {
+    q: 'What does Outvest cost?',
+    a: 'Building, workshopping and publishing a thesis is free. Investing requires opening a brokerage account in the app, which takes about five minutes.',
+  },
+  {
+    q: 'How does investing work?',
+    a: 'When your thesis is ready, you can buy the whole basket in one tap, in fractional shares starting at $10. Your account is held with Outvest’s registered brokerage partner.',
+  },
+  {
+    q: 'How does rebalancing work?',
+    a: 'You pick the schedule: monthly, quarterly, twice a year or yearly. On that schedule, Outvest brings the basket back to its target weights. You can change the schedule anytime.',
+  },
+  {
+    q: 'What alerts will I get?',
+    a: 'Only ones that matter to your thesis: news that strengthens or weakens one of its claims, plus a heads-up before a scheduled rebalance. No daily market noise.',
+  },
+  {
+    q: 'What happens when I publish a thesis?',
+    a: 'Members can question your assumptions, suggest companies and follow your thesis. Your track record starts the day you publish and stays public, good calls and bad.',
+  },
+  {
+    q: 'Which themes can I invest in?',
+    a: 'Climate is the first collection, covering ideas like building electrification, EVs, solar, the grid, nuclear and adaptation. Outvest plans to add more themes.',
+  },
+  {
+    q: 'Where can I use Outvest?',
+    a: 'Outvest is a free download on iOS and Android.',
+  },
+]
 </script>
 
 <template>
   <div class="pricing-page">
     <section class="container pricing-page__hero">
       <span class="eyebrow">Pricing</span>
-      <h1 class="h-1">Simple plans. <span class="accent">Start free.</span></h1>
-      <p class="lead">Try a scan on us. Go Premium for unlimited scans, or Pro and we'll keep watch for you.</p>
+      <h1 class="h-1">Free to build. <span class="accent">Invest from $10.</span></h1>
+      <p class="lead">
+        Test as many ideas as you like with the copilot and the community. Open a brokerage account only when you’re ready
+        to own one.
+      </p>
     </section>
 
-    <section class="container">
-      <PricingTable
-        v-if="plans.length"
-        v-model:interval="interval"
-        :plans="plans"
-        :current-plan-id="subscription?.planId ?? null"
-        :current-interval="subscription?.interval ?? 'month'"
-        @choose="choose"
-      />
-      <div v-else class="pricing-page__loading">
-        <div v-for="n in 3" :key="n" class="skeleton" />
-      </div>
-      <p class="pricing-page__assure"><ShieldCheck :size="16" /> No hidden fees. Cancel anytime in two taps.</p>
+    <section class="container plans">
+      <article v-for="plan in plans" :key="plan.name" class="plan" :class="{ 'plan--highlight': plan.highlight }">
+        <h2 class="plan__name">{{ plan.name }}</h2>
+        <p class="plan__price">{{ plan.price }}</p>
+        <p class="plan__note">{{ plan.note }}</p>
+        <p class="plan__description">{{ plan.description }}</p>
+        <ul class="plan__features">
+          <li v-for="feature in plan.features" :key="feature">
+            <span class="plan__check"><Check :size="14" :stroke-width="3" /></span>
+            {{ feature }}
+          </li>
+        </ul>
+      </article>
     </section>
+
+    <section class="container start">
+      <RouterLink :to="session.isAuthed ? '/app/pitch' : '/signup'" class="btn btn-primary btn-lg">
+        {{ session.isAuthed ? 'Pitch a new idea' : 'Start free' }} <ArrowRight :size="18" />
+      </RouterLink>
+      <span class="muted">or get the app</span>
+      <AppStoreButtons />
+    </section>
+    <p class="container pricing-page__assure">
+      <ShieldCheck :size="16" /> Not investment advice. Investing involves risk, including loss of principal.
+    </p>
 
     <section class="container faq">
       <h2 class="h-2">Questions, answered</h2>
@@ -102,53 +120,110 @@ async function onChanged() {
         </details>
       </div>
     </section>
-
-    <ChangePlanModal
-      :open="modalOpen"
-      :plan="selected"
-      :interval="interval"
-      :subscription="subscription"
-      @close="modalOpen = false"
-      @changed="onChanged"
-    />
   </div>
 </template>
 
 <style scoped>
+.pricing-page {
+  padding-bottom: 104px;
+}
 .pricing-page__hero {
-  max-width: 720px;
-  padding-top: 64px;
-  padding-bottom: 40px;
+  max-width: 900px;
+  padding-top: 72px;
+  padding-bottom: 44px;
   text-align: center;
 }
 .pricing-page__hero .h-1 {
-  margin-top: 12px;
-}
-.pricing-page__hero .lead {
   margin-top: 14px;
 }
-.pricing-page__loading {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 18px;
-  margin-top: 64px;
+.pricing-page__hero .lead {
+  max-width: 640px;
+  margin: 16px auto 0;
 }
-.pricing-page__loading .skeleton {
-  height: 560px;
+.plans {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 28px;
+  max-width: 960px;
+}
+.plan {
+  display: flex;
+  flex-direction: column;
+  padding: 30px 28px;
+  border: var(--outline);
   border-radius: 28px;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+.plan--highlight {
+  background: var(--sun-100);
+  box-shadow: var(--shadow-lg);
+}
+.plan__name {
+  font-size: 30px;
+  line-height: 1;
+}
+.plan__price {
+  margin-top: 14px;
+  font-family: var(--font-display);
+  font-size: 64px;
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+.plan__note {
+  margin-top: 10px;
+  font-size: 13.5px;
+  color: var(--muted);
+}
+.plan__description {
+  margin-top: 16px;
+  color: var(--ink-2);
+}
+.plan__features {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 22px;
+  padding-top: 20px;
+  border-top: 2px dashed var(--ink-solid);
+  font-size: 14.5px;
+}
+.plan__features li {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+.plan__check {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+  border-radius: 50%;
+  background: var(--brand-100);
+  color: var(--brand-700);
+}
+.start {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 44px;
 }
 .pricing-page__assure {
   display: flex;
   align-items: center;
   justify-content: center;
   gap: 8px;
-  margin-top: 28px;
+  margin-top: 24px;
   font-size: 14px;
   font-weight: 600;
   color: var(--muted);
 }
 .faq {
-  max-width: 820px;
+  max-width: 840px;
   padding-top: 96px;
 }
 .faq .h-2 {
@@ -157,17 +232,23 @@ async function onChanged() {
 .faq__list {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 12px;
   margin-top: 32px;
 }
 .faq__item {
-  border: 1px solid var(--line);
+  border: var(--outline-thin);
   border-radius: 18px;
   background: var(--surface);
-  transition: box-shadow 0.25s var(--ease);
+  transition:
+    box-shadow 0.2s var(--ease),
+    transform 0.2s var(--ease);
+}
+.faq__item:hover {
+  box-shadow: var(--shadow-xs);
 }
 .faq__item[open] {
   box-shadow: var(--shadow-sm);
+  transform: translate(-2px, -2px);
 }
 .faq__item summary {
   display: flex;
@@ -185,7 +266,6 @@ async function onChanged() {
 }
 .faq__chevron {
   flex-shrink: 0;
-  color: var(--muted);
   transition: transform 0.25s var(--ease);
 }
 .faq__item[open] .faq__chevron {
@@ -195,9 +275,18 @@ async function onChanged() {
   padding: 0 22px 20px;
   color: var(--ink-2);
 }
-@media (max-width: 960px) {
-  .pricing-page__loading {
-    grid-template-columns: 1fr;
+@media (max-width: 820px) {
+  .plans {
+    grid-template-columns: minmax(0, 1fr);
+    max-width: 520px;
+  }
+}
+@media (max-width: 640px) {
+  .pricing-page__hero {
+    padding-top: 48px;
+  }
+  .plan__price {
+    font-size: 54px;
   }
 }
 </style>

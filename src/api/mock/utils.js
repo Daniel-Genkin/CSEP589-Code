@@ -23,3 +23,18 @@ export function joinWords(words) {
   if (words.length <= 1) return words.join('')
   return `${words.slice(0, -1).join(', ')} and ${words.at(-1)}`
 }
+
+// Splits a dollar amount across percentage weights (summing to 100) so the cents add up exactly.
+export function splitDollars(amount, weights) {
+  const cents = Math.round(amount * 100)
+  const raw = weights.map((w) => (cents * w) / 100)
+  const parts = raw.map(Math.floor)
+  let left = cents - parts.reduce((sum, v) => sum + v, 0)
+  const byRemainder = raw.map((v, i) => [v - parts[i], i]).sort((a, b) => b[0] - a[0])
+  for (const [, i] of byRemainder) {
+    if (left <= 0) break
+    parts[i]++
+    left--
+  }
+  return parts.map((c) => c / 100)
+}

@@ -1,10 +1,9 @@
 <script setup>
-import PlanBadge from '@/components/ui/PlanBadge.vue'
 import { useClickOutside } from '@/composables/useClickOutside'
 import { useAlertsStore } from '@/stores/alerts'
 import { useSessionStore } from '@/stores/session'
 import { initialsOf } from '@/utils/format'
-import { ChevronDown, CreditCard, LogOut, Settings } from '@lucide/vue'
+import { ChevronDown, LogOut, Settings, UserRound } from '@lucide/vue'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -40,15 +39,11 @@ async function logout() {
           <span class="avatar">{{ initialsOf(session.user.name) }}</span>
           <span class="user-menu__id">
             <span class="user-menu__name">{{ session.user.name }}</span>
-            <span class="user-menu__email">{{ session.user.email }}</span>
+            <span class="user-menu__email">@{{ session.user.handle }} · {{ session.user.email }}</span>
           </span>
         </div>
-        <div class="user-menu__plan">
-          <span class="muted text-sm">Your plan</span>
-          <PlanBadge :plan-id="session.planId" />
-        </div>
+        <RouterLink :to="`/u/${session.user.handle}`" class="user-menu__item"><UserRound :size="17" /> Public profile</RouterLink>
         <RouterLink to="/app/settings" class="user-menu__item"><Settings :size="17" /> Settings</RouterLink>
-        <RouterLink to="/app/plan" class="user-menu__item"><CreditCard :size="17" /> Plan & billing</RouterLink>
         <button type="button" class="user-menu__item" @click="logout"><LogOut :size="17" /> Log out</button>
       </div>
     </Transition>
@@ -68,7 +63,7 @@ async function logout() {
   transition: background-color 0.2s;
 }
 .user-menu__button:hover {
-  background: rgba(22, 36, 29, 0.06);
+  background: rgba(23, 22, 29, 0.07);
 }
 .user-menu__chevron {
   margin-right: 6px;
@@ -82,7 +77,7 @@ async function logout() {
   width: 270px;
   padding: 8px;
   background: var(--surface);
-  border: 1px solid var(--line);
+  border: var(--outline);
   border-radius: 20px;
   box-shadow: var(--shadow-lg);
 }
@@ -107,15 +102,6 @@ async function logout() {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-}
-.user-menu__plan {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin: 2px 4px 6px;
-  padding: 10px 8px;
-  border-radius: 12px;
-  background: var(--surface-muted);
 }
 .user-menu__item {
   display: flex;

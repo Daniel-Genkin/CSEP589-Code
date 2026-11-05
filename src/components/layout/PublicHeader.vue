@@ -1,29 +1,21 @@
 <script setup>
 import BrandLogo from '@/components/ui/BrandLogo.vue'
 import { useSessionStore } from '@/stores/session'
-import { ArrowRight, Menu, X } from '@lucide/vue'
-import { onBeforeUnmount, onMounted, ref, watch } from 'vue'
+import { Menu, X } from '@lucide/vue'
+import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
 const session = useSessionStore()
 const route = useRoute()
 const menuOpen = ref(false)
-const scrolled = ref(false)
 
-const links = [
-  { label: 'How it works', to: { path: '/', hash: '#how-it-works' } },
-  { label: 'Values', to: { path: '/', hash: '#values' } },
-  { label: 'ETFs', to: { path: '/', hash: '#etfs' } },
-  { label: 'Example', to: '/s/demo' },
-  { label: 'Pricing', to: '/pricing' },
+const steps = [
+  { n: '01', label: 'Pitch it', hash: '#how-it-works', color: '#F7C54E' },
+  { n: '02', label: 'AI workshop', hash: '#workshop', color: '#F07AB6' },
+  { n: '03', label: 'Community', hash: '#community', color: '#E85A2A' },
+  { n: '04', label: 'Invest', hash: '#invest', color: '#8A6CF2' },
 ]
 
-const onScroll = () => (scrolled.value = window.scrollY > 8)
-onMounted(() => {
-  onScroll()
-  window.addEventListener('scroll', onScroll, { passive: true })
-})
-onBeforeUnmount(() => window.removeEventListener('scroll', onScroll))
 watch(
   () => route.fullPath,
   () => (menuOpen.value = false),
@@ -31,27 +23,33 @@ watch(
 </script>
 
 <template>
-  <header class="site-header" :class="{ 'is-scrolled': scrolled || menuOpen }">
+  <header class="site-header ground-blue">
     <div class="container site-header__inner">
-      <RouterLink to="/" class="site-header__logo" aria-label="outvest home"><BrandLogo /></RouterLink>
+      <RouterLink to="/" class="site-header__logo" aria-label="Outvest home"><BrandLogo :size="38" inverse /></RouterLink>
 
-      <nav class="site-header__nav" aria-label="Main">
-        <RouterLink v-for="link in links" :key="link.label" :to="link.to" class="site-header__link" active-class="" exact-active-class="">
-          {{ link.label }}
+      <nav class="site-header__steps" aria-label="How it works">
+        <RouterLink
+          v-for="step in steps"
+          :key="step.n"
+          :to="{ path: '/', hash: step.hash }"
+          class="step-pill"
+          active-class=""
+          exact-active-class=""
+        >
+          <span :style="{ color: step.color }">{{ step.n }}</span> {{ step.label }}
         </RouterLink>
       </nav>
 
       <div class="site-header__actions">
-        <RouterLink v-if="session.isAuthed" to="/app" class="btn btn-primary btn-sm">
-          Open app <ArrowRight :size="16" />
-        </RouterLink>
+        <RouterLink to="/pricing" class="site-header__link hide-sm">Pricing</RouterLink>
+        <RouterLink v-if="session.isAuthed" to="/app" class="btn btn-primary">Open app ↗</RouterLink>
         <template v-else>
-          <RouterLink to="/login" class="btn btn-ghost btn-sm hide-sm">Log in</RouterLink>
-          <RouterLink to="/signup" class="btn btn-primary btn-sm">Get started</RouterLink>
+          <RouterLink to="/login" class="btn btn-primary hide-sm">Log in</RouterLink>
+          <RouterLink to="/signup" class="btn btn-flare">Get started ↗</RouterLink>
         </template>
         <button
           type="button"
-          class="btn btn-ghost btn-sm btn-icon site-header__toggle"
+          class="btn btn-light btn-icon site-header__toggle"
           :aria-expanded="menuOpen"
           aria-label="Toggle menu"
           @click="menuOpen = !menuOpen"
@@ -64,8 +62,15 @@ watch(
 
     <Transition name="pop">
       <nav v-if="menuOpen" class="mobile-nav container" aria-label="Mobile">
-        <RouterLink v-for="link in links" :key="link.label" :to="link.to" class="mobile-nav__link">{{ link.label }}</RouterLink>
-        <RouterLink v-if="!session.isAuthed" to="/login" class="mobile-nav__link">Log in</RouterLink>
+        <RouterLink v-for="step in steps" :key="step.n" :to="{ path: '/', hash: step.hash }" class="step-pill mobile-nav__link">
+          <span :style="{ color: step.color }">{{ step.n }}</span> {{ step.label }}
+        </RouterLink>
+        <RouterLink to="/pricing" class="step-pill mobile-nav__link">
+          <span class="mobile-nav__star">✦</span> Pricing
+        </RouterLink>
+        <RouterLink v-if="!session.isAuthed" to="/login" class="step-pill mobile-nav__link">
+          <span class="mobile-nav__star">✦</span> Log in
+        </RouterLink>
       </nav>
     </Transition>
   </header>
@@ -73,51 +78,65 @@ watch(
 
 <style scoped>
 .site-header {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 50;
-  background: rgba(247, 245, 239, 0.72);
-  backdrop-filter: saturate(1.4) blur(14px);
-  border-bottom: 1px solid transparent;
-  transition:
-    border-color 0.3s,
-    background-color 0.3s;
-}
-.site-header.is-scrolled {
-  border-bottom-color: var(--line);
-  background: rgba(247, 245, 239, 0.9);
 }
 .site-header__inner {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 32px;
-  height: 72px;
+  gap: 24px;
+  max-width: 1388px;
+  min-height: 92px;
+  padding-block: 14px;
 }
-.site-header__nav {
+.site-header__logo {
+  display: inline-flex;
+}
+.site-header__steps {
   display: flex;
-  align-items: center;
-  gap: 4px;
   flex: 1;
+  justify-content: center;
+  gap: 10px;
 }
-.site-header__link {
-  padding: 8px 14px;
-  border-radius: var(--radius-pill);
-  font-size: 14.5px;
-  font-weight: 600;
-  color: var(--ink-2);
-  transition:
-    background-color 0.2s,
-    color 0.2s;
+.step-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 0 16px;
+  border-radius: 999px;
+  background: var(--ink-solid);
+  color: var(--cream);
+  font-family: var(--font-mono);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transition: background-color 0.2s;
 }
-.site-header__link:hover {
-  background: rgba(22, 36, 29, 0.05);
-  color: var(--ink);
+.step-pill:hover {
+  background: #2a2833;
 }
 .site-header__actions {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 18px;
   margin-left: auto;
+}
+.site-header__link {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--cream);
+  text-decoration: underline;
+  text-decoration-color: transparent;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+  transition: text-decoration-color 0.2s;
+}
+.site-header__link:hover {
+  text-decoration-color: var(--sun);
 }
 .site-header__toggle {
   display: none;
@@ -125,22 +144,36 @@ watch(
 .mobile-nav {
   display: flex;
   flex-direction: column;
-  padding-top: 4px;
-  padding-bottom: 16px;
+  align-items: flex-start;
+  gap: 10px;
+  padding-bottom: 22px;
 }
 .mobile-nav__link {
-  padding: 14px 4px;
-  border-bottom: 1px solid var(--line);
-  font-size: 16px;
-  font-weight: 650;
+  min-height: 46px;
+  font-size: 14px;
+}
+.mobile-nav__star {
+  color: var(--sun);
 }
 
-@media (max-width: 900px) {
-  .site-header__nav {
+@media (max-width: 1100px) {
+  .site-header__steps {
     display: none;
   }
   .site-header__toggle {
     display: inline-flex;
+  }
+}
+@media (max-width: 640px) {
+  .site-header__inner {
+    gap: 12px;
+    min-height: 76px;
+  }
+  .site-header__actions {
+    gap: 10px;
+  }
+  .site-header__actions .btn:not(.btn-icon) {
+    padding: 0 16px;
   }
 }
 </style>

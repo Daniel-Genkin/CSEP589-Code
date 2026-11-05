@@ -37,10 +37,17 @@ export const useAlertsStore = defineStore('alerts', () => {
     for (const alert of items.value) alert.readAt ??= now
   }
 
+  // Demo: asks the backend for the next story affecting the user's theses.
+  async function check() {
+    const result = await alertsService.check()
+    if (result.alert) items.value = [result.alert, ...items.value.filter((a) => a.id !== result.alert.id)]
+    return result
+  }
+
   function reset() {
     items.value = []
     loaded.value = false
   }
 
-  return { items, loaded, loading, unreadCount, fetch, ensureLoaded, markRead, markAllRead, reset }
+  return { items, loaded, loading, unreadCount, fetch, ensureLoaded, markRead, markAllRead, check, reset }
 })

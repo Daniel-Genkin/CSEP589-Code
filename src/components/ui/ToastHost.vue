@@ -55,7 +55,7 @@ function runAction(toast) {
   padding: 14px 14px 14px 16px;
   border-radius: 18px;
   background: var(--ink);
-  color: #fff;
+  color: var(--cream);
   box-shadow: var(--shadow-lg);
   pointer-events: auto;
 }
@@ -82,22 +82,26 @@ function runAction(toast) {
 .toast__description {
   margin-top: 2px;
   font-size: 13.5px;
-  color: rgba(255, 255, 255, 0.72);
+  color: rgba(255, 244, 214, 0.72);
   line-height: 1.45;
 }
 .toast__action {
   flex-shrink: 0;
   align-self: center;
   padding: 6px 12px;
+  border: 1.5px solid var(--sun);
   border-radius: var(--radius-pill);
-  background: rgba(255, 255, 255, 0.12);
+  background: transparent;
   font-size: 13px;
   font-weight: 700;
-  color: #fff;
-  transition: background-color 0.2s;
+  color: var(--sun);
+  transition:
+    background-color 0.2s,
+    color 0.2s;
 }
 .toast__action:hover {
-  background: rgba(255, 255, 255, 0.2);
+  background: var(--sun);
+  color: var(--ink);
 }
 .toast__close {
   flex-shrink: 0;
@@ -106,11 +110,11 @@ function runAction(toast) {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  color: rgba(255, 255, 255, 0.6);
+  color: rgba(255, 244, 214, 0.6);
 }
 .toast__close:hover {
-  color: #fff;
-  background: rgba(255, 255, 255, 0.1);
+  color: var(--cream);
+  background: rgba(255, 244, 214, 0.1);
 }
 
 .toast-enter-active,

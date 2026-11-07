@@ -1,14 +1,10 @@
 <script setup>
 import BrandLogo from '@/components/ui/BrandLogo.vue'
-import { BRAND_NAME } from '@/config/brand'
-import { useSessionStore } from '@/stores/session'
-import { useWaitlistStore } from '@/stores/waitlist'
+import { BRAND_NAME, SURVEY_URL } from '@/config/brand'
 import { computed } from 'vue'
 import { useRoute } from 'vue-router'
 
 const route = useRoute()
-const session = useSessionStore()
-const waitlist = useWaitlistStore()
 
 // The same three steps live on the landing page and on /receipt; stay on the page you're on.
 const steps = computed(() => {
@@ -33,11 +29,8 @@ const steps = computed(() => {
       </nav>
 
       <div class="site-header__actions">
-        <RouterLink v-if="session.isAuthed" to="/app" class="btn btn-primary">Open my dashboard ↗</RouterLink>
-        <template v-else>
-          <button type="button" class="btn btn-primary" @click="waitlist.isOpen = true">Join the waitlist</button>
-          <RouterLink to="/receipt" class="btn btn-flare">Check my fund ↗</RouterLink>
-        </template>
+        <a :href="SURVEY_URL" target="_blank" rel="noopener" class="btn btn-primary">Get early access</a>
+        <RouterLink to="/receipt" class="btn btn-flare">Check my fund ↗</RouterLink>
       </div>
     </div>
   </header>

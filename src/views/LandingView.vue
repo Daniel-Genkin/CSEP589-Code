@@ -6,10 +6,9 @@ import HeroReceipt from '@/components/receipt/HeroReceipt.vue'
 import LinePicker from '@/components/receipt/LinePicker.vue'
 import LineupTable from '@/components/receipt/LineupTable.vue'
 import ReceiptStats from '@/components/receipt/ReceiptStats.vue'
-import { BRAND_NAME } from '@/config/brand'
+import { BRAND_NAME, SURVEY_URL } from '@/config/brand'
 import { DEMO_FUNDS, checkFund } from '@/utils/lines'
 import { useLinesStore } from '@/stores/lines'
-import { useWaitlistStore } from '@/stores/waitlist'
 import { storeToRefs } from 'pinia'
 import { computed, ref, useTemplateRef } from 'vue'
 
@@ -18,7 +17,6 @@ const { lineKeys } = storeToRefs(useLinesStore())
 
 const result = computed(() => checkFund(fundSymbol.value, lineKeys.value))
 const fund = computed(() => result.value.fund)
-const waitlist = useWaitlistStore()
 const tape = useTemplateRef('tape')
 const fmtCount = (n) => n.toLocaleString('en-US')
 </script>
@@ -96,7 +94,7 @@ const fmtCount = (n) => n.toLocaleString('en-US')
 
       <div class="final__actions">
         <RouterLink :to="{ path: '/receipt', query: { fund: fundSymbol } }" class="btn btn-flare big-cta">Check my holdings ↗</RouterLink>
-        <button type="button" class="btn btn-primary big-cta" @click="waitlist.isOpen = true">Join the waitlist</button>
+        <a :href="SURVEY_URL" target="_blank" rel="noopener" class="btn btn-primary big-cta">Get early access</a>
       </div>
       <p class="final__fine">Real fund names, sample holdings and made-up companies. Information, not investment advice. We're nosy, not your advisor.</p>
     </section>

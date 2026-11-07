@@ -5,7 +5,7 @@ import { getSecurity } from '@/api/mock/catalog'
 import LinePicker from '@/components/receipt/LinePicker.vue'
 import ReceiptPrinter from '@/components/receipt/ReceiptPrinter.vue'
 import { prefersReducedMotion, useCountUp, useTypewriter } from '@/composables/useReceiptFx'
-import { BRAND_NAME } from '@/config/brand'
+import { BRAND_NAME, SURVEY_URL } from '@/config/brand'
 import { useLinesStore } from '@/stores/lines'
 import { useSessionStore } from '@/stores/session'
 import { useWaitlistStore } from '@/stores/waitlist'
@@ -39,7 +39,12 @@ const saving = ref(false)
 const fund = computed(() => funds.find((f) => f.symbol === fundSymbol.value) ?? null)
 const ready = computed(() => Boolean(fund.value && picked.value.length))
 const shown = computed(() => ready.value && printed.value)
-const unlocked = computed(() => waitlist.joined || session.isAuthed)
+const surveyOpened = ref(false)
+function openSurvey() {
+  surveyOpened.value = true
+  window.open(SURVEY_URL, '_blank', 'noopener')
+}
+const unlocked = computed(() => waitlist.joined || session.isAuthed || surveyOpened.value)
 
 const result = computed(() => (ready.value ? checkFund(fundSymbol.value, picked.value) : null))
 const rows = computed(() =>
@@ -283,8 +288,8 @@ onBeforeUnmount(() => {
             </div>
 
             <div v-if="gated" class="rc-lock">
-              <button type="button" class="rc-unlock" @click="waitlist.isOpen = true">
-                <span class="rc-unlock__main">Join the waitlist</span>
+              <button type="button" class="rc-unlock" @click="openSurvey">
+                <span class="rc-unlock__main">Get early access</span>
                 <span class="rc-unlock__sub">click here to unlock {{ count(rows.length) }}</span>
               </button>
             </div>

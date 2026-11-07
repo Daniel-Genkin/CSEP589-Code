@@ -64,7 +64,7 @@ const holdUp = computed(() => props.preview.claims.filter((c) => c.status === 's
       </div>
       <button type="button" class="btn btn-primary btn-shout preview__cta" :disabled="continuing" @click="emit('continue')">
         <span v-if="continuing" class="spinner" />
-        {{ authed ? 'Open in my workshop' : 'Save it and keep workshopping' }}
+        {{ authed ? 'Open in my workshop' : 'Get early access' }}
         <ArrowRight v-if="!continuing" :size="18" />
       </button>
     </footer>

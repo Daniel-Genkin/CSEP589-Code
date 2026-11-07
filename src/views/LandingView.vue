@@ -1,5 +1,5 @@
 <script setup>
-import { communityService, copilotService, thesesService } from '@/api'
+import { communityService, copilotService } from '@/api'
 import ClaimStatusBadge from '@/components/thesis/ClaimStatusBadge.vue'
 import CopilotPreview from '@/components/thesis/CopilotPreview.vue'
 import CopilotProgress from '@/components/thesis/CopilotProgress.vue'
@@ -9,8 +9,7 @@ import AppStoreButtons from '@/components/ui/AppStoreButtons.vue'
 import BrandSpiral from '@/components/ui/BrandSpiral.vue'
 import SecurityLogo from '@/components/ui/SecurityLogo.vue'
 import { useAsync } from '@/composables/useAsync'
-import { useToast } from '@/composables/useToast'
-import { useSessionStore } from '@/stores/session'
+import { SURVEY_URL } from '@/config/links'
 import { EXAMPLE_IDEAS } from '@/utils/thesis'
 import {
   ArrowRight,
@@ -30,11 +29,7 @@ import {
   Wallet,
 } from '@lucide/vue'
 import { computed, nextTick, ref, watch } from 'vue'
-import { useRouter } from 'vue-router'
 
-const session = useSessionStore()
-const router = useRouter()
-const toast = useToast()
 
 const idea = ref('')
 const status = ref('idle')
@@ -99,21 +94,9 @@ function reset() {
   setTimeout(() => promptBar.value?.focus(), 350)
 }
 
-async function continueWorkshop() {
-  const text = preview.value.idea
-  if (!session.isAuthed) {
-    router.push({ name: 'signup', query: { idea: text } })
-    return
-  }
-  continuing.value = true
-  try {
-    const thesis = await thesesService.create(text)
-    router.push(`/app/theses/${thesis.id}`)
-  } catch (err) {
-    toast.error('Couldn’t save your thesis', { description: err.message })
-  } finally {
-    continuing.value = false
-  }
+function continueWorkshop() {
+  // The workshop isn't live yet; the survey stands in for it.
+  window.open(SURVEY_URL, '_blank', 'noopener')
 }
 
 // The tape interleaves the community's most-followed theses with slogans; until they load it runs on slogans alone.
@@ -276,7 +259,7 @@ const demoAllocations = [
         <CopilotPreview
           v-else-if="status === 'ready' && preview"
           :preview="preview"
-          :authed="session.isAuthed"
+          :authed="false"
           :continuing="continuing"
           class="fade-up"
           @continue="continueWorkshop"
@@ -451,9 +434,9 @@ const demoAllocations = [
             <span class="eyebrow">From the community</span>
             <h2 class="big-title shout-shadow">Theses people <span class="pink">are following.</span></h2>
           </div>
-          <RouterLink :to="session.isAuthed ? '/app/community' : '/signup'" class="btn btn-primary btn-lg">
-            {{ session.isAuthed ? 'Browse the community' : 'Join to follow them' }} <ArrowRight :size="18" />
-          </RouterLink>
+          <a :href="SURVEY_URL" target="_blank" rel="noopener" class="btn btn-primary btn-lg">
+            Get early access <ArrowRight :size="18" />
+          </a>
         </div>
         <div class="featured">
           <ThesisCard v-for="thesis in featured" :key="thesis.id" :thesis="thesis" :to="`/t/${thesis.id}`" />
@@ -547,31 +530,6 @@ const demoAllocations = [
       </div>
     </section>
 
-    <!-- Pricing teaser -->
-    <section class="section">
-      <div class="container">
-        <div class="section__head section__head--center">
-          <span class="eyebrow">Pricing</span>
-          <h2 class="big-title shout-shadow">Free to build. <span class="pink">Invest from $10.</span></h2>
-        </div>
-        <div class="prices">
-          <article class="price card tilt-l">
-            <p class="price__name">Build, workshop and publish</p>
-            <p class="price__amount">Free</p>
-            <p class="price__text">Pitch ideas, work them with the copilot and the community, and build your public track record.</p>
-          </article>
-          <article class="price price--invest card tilt-r">
-            <p class="price__name">Invest</p>
-            <p class="price__amount">From $10</p>
-            <p class="price__text">
-              Open a brokerage account in the app in about five minutes, then buy your basket in fractional shares.
-            </p>
-          </article>
-        </div>
-        <p class="center"><RouterLink to="/pricing" class="link">See pricing details and FAQs →</RouterLink></p>
-      </div>
-    </section>
-
     <!-- Download -->
     <section id="get-the-app" class="section final">
       <div class="container final__inner">
@@ -580,9 +538,9 @@ const demoAllocations = [
         <p class="final__lead">Outvest is a free download. Climate is the first collection, with more themes on the way.</p>
         <AppStoreButtons inverse />
         <div class="final__actions">
-          <RouterLink :to="session.isAuthed ? '/app' : '/signup'" class="btn btn-flare big-cta">
-            {{ session.isAuthed ? 'Open Outvest' : 'Start on the web' }} ↗
-          </RouterLink>
+          <a :href="SURVEY_URL" target="_blank" rel="noopener" class="btn btn-flare big-cta">
+            Get early access ↗
+          </a>
           <p class="final__fine">
             Building, workshopping and publishing a thesis is free. Investing requires a brokerage account, which takes about
             five minutes to open.

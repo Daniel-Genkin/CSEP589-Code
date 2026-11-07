@@ -1,6 +1,4 @@
-import AppLayout from '@/components/layout/AppLayout.vue'
 import PublicLayout from '@/components/layout/PublicLayout.vue'
-import { useSessionStore } from '@/stores/session'
 import { createRouter, createWebHistory } from 'vue-router'
 
 const routes = [
@@ -14,7 +12,6 @@ const routes = [
         component: () => import('@/views/LandingView.vue'),
         meta: { title: 'Turn your climate hot take into a real portfolio', ground: 'blue' },
       },
-      { path: 'pricing', name: 'pricing', component: () => import('@/views/PricingView.vue'), meta: { title: 'Pricing' } },
       {
         path: 't/:thesisId',
         name: 'public-thesis',
@@ -29,30 +26,14 @@ const routes = [
       },
     ],
   },
-  { path: '/signup', name: 'signup', component: () => import('@/views/auth/SignupView.vue'), meta: { title: 'Create your account', guestOnly: true } },
-  { path: '/login', name: 'login', component: () => import('@/views/auth/LoginView.vue'), meta: { title: 'Log in', guestOnly: true } },
-  {
-    path: '/app',
-    component: AppLayout,
-    meta: { requiresAuth: true },
-    children: [
-      { path: '', name: 'dashboard', component: () => import('@/views/app/DashboardView.vue'), meta: { title: 'Home' } },
-      { path: 'pitch', name: 'pitch', component: () => import('@/views/app/PitchView.vue'), meta: { title: 'New thesis' } },
-      { path: 'theses', name: 'theses', component: () => import('@/views/app/ThesesView.vue'), meta: { title: 'My theses' } },
-      { path: 'theses/:thesisId', name: 'thesis', component: () => import('@/views/app/ThesisView.vue'), meta: { title: 'Workshop' } },
-      {
-        path: 'theses/:thesisId/invest',
-        name: 'invest',
-        component: () => import('@/views/app/InvestView.vue'),
-        meta: { title: 'Invest' },
-      },
-      { path: 'community', name: 'community', component: () => import('@/views/app/CommunityView.vue'), meta: { title: 'Community' } },
-      { path: 'portfolio', name: 'portfolio', component: () => import('@/views/app/PortfolioView.vue'), meta: { title: 'Portfolio' } },
-      { path: 'alerts', name: 'alerts', component: () => import('@/views/app/AlertsView.vue'), meta: { title: 'Alerts' } },
-      { path: 'alerts/:alertId', name: 'alert', component: () => import('@/views/app/AlertDetailView.vue'), meta: { title: 'Alert' } },
-      { path: 'settings', name: 'settings', component: () => import('@/views/app/SettingsView.vue'), meta: { title: 'Settings' } },
-    ],
-  },
+  // The product isn't live yet: signup, login, pricing and the in-app pages
+  // are replaced by the landing page, whose calls-to-action open the
+  // willingness-to-pay survey. Named stubs keep untouched views that still
+  // push { name: 'signup' } / { name: 'login' } from throwing.
+  { path: '/signup', name: 'signup', redirect: { path: '/' } },
+  { path: '/login', name: 'login', redirect: { path: '/' } },
+  { path: '/pricing', name: 'pricing', redirect: { path: '/' } },
+  { path: '/app/:rest(.*)*', name: 'dashboard', redirect: { path: '/' } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue'), meta: { title: 'Not found' } },
 ]
 
@@ -69,18 +50,6 @@ const router = createRouter({
     if (to.path === from.path) return false
     return { top: 0 }
   },
-})
-
-router.beforeEach(async (to) => {
-  const session = useSessionStore()
-  await session.init()
-  if (to.matched.some((r) => r.meta.requiresAuth) && !session.isAuthed) {
-    return { name: 'login', query: { redirect: to.fullPath } }
-  }
-  if (to.meta.guestOnly && session.isAuthed) {
-    // Someone already signed in who arrives with a pitch goes straight to building it.
-    return typeof to.query.idea === 'string' ? { name: 'pitch', query: { idea: to.query.idea } } : { name: 'dashboard' }
-  }
 })
 
 router.afterEach((to) => {

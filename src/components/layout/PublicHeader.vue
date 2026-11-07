@@ -1,11 +1,10 @@
 <script setup>
 import BrandLogo from '@/components/ui/BrandLogo.vue'
-import { useSessionStore } from '@/stores/session'
+import { SURVEY_URL } from '@/config/links'
 import { Menu, X } from '@lucide/vue'
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 
-const session = useSessionStore()
 const route = useRoute()
 const menuOpen = ref(false)
 
@@ -41,12 +40,7 @@ watch(
       </nav>
 
       <div class="site-header__actions">
-        <RouterLink to="/pricing" class="site-header__link hide-sm">Pricing</RouterLink>
-        <RouterLink v-if="session.isAuthed" to="/app" class="btn btn-primary">Open app ↗</RouterLink>
-        <template v-else>
-          <RouterLink to="/login" class="btn btn-primary hide-sm">Log in</RouterLink>
-          <RouterLink to="/signup" class="btn btn-flare">Get started ↗</RouterLink>
-        </template>
+        <a :href="SURVEY_URL" target="_blank" rel="noopener" class="btn btn-flare">Get early access ↗</a>
         <button
           type="button"
           class="btn btn-light btn-icon site-header__toggle"
@@ -65,12 +59,9 @@ watch(
         <RouterLink v-for="step in steps" :key="step.n" :to="{ path: '/', hash: step.hash }" class="step-pill mobile-nav__link">
           <span :style="{ color: step.color }">{{ step.n }}</span> {{ step.label }}
         </RouterLink>
-        <RouterLink to="/pricing" class="step-pill mobile-nav__link">
-          <span class="mobile-nav__star">✦</span> Pricing
-        </RouterLink>
-        <RouterLink v-if="!session.isAuthed" to="/login" class="step-pill mobile-nav__link">
-          <span class="mobile-nav__star">✦</span> Log in
-        </RouterLink>
+        <a :href="SURVEY_URL" target="_blank" rel="noopener" class="step-pill mobile-nav__link">
+          <span class="mobile-nav__star">✦</span> Get early access
+        </a>
       </nav>
     </Transition>
   </header>

@@ -1,6 +1,7 @@
 <script setup>
 import AppStoreButtons from '@/components/ui/AppStoreButtons.vue'
 import BrandLogo from '@/components/ui/BrandLogo.vue'
+import { SURVEY_URL } from '@/config/links'
 </script>
 
 <template>
@@ -22,12 +23,10 @@ import BrandLogo from '@/components/ui/BrandLogo.vue'
             <RouterLink :to="{ path: '/', hash: '#workshop' }">AI workshop</RouterLink>
             <RouterLink :to="{ path: '/', hash: '#community' }">Community</RouterLink>
             <RouterLink :to="{ path: '/', hash: '#invest' }">Invest</RouterLink>
-            <RouterLink to="/pricing">Pricing</RouterLink>
           </div>
           <div>
             <p class="site-footer__heading">Get started</p>
-            <RouterLink to="/signup">Create an account</RouterLink>
-            <RouterLink to="/login">Log in</RouterLink>
+            <a :href="SURVEY_URL" target="_blank" rel="noopener">Get early access</a>
             <RouterLink to="/t/th_heatpumps">See an example thesis</RouterLink>
             <RouterLink :to="{ path: '/', hash: '#get-the-app' }">Get the app</RouterLink>
           </div>

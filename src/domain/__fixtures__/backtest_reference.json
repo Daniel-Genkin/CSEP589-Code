@@ -1,0 +1,469 @@
+{
+ "meta": {
+  "status": "PLACEHOLDER reference: written for this build because the team's verified script was not available.",
+  "generatedBy": "scripts/data/backtest_reference.py",
+  "window": [
+   "2021-11-01",
+   "2026-10-30"
+  ],
+  "benchmark": "SPY"
+ },
+ "scenarios": [
+  {
+   "portfolio": "SPY",
+   "label": "exclude defense",
+   "exclusions": {
+    "categories": [
+     "defense"
+    ],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.848681581777187,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 17492.616376300586,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10042.620218387821,
+    "250": 8535.450419501361,
+    "625": 11482.801976082314,
+    "1000": 15689.875657402406
+   }
+  },
+  {
+   "portfolio": "SPY",
+   "label": "exclude fossil_fuels",
+   "exclusions": {
+    "categories": [
+     "fossil_fuels"
+    ],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.350286713514501,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 17106.81157479152,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10046.209395994134,
+    "250": 8333.542074516317,
+    "625": 11258.383465952917,
+    "1000": 15612.10646395313
+   }
+  },
+  {
+   "portfolio": "SPY",
+   "label": "exclude private_prisons",
+   "exclusions": {
+    "categories": [
+     "private_prisons"
+    ],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.939408159407726,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 17563.58992415346,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10040.432140728113,
+    "250": 8584.184820690873,
+    "625": 11514.26582674166,
+    "1000": 15755.592043720759
+   }
+  },
+  {
+   "portfolio": "SPY",
+   "label": "exclude tobacco",
+   "exclusions": {
+    "categories": [
+     "tobacco"
+    ],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.784184427836774,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 17442.301203854244,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10040.305710952423,
+    "250": 8559.264353761288,
+    "625": 11502.641062839719,
+    "1000": 15693.075118707975
+   }
+  },
+  {
+   "portfolio": "SPY",
+   "label": "exclude alcohol",
+   "exclusions": {
+    "categories": [
+     "alcohol"
+    ],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.951728174900133,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 17573.245353604525,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10040.43299415274,
+    "250": 8581.958606298525,
+    "625": 11512.667021693118,
+    "1000": 15763.549818624559
+   }
+  },
+  {
+   "portfolio": "SPY",
+   "label": "exclude gambling",
+   "exclusions": {
+    "categories": [
+     "gambling"
+    ],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.954266998053708,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 17575.235604819107,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10040.609419810613,
+    "250": 8584.552416271088,
+    "625": 11514.98284472609,
+    "1000": 15759.1242979833
+   }
+  },
+  {
+   "portfolio": "SPY",
+   "label": "exclude animal_testing",
+   "exclusions": {
+    "categories": [
+     "animal_testing"
+    ],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.895652417029767,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 17529.33200735234,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10036.778294462389,
+    "250": 8530.890489421285,
+    "625": 11562.824969258774,
+    "1000": 15823.741308643384
+   }
+  },
+  {
+   "portfolio": "SPY",
+   "label": "exclude nothing",
+   "exclusions": {
+    "categories": [],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.939408159407726,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 17563.58992415346,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10040.432140728113,
+    "250": 8584.184820690873,
+    "625": 11514.26582674166,
+    "1000": 15755.592043720759
+   }
+  },
+  {
+   "portfolio": "SPY",
+   "label": "exclude all seven",
+   "exclusions": {
+    "categories": [
+     "defense",
+     "fossil_fuels",
+     "private_prisons",
+     "tobacco",
+     "alcohol",
+     "gambling",
+     "animal_testing"
+    ],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.027091129901322,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 16860.286811002974,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10045.03189455041,
+    "250": 8184.800736379376,
+    "625": 11246.781713803335,
+    "1000": 15547.579284695075
+   }
+  },
+  {
+   "portfolio": "SPY",
+   "label": "exclude XOM by ticker",
+   "exclusions": {
+    "categories": [],
+    "tickers": [
+     "XOM"
+    ],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.602871128542835,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 17301.47579777612,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10043.303913927259,
+    "250": 8467.474575821034,
+    "625": 11382.402174105695,
+    "1000": 15644.672248400206
+   }
+  },
+  {
+   "portfolio": "SPY",
+   "label": "exclude fossil fuels, swap XOM for CCJ",
+   "exclusions": {
+    "categories": [
+     "fossil_fuels"
+    ],
+    "tickers": [],
+    "swaps": {
+     "XOM": "CCJ"
+    }
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.757098512812547,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 17421.20562724191,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10044.933427389162,
+    "250": 8374.400157727241,
+    "625": 11411.439279076827,
+    "1000": 15923.999874543779
+   }
+  },
+  {
+   "portfolio": "sample",
+   "label": "exclude all seven",
+   "exclusions": {
+    "categories": [
+     "defense",
+     "fossil_fuels",
+     "private_prisons",
+     "tobacco",
+     "alcohol",
+     "gambling",
+     "animal_testing"
+    ],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 20.892953277906035,
+    "filtered": 19.159221998048093,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 25792.731164743487,
+    "filtered": 23997.684323444922,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10053.044381954975,
+    "250": 7567.563129828522,
+    "625": 13273.806549041085,
+    "1000": 21542.010651374578
+   }
+  },
+  {
+   "portfolio": "sample",
+   "label": "exclude tobacco, swap MO for WMT",
+   "exclusions": {
+    "categories": [
+     "tobacco"
+    ],
+    "tickers": [],
+    "swaps": {
+     "MO": "WMT"
+    }
+   },
+   "annualizedPct": {
+    "original": 20.892953277906035,
+    "filtered": 20.86292030062955,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 25792.731164743487,
+    "filtered": 25760.748555393726,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10024.482706791943,
+    "250": 8654.815257878863,
+    "625": 14103.27865535429,
+    "1000": 21854.43882074235
+   }
+  },
+  {
+   "portfolio": "connected",
+   "label": "exclude all seven",
+   "exclusions": {
+    "categories": [
+     "defense",
+     "fossil_fuels",
+     "private_prisons",
+     "tobacco",
+     "alcohol",
+     "gambling",
+     "animal_testing"
+    ],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 16.653957927932694,
+    "filtered": 15.690790429218438,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 21581.68157839874,
+    "filtered": 20706.371927815835,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10042.280853044842,
+    "250": 7888.708563370742,
+    "625": 12627.511556770738,
+    "1000": 18766.063050855842
+   }
+  },
+  {
+   "portfolio": "connected",
+   "label": "exclude defense and TSLA",
+   "exclusions": {
+    "categories": [
+     "defense"
+    ],
+    "tickers": [
+     "TSLA"
+    ],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 16.653957927932694,
+    "filtered": 16.614106192153557,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 21581.68157839874,
+    "filtered": 21544.888054850362,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10052.424032876708,
+    "250": 8559.485044325005,
+    "625": 13457.10169243557,
+    "1000": 18755.12235716492
+   }
+  },
+  {
+   "portfolio": "connected",
+   "label": "exclude fossil fuels, swap XOM for CCJ",
+   "exclusions": {
+    "categories": [
+     "fossil_fuels"
+    ],
+    "tickers": [],
+    "swaps": {
+     "XOM": "CCJ"
+    }
+   },
+   "annualizedPct": {
+    "original": 16.653957927932694,
+    "filtered": 16.576551983199273,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 21581.68157839874,
+    "filtered": 21510.261674629342,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10035.587435921605,
+    "250": 8302.291965338145,
+    "625": 13012.251545999365,
+    "1000": 19330.87925508157
+   }
+  }
+ ]
+}

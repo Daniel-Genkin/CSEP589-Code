@@ -9,11 +9,12 @@ If you are picking this up cold: read this file and `docs/STYLE.md` first.
 | --- | --- | --- | --- |
 | 1 | `rally-v1/01-redesign` | Redesign: Figma tokens, style guide, restyle of the screens that have frames | Open, [#7](https://github.com/Daniel-Genkin/CSEP589-Code/pull/7) |
 | 2 | `rally-v1/02-shell` | App shell and routing: the eight routes, sample-data banner, plan gate, persisted state, Reset demo; Outvest-era screens removed | Open, [#8](https://github.com/Daniel-Genkin/CSEP589-Code/pull/8) |
-| 3 | `rally-v1/03-data` | Data layer: `DataProvider`, `SeededProvider`, seed files, yfinance price pull, placeholder tags, the unrun Claude tagging script | Open |
+| 3 | `rally-v1/03-data` | Data layer: `DataProvider`, `SeededProvider`, seed files, yfinance price pull, placeholder tags, the unrun Claude tagging script | Open, [#9](https://github.com/Daniel-Genkin/CSEP589-Code/pull/9) |
+| 4 | `rally-v1/04-domain` | Domain functions with unit tests: look-through, exposure, exclusions and redistribution, back-test, trades; reference back-test script | Open |
 
 Planned stack (14 PRs): 3 data layer and seed, 4 domain functions and tests, 5 to 13 one per requirement F1 to F9, 14 end-to-end demo script.
 
-Next: PR 4, the domain functions (look-through, exposure, exclusions and redistribution, back-test, trades) with unit tests, and `getBacktest` wired to them.
+Next: PR 5, F1 Home (category chips, ticker input with autocomplete, samples, the one-line result and the free-account prompt).
 
 ## What works after PR 2
 
@@ -40,8 +41,28 @@ PRD screens with **no Figma frame** (to be built from `docs/STYLE.md` and listed
 
 - `src/data/provider.ts` is the PRD's `DataProvider` plus two additions the screens need: `getCategories()` and `getSecurities(tickers)`. `src/data/index.ts` exports the one `provider` instance; nothing outside `src/data/` imports seed files.
 - `SeededProvider` answers from `src/data/seed/`: 89 stocks across 11 Yahoo Finance sectors plus SPY, VOO and VTI (60 holdings each); 23 placeholder values tags; one extra category per sector, derived from the data; two sample portfolios; eight sample alerts; 1,255 trading days of adjusted closes (2021-11-01 to 2026-10-30).
-- `getBacktest` rejects until PR 4 adds the back-test math it calls.
 - How the files are made, and what is real versus sample: `scripts/data/README.md`.
+
+## Domain layer (PR 4)
+
+Pure functions in `src/domain/`, no UI, storage or network, all unit tested (138 tests in the repo).
+
+| File | What it does | PRD |
+| --- | --- | --- |
+| `portfolio.ts` | Parse the ticker input, closest-ticker suggestion, equal-weight portfolios, inline weight edits that re-normalize, look-through of funds with weights combined across sources | F1, F2 |
+| `exposure.ts` | Dollars, share, count and top three per category; total flagged counting each holding once | F2 |
+| `exclusions.ts` | Which holdings an exclusion removes, pro rata redistribution, swaps | F3, F4 |
+| `backtest.ts` | Growth of $10,000 for original, filtered and benchmark; annualized return; difference in points | F3 |
+| `trades.ts` | Proposed sells and buys, including "sell the whole fund, buy back the rest"; CSV and text export | F7 |
+
+Numeric acceptance criteria covered by tests:
+- **F2**: every exposure figure for SPY at $10,000 is reproduced by hand arithmetic from the seed (`exposure.test.ts`).
+- **F3**: results equal the reference script to nine significant figures for 16 scenarios (`backtest.reference.test.ts`); exposure to each excluded category is $0 after filtering; a recalculation takes well under 300 ms.
+- **F7**: sells equal buys within $1 for SPY, the sample portfolio and the connected portfolio; quantities have four decimal places; nothing is proposed when nothing is excluded.
+
+**How the back-test treats funds.** A fund position is back-tested on the fund's own price history, and excluding a company inside it subtracts that company's slice (its weight in the fund times its return). So an untouched SPY portfolio tracks the S&P 500 line exactly. The first version looked through to the 60-company sample instead and returned 23% a year for "SPY" against the real 12%, because the sample is weighted by today's market caps; that was a modelling bug and was fixed before this PR.
+
+**Back-test results on the seed (2021-11-01 to 2026-10-30):** S&P 500 (SPY) 11.94% a year. SPY with all seven categories excluded: 11.03%, a drag of 0.91 points (the PRD expects within 1.5). One category at a time: all within 0.5 points except fossil fuels at -0.59. That overshoot is data-driven, not a code bug: the sample fund gives each company about 1.6 times its real S&P 500 weight, so every exclusion is overstated by about that much. Reported, not forced to match.
 
 ## Open conflicts (Figma vs PRD vs existing code)
 
@@ -69,6 +90,7 @@ Rule from AGENT_TASK: Figma wins for the look, the PRD wins for behaviour, log a
 - **Alerts** (`src/data/seed/alerts.ts`): eight invented examples.
 - **Non-S&P 500 tickers:** GEO, CXW (private prisons) and CCJ, UEC, LEU (uranium, so energy holdings have three alternatives) are outside the PRD's "real S&P 500 tickers".
 - **`parseScreenshot`**: returns the sample portfolio for any image, as the PRD specifies for v1.
+- **Reference back-test script** (`scripts/data/backtest_reference.py`): the PRD's reference is the team's verified Python script, which was not available. This stand-in is an independent pandas implementation of the method documented in `src/domain/backtest.ts` (fixed weights rebalanced daily, growth of $10,000, compound annual growth rate). The TypeScript matches it; whether both match the team's script is unverified.
 
 - `/` and `/portfolio` still read the old sample data (made-up companies) through `src/utils/lines.js` and `src/api/mock/catalog.js`, with their own small store (`src/stores/lines.js`). F1 and F2 replace these and delete the old files.
 - "Source: sample research note" on the portfolio is plain text; real source links arrive with seeded values tags.

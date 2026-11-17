@@ -2,7 +2,10 @@
 // by scripts/data/pull_prices.py, tags, sample portfolios and alerts) and answers every
 // DataProvider call from them. Deterministic: same input, same output. No network.
 //
-// This is the only module that imports seed files.
+// This is the only module that imports seed files. It may call domain functions (the back-test
+// math); the domain never imports from here.
+import { backtestPortfolio } from '@/domain/backtest'
+import type { FundMap } from '@/domain/portfolio'
 import type { Alert, BacktestResult, Category, CategoryId, Exclusions, Holding, Portfolio, Security, ValuesTag } from '@/types'
 import type { DataProvider } from './provider'
 import { ALERTS } from './seed/alerts'
@@ -152,9 +155,14 @@ export class SeededProvider implements DataProvider {
     return this.wait(options)
   }
 
-  getBacktest(_portfolio: Portfolio, _exclusions: Exclusions): Promise<BacktestResult> {
-    // The back-test math is a domain function; this method is wired to it in the next PR.
-    return Promise.reject(new Error('getBacktest is not available until the domain functions land'))
+  /**
+   * Back-test the portfolio and its what-if version on the seeded prices. The math is the
+   * domain's (src/domain/backtest.ts); this method supplies prices, fund holdings and tags.
+   */
+  async getBacktest(portfolio: Portfolio, exclusions: Exclusions): Promise<BacktestResult> {
+    const prices = await this.loadPrices()
+    const funds: FundMap = Object.fromEntries(Object.entries(this.funds).map(([ticker, fund]) => [ticker, fund.holdings]))
+    return this.wait(backtestPortfolio(portfolio, funds, this.tags, exclusions, prices, prices.benchmark))
   }
 
   getAlerts(): Promise<Alert[]> {

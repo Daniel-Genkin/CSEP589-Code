@@ -7,3 +7,6 @@ dist
 screenshots
 test-results
 playwright-report
+scripts/data/out
+__pycache__
+.venv

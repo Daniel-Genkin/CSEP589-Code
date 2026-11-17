@@ -8,11 +8,12 @@ If you are picking this up cold: read this file and `docs/STYLE.md` first.
 | PR | Branch | What | State |
 | --- | --- | --- | --- |
 | 1 | `rally-v1/01-redesign` | Redesign: Figma tokens, style guide, restyle of the screens that have frames | Open, [#7](https://github.com/Daniel-Genkin/CSEP589-Code/pull/7) |
-| 2 | `rally-v1/02-shell` | App shell and routing: the eight routes, sample-data banner, plan gate, persisted state, Reset demo; Outvest-era screens removed | Open |
+| 2 | `rally-v1/02-shell` | App shell and routing: the eight routes, sample-data banner, plan gate, persisted state, Reset demo; Outvest-era screens removed | Open, [#8](https://github.com/Daniel-Genkin/CSEP589-Code/pull/8) |
+| 3 | `rally-v1/03-data` | Data layer: `DataProvider`, `SeededProvider`, seed files, yfinance price pull, placeholder tags, the unrun Claude tagging script | Open |
 
 Planned stack (14 PRs): 3 data layer and seed, 4 domain functions and tests, 5 to 13 one per requirement F1 to F9, 14 end-to-end demo script.
 
-Next: PR 3, the data layer (`DataProvider`, `SeededProvider`, seed files, the yfinance price-pull script and the unrun Claude tagging script).
+Next: PR 4, the domain functions (look-through, exposure, exclusions and redistribution, back-test, trades) with unit tests, and `getBacktest` wired to them.
 
 ## What works after PR 2
 
@@ -35,6 +36,13 @@ Next: PR 3, the data layer (`DataProvider`, `SeededProvider`, seed files, the yf
 
 PRD screens with **no Figma frame** (to be built from `docs/STYLE.md` and listed here for design review as they land): `/whatif`, `/settings`, `/upgrade`, `/connect`, `/trades`, plus the Home result line and signup prompt.
 
+## Data layer (PR 3)
+
+- `src/data/provider.ts` is the PRD's `DataProvider` plus two additions the screens need: `getCategories()` and `getSecurities(tickers)`. `src/data/index.ts` exports the one `provider` instance; nothing outside `src/data/` imports seed files.
+- `SeededProvider` answers from `src/data/seed/`: 89 stocks across 11 Yahoo Finance sectors plus SPY, VOO and VTI (60 holdings each); 23 placeholder values tags; one extra category per sector, derived from the data; two sample portfolios; eight sample alerts; 1,255 trading days of adjusted closes (2021-11-01 to 2026-10-30).
+- `getBacktest` rejects until PR 4 adds the back-test math it calls.
+- How the files are made, and what is real versus sample: `scripts/data/README.md`.
+
 ## Open conflicts (Figma vs PRD vs existing code)
 
 Rule from AGENT_TASK: Figma wins for the look, the PRD wins for behaviour, log and continue.
@@ -54,6 +62,13 @@ Rule from AGENT_TASK: Figma wins for the look, the PRD wins for behaviour, log a
 12. **Two navs in Figma.** The Landing frame has its own marketing nav (How it works, The lineup, Join the waitlist). The PRD wants one app where a banner and footer appear on every screen, so Home sits inside the same shell as the other seven screens.
 
 ## Placeholders
+
+- **Values tags** (`src/data/seed/generated/tags.json`): rule-based and hand-checked by `scripts/data/placeholder_tags.py`, not the Claude tagging script the PRD describes. `scripts/data/tag_values.py` is written and not run (needs a credential and a human spot-check). Only tags with a checked source exist, so some real exposures are missing (for example, only two drug makers carry an animal-testing tag).
+- **Fund holdings** (`funds.json`): a 60-company sample of the largest names weighted by market cap, not the funds' real holdings. SPY and VOO share one list.
+- **Sample portfolios** (`src/data/seed/portfolios.ts`): invented. "My sample portfolio" should be modeled on a real interviewed customer with their permission; the team supplies it.
+- **Alerts** (`src/data/seed/alerts.ts`): eight invented examples.
+- **Non-S&P 500 tickers:** GEO, CXW (private prisons) and CCJ, UEC, LEU (uranium, so energy holdings have three alternatives) are outside the PRD's "real S&P 500 tickers".
+- **`parseScreenshot`**: returns the sample portfolio for any image, as the PRD specifies for v1.
 
 - `/` and `/portfolio` still read the old sample data (made-up companies) through `src/utils/lines.js` and `src/api/mock/catalog.js`, with their own small store (`src/stores/lines.js`). F1 and F2 replace these and delete the old files.
 - "Source: sample research note" on the portfolio is plain text; real source links arrive with seeded values tags.

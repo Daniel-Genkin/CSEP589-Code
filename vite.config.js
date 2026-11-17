@@ -12,6 +12,7 @@ export default defineConfig({
   },
   test: {
     include: ['src/**/*.test.ts'],
+    // Component tests opt in to a DOM with a `@vitest-environment happy-dom` comment.
     environment: 'node',
   },
 })

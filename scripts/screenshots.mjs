@@ -51,6 +51,15 @@ const SHOTS = [
   },
   { name: 'portfolio', steps: (page) => signedUp(page) },
   {
+    name: 'portfolio-tag-open',
+    steps: async (page) => {
+      await signedUp(page)
+      await page.locator('.holdings .tag-chip__button').first().click()
+      await page.locator('.holdings').scrollIntoViewIfNeeded()
+    },
+  },
+  { name: 'portfolio-tickers', steps: (page) => signedUp(page, 'VOO, SPY, NVDA') },
+  {
     name: 'portfolio-scanning',
     steps: async (page) => {
       await signedUp(page)

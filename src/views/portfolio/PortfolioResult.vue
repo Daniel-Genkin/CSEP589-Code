@@ -10,6 +10,8 @@ import { useCatalogStore } from '@/state/catalog'
 import { useDemoStore } from '@/state/demo'
 import { headlinePct, listNames, pct, plural, usd } from '@/utils/format'
 import { computed } from 'vue'
+import ExposureReceipt from './ExposureReceipt.vue'
+import HoldingsTable from './HoldingsTable.vue'
 
 const props = defineProps<{ data: PortfolioData }>()
 
@@ -119,9 +121,21 @@ const excludedCount = computed(() => demo.exclusions.tickers.length + demo.exclu
           </ul>
           <p class="small">Sample weights, not a live scan. Each company is counted once, under the first of your lines it crosses.</p>
         </section>
+
+        <section class="card card-pad lines">
+          <header class="row-between">
+            <h2 class="title-card">Your lines. Your call.</h2>
+            <p class="label-mono">{{ data.selectedIds.value.length }} selected</p>
+          </header>
+          <CategoryPicker :categories="catalog.categories" :selected="data.selectedIds.value" @toggle="catalog.toggle" />
+          <p class="small">These are industry choices, not verdicts. Every figure on this page follows them.</p>
+          <RouterLink to="/settings" class="btn btn-outline btn-md">All categories</RouterLink>
+        </section>
       </div>
 
       <aside class="col-side">
+        <ExposureReceipt :data="data" />
+
         <section class="card who">
           <header class="row-between who__head">
             <h2 class="title-card">Who crosses your lines</h2>
@@ -154,52 +168,15 @@ const excludedCount = computed(() => demo.exclusions.tickers.length + demo.exclu
             <span class="dot" style="--dot: var(--violet)" />
             <div class="who__more-text">
               <p class="who__more-title">{{ plural(hidden.length, 'more company', 'more companies') }}</p>
-              <p class="who__more-sub">In the full list below</p>
+              <p class="who__more-sub">In the table below, with reasons and sources</p>
             </div>
             <p class="num-mono who__more-pct">{{ pct(hiddenShare) }}</p>
           </div>
         </section>
-
-        <section class="card card-pad lines">
-          <header class="row-between">
-            <h2 class="title-card">Your lines. Your call.</h2>
-            <p class="label-mono">{{ data.selectedIds.value.length }} selected</p>
-          </header>
-          <CategoryPicker :categories="catalog.categories" :selected="data.selectedIds.value" @toggle="catalog.toggle" />
-          <p class="small">These are industry choices, not verdicts. Every figure on this page follows them.</p>
-          <RouterLink to="/settings" class="btn btn-outline btn-md">All categories</RouterLink>
-        </section>
       </aside>
     </div>
 
-    <section class="card card-pad holdings">
-      <header class="row-between">
-        <h2 class="title-card">Everything you hold</h2>
-        <p class="label-mono">{{ plural(rows.length, 'holding') }} · largest first</p>
-      </header>
-      <table>
-        <thead>
-          <tr>
-            <th scope="col">Ticker</th>
-            <th scope="col">Company</th>
-            <th scope="col">Lines crossed</th>
-            <th scope="col" class="num">Weight</th>
-            <th scope="col" class="num">Value</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="row in rows" :key="row.ticker">
-            <td class="num-mono holdings__ticker">{{ row.ticker }}</td>
-            <td>{{ data.nameOf(row.ticker) }}</td>
-            <td>
-              <span v-for="id in linesOf.get(row.ticker) ?? []" :key="id" class="holdings__line"><span class="dot" :style="{ '--dot': catalog.color(id) }" />{{ catalog.label(id) }}</span>
-            </td>
-            <td class="num num-mono">{{ pct(row.weight, 2) }}</td>
-            <td class="num num-mono">{{ usd(row.valueUsd) }}</td>
-          </tr>
-        </tbody>
-      </table>
-    </section>
+    <HoldingsTable :data="data" />
 
     <section class="options">
       <header class="options__head">
@@ -432,48 +409,6 @@ const excludedCount = computed(() => demo.exclusions.tickers.length + demo.exclu
 }
 .lines > header {
   width: 100%;
-}
-
-/* Everything you hold */
-.holdings {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-.holdings table {
-  width: 100%;
-  border-collapse: collapse;
-}
-.holdings th {
-  padding: 10px 12px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-align: left;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-.holdings td {
-  padding: 14px 12px;
-  border-top: 1px solid var(--hairline);
-  font-size: 15px;
-}
-.holdings .num {
-  text-align: right;
-  white-space: nowrap;
-}
-.holdings__ticker {
-  color: var(--cream);
-}
-.holdings__line {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  margin-right: 14px;
-  font-size: 14px;
-  color: var(--text-muted);
-  white-space: nowrap;
 }
 
 /* What you can do about it */

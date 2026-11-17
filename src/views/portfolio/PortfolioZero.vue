@@ -8,6 +8,7 @@ import type { PortfolioData } from '@/composables/usePortfolioData'
 import { useCatalogStore } from '@/state/catalog'
 import { plural } from '@/utils/format'
 import { computed } from 'vue'
+import HoldingsTable from './HoldingsTable.vue'
 
 const props = defineProps<{ data: PortfolioData }>()
 
@@ -125,6 +126,8 @@ const linesLabel = computed(() => `${plural(count.value, 'line')} checked`)
         </section>
       </aside>
     </div>
+
+    <HoldingsTable :data="data" />
   </div>
 </template>
 

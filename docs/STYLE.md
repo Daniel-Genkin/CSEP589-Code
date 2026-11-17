@@ -100,7 +100,11 @@ Weights stop at 600. Headlines are sentences with a full stop ("Who crosses your
 | Category picker | `CategoryPicker.vue` | Selected categories as removable chips (×) plus "+ Add a line", which opens the rest (Figma "Your lines" card). Use inside cards. |
 | Input pill | see `HomeView.vue` `.finder` | The one place the user types: surface pill, 1.5px brand-400 border (flare when invalid), mono text, fields divided by a hairline, the sun button at the right end. Suggestions drop down as a bordered surface card. |
 | Result card | `ConflictTeaser.vue` | One Anton line (96px) stating the result, a 20px muted sentence, then a hairline and the ask with its form. A tilted skeleton receipt on the right. Green line when the count is zero. |
-| Table | see `PortfolioResult.vue` `.holdings` | Inside a card. Mono 12px uppercase headers, hairline between rows, 14px row padding, tickers in cream mono, numbers right-aligned in mono. |
+| Table | see `HoldingsTable.vue` | Inside a card. Mono 12px uppercase headers (sortable ones are buttons with an arrow), hairline between rows, 12px cell padding, tickers in cream mono, numbers right-aligned in mono. A group row (a fund) sits on surface-inset with a round +/− toggle; the rows inside it are indented. Filters are chips above the table: the active one is cream with ink text. |
+| Tag chip | `TagChip.vue` | A small chip (13px, surface-2, colour dot) on a holding. Clicking opens a 340px bordered card: mono label, the reason, three strength pips (flare) with words, the source link. Closes on Escape or a click outside. |
+| Tooltip | `InfoTip.vue` | A muted "?" button; on hover or focus, an ink bubble with a border and 13px text. For one-sentence explanations only; anything the user must read is also written on the page. |
+| Inline number field | see `HoldingsTable.vue` `.weight` | 84px wide, 34px tall, ink fill, 1px border, mono, right-aligned, unit after the field. Brand-400 border and ring on focus. |
+| View switch | `.tabs` inside an ink pill | Two or three small tabs for switching how the same data is listed. The active tab is signal, as in the nav. |
 | Badge | `.badge`, `.badge-sun` | Small filled pill for counts ("2 unread"). |
 | Ticker tile | `.ticker-tile` (52px), `.ticker-tile-lg` (60px) | Surface-2 square, mono symbol in cream. |
 | Dot grid | `DotGrid.vue` | "1 dot = $1": 100 dots of 26px, 10px gap, coloured by segment. |

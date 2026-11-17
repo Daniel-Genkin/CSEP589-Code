@@ -11,11 +11,12 @@ If you are picking this up cold: read this file and `docs/STYLE.md` first.
 | 2 | `rally-v1/02-shell` | App shell and routing: the eight routes, sample-data banner, plan gate, persisted state, Reset demo; Outvest-era screens removed | Open, [#8](https://github.com/Daniel-Genkin/CSEP589-Code/pull/8) |
 | 3 | `rally-v1/03-data` | Data layer: `DataProvider`, `SeededProvider`, seed files, yfinance price pull, placeholder tags, the unrun Claude tagging script | Open, [#9](https://github.com/Daniel-Genkin/CSEP589-Code/pull/9) |
 | 4 | `rally-v1/04-domain` | Domain functions with unit tests: look-through, exposure, exclusions and redistribution, back-test, trades; reference back-test script | Open, [#10](https://github.com/Daniel-Genkin/CSEP589-Code/pull/10) |
-| 5 | `rally-v1/05-home` | F1 Home: category chips, ticker input with autocomplete, samples, one-line result, free-account prompt; Portfolio moved to seeded data | Open |
+| 5 | `rally-v1/05-home` | F1 Home: category chips, ticker input with autocomplete, samples, one-line result, free-account prompt; Portfolio moved to seeded data | Open, [#11](https://github.com/Daniel-Genkin/CSEP589-Code/pull/11) |
+| 6 | `rally-v1/06-portfolio` | F2 Portfolio: holdings table with fund grouping, sort, filter, tag popovers and inline weights; receipt-style exposure panel | Open |
 
 Planned stack (14 PRs): 3 data layer and seed, 4 domain functions and tests, 5 to 13 one per requirement F1 to F9, 14 end-to-end demo script.
 
-Next: PR 6, F2 Portfolio (full holdings table with sector, chips that open reason, strength and source, fund grouping, sorting and filtering, inline weights, the receipt-style exposure panel).
+Next: PR 7, F3 What-if (category and company toggles, back-tested returns for original, filtered and S&P 500, the growth chart, exposure before and after).
 
 ## Requirement status
 
@@ -23,7 +24,7 @@ Next: PR 6, F2 Portfolio (full holdings table with sector, chips that open reaso
 | --- | --- | --- |
 | G Global behaviour | Done (PR 2) | Routing, banner, persistence, Reset demo, plan gate. Loading states arrive screen by screen. |
 | F1 Home | Done (PR 5) | Screenshot upload is built and hidden behind `VITE_SHOW_SCREENSHOT_UPLOAD`, as the PRD asks. |
-| F2 Portfolio | Partly (PR 5) | Headline figure, dot grid, top flagged holdings with reason and source link, a plain list of every holding. The full table, chips with popovers, fund grouping, sort and filter, inline weights and the receipt-style exposure panel are PR 6. |
+| F2 Portfolio | Done (PR 6) | The "Connected: <broker>" badge belongs to F6 and arrives with it. |
 | F3 to F9 | Not started | `/whatif`, `/settings`, `/connect`, `/trades`, `/alerts` are placeholders; `/upgrade` has the working button but no pricing card. |
 
 ## Screens and states with no Figma frame (for design review)
@@ -35,7 +36,9 @@ Built from `docs/STYLE.md`. Listed here as they land.
 - **Home: the one-line result card** ("21 holdings conflict.") with the free-account form and a skeleton receipt. No frame shows a pre-signup result.
 - **Home: unknown-ticker message** under the input.
 - **Portfolio: the account gate** (portfolio chosen, no account yet). Same card as Home's result.
-- **Portfolio: "Everything you hold" table.** The Dashboard frame only shows two holdings and "3 more companies".
+- **Portfolio: "Everything you hold" table**, with fund group rows, sort headers, category filter chips, the "By fund / Combined" switch and inline weight fields. The Dashboard frame only shows two holdings and "3 more companies".
+- **Portfolio: tag popover** (reason, strength, source) opened from a chip in the table.
+- **Portfolio: exposure receipt.** The receipt component is from Figma; using it for one row per category with a headline sentence above it is new. The Dashboard frame has a "Your VOO receipt" link card instead.
 - **Portfolio: options 2 and 3** now point to What-if and Connect brokerage (see conflict 13).
 
 ## How the Figma frames map to the PRD's routes

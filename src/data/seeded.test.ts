@@ -6,7 +6,8 @@ import { ALERTS } from './seed/alerts'
 import fundsFile from './seed/generated/funds.json'
 import securitiesFile from './seed/generated/securities.json'
 import tagsFile from './seed/generated/tags.json'
-import { DEFAULT_PORTFOLIO_USD, MAX_SEARCH_RESULTS, SeededProvider } from './seeded'
+import { DEFAULT_PORTFOLIO_USD } from '@/config/defaults'
+import { MAX_SEARCH_RESULTS, SeededProvider } from './seeded'
 
 const FEATURED = ['defense', 'fossil_fuels', 'private_prisons', 'tobacco', 'alcohol', 'gambling', 'animal_testing']
 const provider = new SeededProvider(0)

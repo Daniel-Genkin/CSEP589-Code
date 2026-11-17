@@ -1,80 +1,78 @@
-<script setup>
-// /portfolio is one route with five states, each a Figma frame:
-// first visit, scanning, result (conflicts), zero conflicts, data unavailable.
-import { useLinesStore } from '@/stores/lines'
-import { checkFund } from '@/utils/lines'
-import { storeToRefs } from 'pinia'
-import { computed, onBeforeUnmount, ref } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
+<script setup lang="ts">
+// /portfolio is one route with these states, each a Figma frame:
+//   no portfolio        -> first visit
+//   portfolio, no account -> the one-line result and the free-account prompt
+//   loading             -> scanning
+//   provider failed     -> data unavailable
+//   nothing flagged     -> zero conflicts
+//   otherwise           -> the breakdown
+import ConflictTeaser from '@/components/rally/ConflictTeaser.vue'
+import { countConflicts } from '@/composables/useHoldingsCheck'
+import { usePortfolioData } from '@/composables/usePortfolioData'
+import { shortName } from '@/domain/portfolio'
+import { useCatalogStore } from '@/state/catalog'
+import { useDemoStore } from '@/state/demo'
+import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { useRoute } from 'vue-router'
 import PortfolioFirstVisit from './portfolio/PortfolioFirstVisit.vue'
 import PortfolioResult from './portfolio/PortfolioResult.vue'
 import PortfolioScanning from './portfolio/PortfolioScanning.vue'
 import PortfolioUnavailable from './portfolio/PortfolioUnavailable.vue'
 import PortfolioZero from './portfolio/PortfolioZero.vue'
 
-const SCAN_MS = 1600
-const STATES = ['first-visit', 'scanning', 'result', 'zero', 'unavailable']
-// The fund pinned states talk about when the user has not picked one yet.
-const REVIEW_FUND = 'VOO'
+/** Long enough for the scanning screen to read as a step, not a flicker. */
+const MIN_SCAN_MS = 700
+const PINNABLE = ['scanning', 'unavailable'] as const
 
 const route = useRoute()
-const router = useRouter()
-const store = useLinesStore()
-const { lineKeys, fundSymbol } = storeToRefs(store)
+const demo = useDemoStore()
+const catalog = useCatalogStore()
+const data = usePortfolioData()
 
-// The fund being scanned. It only becomes the user's fund when the scan finishes,
-// so cancelling leaves things as they were.
-const pending = ref(null)
-let timer = null
+// Hold the scanning screen for a moment each time a different portfolio starts loading.
+const holding = ref(false)
+let timer: ReturnType<typeof setTimeout> | undefined
+watch(
+  () => data.status.value,
+  (status) => {
+    if (status !== 'loading') return
+    holding.value = true
+    clearTimeout(timer)
+    timer = setTimeout(() => (holding.value = false), MIN_SCAN_MS)
+  },
+  { immediate: true },
+)
 onBeforeUnmount(() => clearTimeout(timer))
 
-// ?state=… pins a state for design review and screenshots.
-const forced = computed(() => (STATES.includes(route.query.state) ? route.query.state : null))
-
-const symbol = computed(() => pending.value ?? fundSymbol.value ?? (forced.value ? REVIEW_FUND : null))
-const result = computed(() => (symbol.value ? checkFund(symbol.value, lineKeys.value) : null))
+// ?state=scanning|unavailable pins a state that is otherwise brief or rare, for design review.
+const pinned = computed(() => PINNABLE.find((s) => s === route.query.state) ?? null)
 
 const state = computed(() => {
-  if (forced.value) {
-    // A pinned result still needs data to show.
-    if (['result', 'zero'].includes(forced.value) && !result.value) return 'unavailable'
-    return forced.value
-  }
-  if (pending.value) return 'scanning'
-  if (!fundSymbol.value) return 'first-visit'
-  if (!result.value) return 'unavailable'
-  return result.value.crossers.length ? 'result' : 'zero'
+  if (!demo.portfolio) return 'first-visit'
+  if (pinned.value) return pinned.value
+  if (data.status.value === 'error') return 'unavailable'
+  if (data.status.value !== 'ready' || holding.value) return 'scanning'
+  if (!demo.account) return 'gate'
+  return data.flagged.value.count ? 'result' : 'zero'
 })
 
-function unpin() {
-  if (forced.value) router.replace({ query: {} })
-}
-function scan(next = symbol.value) {
-  unpin()
-  pending.value = next
-  clearTimeout(timer)
-  timer = setTimeout(() => {
-    store.setFund(pending.value)
-    pending.value = null
-  }, SCAN_MS)
-}
-function cancelScan() {
-  unpin()
-  clearTimeout(timer)
-  pending.value = null
-}
-function changeFund() {
-  cancelScan()
-  store.setFund(null)
-}
+// The same count Home shows, from the same function.
+const summary = computed(() => countConflicts({ portfolio: demo.portfolio!, rows: data.rows.value, tags: data.tags.value }, catalog.selectedIds))
 </script>
 
 <template>
   <Transition name="fade" mode="out-in">
-    <PortfolioFirstVisit v-if="state === 'first-visit'" key="first-visit" @continue="scan" />
-    <PortfolioScanning v-else-if="state === 'scanning'" key="scanning" :symbol="symbol" @cancel="cancelScan" />
-    <PortfolioUnavailable v-else-if="state === 'unavailable'" key="unavailable" :symbol="symbol" @retry="scan()" @change-fund="changeFund" />
-    <PortfolioZero v-else-if="state === 'zero'" key="zero" :result="result" @rescan="scan()" />
-    <PortfolioResult v-else key="result" :result="result" @rescan="scan()" />
+    <PortfolioFirstVisit v-if="state === 'first-visit'" key="first-visit" />
+    <PortfolioScanning v-else-if="state === 'scanning'" key="scanning" :portfolio="demo.portfolio!" />
+    <PortfolioUnavailable v-else-if="state === 'unavailable'" key="unavailable" :portfolio="demo.portfolio!" @retry="data.reload()" />
+    <div v-else-if="state === 'gate'" key="gate" class="page">
+      <header class="page-head">
+        <p class="eyebrow">Your Rally · Portfolio · sample data</p>
+        <h1 class="page-title">One line is free.<br />The rest is one email away.</h1>
+      </header>
+      <ConflictTeaser :summary="summary" :name="shortName(demo.portfolio!)" :categories="catalog.selectedIds.length" />
+    </div>
+    <PortfolioZero v-else-if="state === 'zero'" key="zero" :data="data" />
+    <PortfolioResult v-else key="result" :data="data" />
   </Transition>
 </template>

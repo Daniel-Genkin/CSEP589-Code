@@ -4,7 +4,6 @@
 import NavPill from '@/components/rally/NavPill.vue'
 import SiteFooter from '@/components/rally/SiteFooter.vue'
 import { useDemoStore } from '@/state/demo'
-import { useLinesStore } from '@/stores/lines'
 import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -13,6 +12,7 @@ const router = useRouter()
 const demo = useDemoStore()
 
 const tabs = computed(() => [
+  { label: 'Home', to: '/', active: route.name === 'home' },
   { label: 'Portfolio', to: '/portfolio', active: route.name === 'portfolio' },
   { label: 'What-if', to: '/whatif', active: route.name === 'whatif' || route.name === 'trades' },
   { label: 'Alerts', to: '/alerts', active: route.name === 'alerts' },
@@ -25,12 +25,10 @@ const initials = computed(() => demo.account?.email.slice(0, 2).toUpperCase() ??
 const epoch = ref(0)
 
 async function reset() {
-  const lines = useLinesStore()
   demo.reset()
-  lines.reset()
   await router.push('/')
-  // A timer on the screen we just left (a running scan) may have fired while Home loaded.
-  lines.reset()
+  // Something on the screen we just left may have written state while Home loaded.
+  demo.reset()
   epoch.value += 1
   window.scrollTo({ top: 0 })
 }

@@ -1,6 +1,6 @@
 import type { Portfolio, Security } from '@/types'
 import { describe, expect, it } from 'vitest'
-import { buildTickerPortfolio, closestTicker, editDistance, fundsIn, lookThrough, parseTickerInput, positionsOf, resizePortfolio, setHoldingWeight, type FundMap } from './portfolio'
+import { buildTickerPortfolio, closestTicker, editDistance, fundsIn, lookThrough, parseTickerInput, positionsOf, resizePortfolio, samePortfolio, setHoldingWeight, shortName, type FundMap } from './portfolio'
 
 const stock = (ticker: string, price: number): Security => ({ ticker, name: ticker, sector: 'Test', price, kind: 'stock' })
 const etf = (ticker: string, price: number): Security => ({ ticker, name: ticker, sector: 'Fund', price, kind: 'etf' })
@@ -28,6 +28,11 @@ describe('parseTickerInput', () => {
   it('drops blanks, a leading $ and repeats', () => {
     expect(parseTickerInput('  $spy ,, SPY ,')).toEqual(['SPY'])
     expect(parseTickerInput('   ')).toEqual([])
+  })
+
+  it('drops characters that cannot be part of a ticker', () => {
+    expect(parseTickerInput('(AAPL), "MSFT" $$NVDA* BRK.B BF-B')).toEqual(['AAPL', 'MSFT', 'NVDA', 'BRK.B', 'BF-B'])
+    expect(parseTickerInput('()[] $')).toEqual([])
   })
 })
 
@@ -66,6 +71,24 @@ describe('buildTickerPortfolio', () => {
 
   it('makes an empty portfolio from no tickers', () => {
     expect(buildTickerPortfolio([], 10_000).holdings).toEqual([])
+  })
+})
+
+describe('shortName and samePortfolio', () => {
+  const a = buildTickerPortfolio([stock('AAA', 100), stock('BBB', 50)], 10_000)
+
+  it('labels a fund by its ticker and anything else by its name', () => {
+    expect(shortName({ ...a, id: 'SPY', name: 'SPDR S&P 500 ETF Trust', origin: 'fund' })).toBe('SPY')
+    expect(shortName(a)).toBe('AAA, BBB')
+  })
+
+  it('compares what two portfolios hold', () => {
+    expect(samePortfolio(a, buildTickerPortfolio([stock('AAA', 100), stock('BBB', 50)], 10_000))).toBe(true)
+    expect(samePortfolio(a, resizePortfolio(a, 20_000))).toBe(false)
+    expect(samePortfolio(a, buildTickerPortfolio([stock('AAA', 100), stock('CCC', 50)], 10_000))).toBe(false)
+    expect(samePortfolio(a, setHoldingWeight(a, 'AAA', 0.6))).toBe(false)
+    expect(samePortfolio(a, null)).toBe(false)
+    expect(samePortfolio(null, null)).toBe(true)
   })
 })
 

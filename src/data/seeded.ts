@@ -7,6 +7,7 @@
 import { backtestPortfolio } from '@/domain/backtest'
 import type { FundMap } from '@/domain/portfolio'
 import type { Alert, BacktestResult, Category, CategoryId, Exclusions, Holding, Portfolio, Security, ValuesTag } from '@/types'
+import { DEFAULT_PORTFOLIO_USD } from '@/config/defaults'
 import type { DataProvider } from './provider'
 import { ALERTS } from './seed/alerts'
 import { FEATURED_CATEGORIES, SECTOR_BASIS, SECTOR_COLOR, sectorCategoryId } from './seed/categories'
@@ -15,8 +16,6 @@ import securitiesFile from './seed/generated/securities.json'
 import tagsFile from './seed/generated/tags.json'
 import { CONNECTED_PORTFOLIO, SAMPLE_PORTFOLIO, type SamplePortfolioSpec } from './seed/portfolios'
 
-/** What a fund or sample portfolio is worth before the user sets an amount. */
-export const DEFAULT_PORTFOLIO_USD = 10_000
 export const MAX_SEARCH_RESULTS = 8
 export const MAX_ALTERNATIVES = 3
 /** Seeded calls pause briefly so loading states are real. Well under the 500 ms budget. */

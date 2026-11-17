@@ -39,7 +39,7 @@ Use this for every screen, including the ones with no Figma frame. If a screen n
 | `--paper-ghost` | `#e3d7b8` | Skeleton bars on a receipt that has not printed |
 | `--bar-muted` | `#8c8797` | Benchmark / comparison bar |
 
-Line colours (dot before a line's name, in this order when lines are listed): flare, sun, violet, signal, bubblegum, then brand-300 and cream.
+Category colours (the dot before a category's name), in the seed's order: defense flare, fossil fuels sun, private prisons violet, tobacco signal, alcohol bubblegum, gambling brand-300, animal testing cream. Sector categories all use bar-muted so the featured seven stand out. On the cream ground, selected chips are ink with cream text instead of using the category colour.
 
 Contrast (WCAG): muted text is 7.4:1 on ink, 6.7:1 on surface and 5.2:1 on surface-2; brand-300 links are 5.8:1 on surface; muted-ink on cream is 6.4:1. Flare is only 3.9:1 on the track colour and 3.2:1 on cream, so use flare for large figures and short uppercase labels, never for body text.
 
@@ -95,16 +95,21 @@ Weights stop at 600. Headlines are sentences with a full stop ("Who crosses your
 | Inset panel | `.inset` | Track-coloured panel inside a card (radius 20, padding 24) for the message that must not be missed. |
 | Button | `.btn` + `.btn-primary` / `.btn-outline` / `.btn-quiet` | Pill. Sizes: default 15/26 padding, `.btn-md` 13/22, `.btn-sm` 10/16 with 13px text. Quiet (surface-2 with sun text) is an undoable state: "Excluded · Undo". |
 | Tag | `.tag` | Outlined mono pill with an 8px dot. Dot colour carries the state (sun demo, brand-400 neutral, flare problem). `.tag-pass` is the green filled variant. |
-| Chip | `.chip`, `.chip-add`, `LineChips.vue` | A selected line: surface-2 pill, 10px colour dot, name, ×. Dashed chip adds one. |
+| Chip | `.chip`, `.chip-add` | A selected line: surface-2 pill, 10px colour dot, name. Dashed chip (`+ Label`) is one you can add. |
+| Category chips | `CategoryChips.vue` | Every category as an on/off chip (`aria-pressed`). Use when the set is small and all of it should be visible (Home). |
+| Category picker | `CategoryPicker.vue` | Selected categories as removable chips (×) plus "+ Add a line", which opens the rest (Figma "Your lines" card). Use inside cards. |
+| Input pill | see `HomeView.vue` `.finder` | The one place the user types: surface pill, 1.5px brand-400 border (flare when invalid), mono text, fields divided by a hairline, the sun button at the right end. Suggestions drop down as a bordered surface card. |
+| Result card | `ConflictTeaser.vue` | One Anton line (96px) stating the result, a 20px muted sentence, then a hairline and the ask with its form. A tilted skeleton receipt on the right. Green line when the count is zero. |
+| Table | see `PortfolioResult.vue` `.holdings` | Inside a card. Mono 12px uppercase headers, hairline between rows, 14px row padding, tickers in cream mono, numbers right-aligned in mono. |
 | Badge | `.badge`, `.badge-sun` | Small filled pill for counts ("2 unread"). |
 | Ticker tile | `.ticker-tile` (52px), `.ticker-tile-lg` (60px) | Surface-2 square, mono symbol in cream. |
 | Dot grid | `DotGrid.vue` | "1 dot = $1": 100 dots of 26px, 10px gap, coloured by segment. |
 | Bar | `.bar` | 10px pill track with a sun (or muted) fill. |
 | Receipt | `ReceiptPaper.vue` | 448px on the landing page, 416px (`compact`) in the app. Variants: full, `skeleton` (not printed yet), `behind`. Zero-conflict total is ink, not flare. |
-| Legend / stat column | see `DashboardResult.vue` | Label (15/600), mono value (22), muted detail (13). |
-| Selectable row | see `DashboardFirstVisit.vue` | 1px hairline border; selected gets surface-2 and a 1.5px brand-400 border, plus a filled radio. |
-| Step list | see `DashboardScanning.vue` | 44px numbered marker: sun filled (done), brand-300 outline (now), border outline (waiting); mono status on the right. |
-| Status list | see `DashboardUnavailable.vue` | 10px dot, title + detail, mono status right, hairline under each row. |
+| Legend / stat column | see `PortfolioResult.vue` | Label (15/600), mono value (22), muted detail (13). |
+| Selectable row | see `PortfolioFirstVisit.vue` | 1px hairline border; selected gets surface-2 and a 1.5px brand-400 border, plus a filled radio. |
+| Step list | see `PortfolioScanning.vue` | 44px numbered marker: sun filled (done), brand-300 outline (now), border outline (waiting); mono status on the right. |
+| Status list | see `PortfolioUnavailable.vue` | 10px dot, title + detail, mono status right, hairline under each row. |
 | Empty box | dashed 1px border, radius 20 | "Nothing here yet" areas. Never a filled card. |
 
 ## States every data screen needs

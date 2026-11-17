@@ -1,21 +1,18 @@
-<script setup>
-// Figma "Scanning": the fund is being checked against the user's lines; no result yet.
-import LineChips from '@/components/rally/LineChips.vue'
+<script setup lang="ts">
+// Figma "Scanning": the portfolio is being checked against the user's lines; no result yet.
+// This is the loading state for seeded calls on this screen.
 import ReceiptPaper from '@/components/rally/ReceiptPaper.vue'
-import { getSecurity } from '@/api/mock/catalog'
-import { useLinesStore } from '@/stores/lines'
-import { pluralize } from '@/utils/format'
-import { LINE_OPTIONS } from '@/utils/lines'
-import { storeToRefs } from 'pinia'
+import { useCatalogStore } from '@/state/catalog'
+import type { Portfolio } from '@/types'
+import { plural } from '@/utils/format'
 import { computed } from 'vue'
 
-const props = defineProps({ symbol: { type: String, required: true } })
-defineEmits(['cancel'])
+const props = defineProps<{ portfolio: Portfolio }>()
 
-const { lineKeys } = storeToRefs(useLinesStore())
-const fund = computed(() => getSecurity(props.symbol))
-const count = computed(() => lineKeys.value.length)
-const linesLabel = computed(() => pluralize(count.value, 'line'))
+const catalog = useCatalogStore()
+const count = computed(() => catalog.selectedIds.length)
+const linesLabel = computed(() => plural(count.value, 'line'))
+const tile = computed(() => (props.portfolio.origin === 'fund' ? props.portfolio.id : String(props.portfolio.holdings.length)))
 </script>
 
 <template>
@@ -23,49 +20,43 @@ const linesLabel = computed(() => pluralize(count.value, 'line'))
     <div class="page-cols">
       <div class="col-main">
         <header class="page-head">
-          <p class="eyebrow">Scan in progress · Step 2 of 3</p>
-          <h1 class="scan__title">Scanning<br />{{ symbol }}...</h1>
-          <p class="lead">Hold the receipt. You picked your lines; now we’re checking the fund against them.</p>
+          <p class="eyebrow">Scan in progress · Step 3 of 3</p>
+          <h1 class="scan__title">Scanning<br />{{ portfolio.origin === 'fund' ? portfolio.id : 'your picks' }}...</h1>
+          <p class="lead">Hold the receipt. You picked your lines; now we’re checking what you hold against them.</p>
         </header>
 
-        <section class="card card-pad scan" aria-live="polite">
+        <section class="card card-pad scan" aria-live="polite" aria-busy="true">
           <header class="scan__head">
-            <span class="ticker-tile ticker-tile-lg">{{ symbol }}</span>
+            <span class="ticker-tile ticker-tile-lg">{{ tile }}</span>
             <div class="scan__fund">
-              <p class="scan__name">{{ fund?.name ?? symbol }}</p>
+              <p class="scan__name">{{ portfolio.name }}</p>
               <p class="body-muted">{{ linesLabel }} · scanning now</p>
             </div>
             <span class="tag"><span class="dot" />In progress</span>
           </header>
           <h2 class="title-lg">Scan in progress.</h2>
-          <p class="scan__text">
-            Reading the fine print: matching fund holdings to your {{ linesLabel }} and checking the supporting sources. Your receipt isn’t ready yet.
-          </p>
+          <p class="scan__text">Reading the fine print: matching holdings to your {{ linesLabel }} and collecting the source for each tag. Your receipt isn’t ready yet.</p>
           <div class="scan__bar" role="progressbar" aria-label="Scan progress"><span /></div>
-          <p class="label-mono scan__bar-label">Checking holdings… · Completion unknown</p>
+          <p class="label-mono scan__bar-label">Checking holdings…</p>
 
           <ol class="scan__steps">
             <li class="rule-top is-done">
               <span class="scan__n">01</span>
-              <span class="scan__step"><b>Pick your lines</b><span>{{ pluralize(count, 'choice') }} saved</span></span>
+              <span class="scan__step"><b>Pick what you hold</b><span>{{ portfolio.name }}</span></span>
+              <span class="label-mono">Done</span>
+            </li>
+            <li class="rule-top is-done">
+              <span class="scan__n">02</span>
+              <span class="scan__step"><b>Pick your lines</b><span>{{ plural(count, 'choice') }} saved</span></span>
               <span class="label-mono">Done</span>
             </li>
             <li class="rule-top is-now">
-              <span class="scan__n">02</span>
-              <span class="scan__step"><b>Scan your fund</b><span>Matching holdings and verifying sources…</span></span>
+              <span class="scan__n">03</span>
+              <span class="scan__step"><b>Scan and print your receipt</b><span>Matching holdings and collecting sources…</span></span>
               <span class="label-mono">In progress</span>
             </li>
-            <li class="rule-top is-waiting">
-              <span class="scan__n">03</span>
-              <span class="scan__step"><b>Print your receipt</b><span>Waiting for the scan to finish</span></span>
-              <span class="label-mono">Waiting</span>
-            </li>
           </ol>
-
-          <div class="scan__foot">
-            <button type="button" class="btn btn-outline" @click="$emit('cancel')">Cancel scan</button>
-            <p class="label-mono">No result, exposure or basket yet.</p>
-          </div>
+          <p class="label-mono">No result, exposure or trades yet.</p>
         </section>
       </div>
 
@@ -74,7 +65,7 @@ const linesLabel = computed(() => pluralize(count.value, 'line'))
           class="side-receipt"
           compact
           flat
-          :subtitle="`Conflict receipt · ${symbol}`"
+          :subtitle="`Conflict receipt · ${portfolio.origin === 'fund' ? portfolio.id : 'your picks'}`"
           :meta="[{ label: 'Lines', value: `${count} saved` }]"
           skeleton
           :skeleton-rows="2"
@@ -85,8 +76,10 @@ const linesLabel = computed(() => pluralize(count.value, 'line'))
             <h2 class="title-sm">The conditions we’re checking.</h2>
             <p class="label-mono">{{ count }} selected</p>
           </header>
-          <LineChips v-model="lineKeys" :lines="LINE_OPTIONS" />
-          <p class="small">Change a line and the receipt uses your new choices.</p>
+          <ul class="chips">
+            <li v-for="category in catalog.selected" :key="category.id" class="chip"><span class="dot dot-10" :style="{ '--dot': category.color }" />{{ category.label }}</li>
+          </ul>
+          <p class="small">Sample data. Nothing is sent anywhere.</p>
         </section>
       </aside>
     </div>
@@ -156,9 +149,6 @@ const linesLabel = computed(() => pluralize(count.value, 'line'))
   gap: 18px;
   padding: 18px 0;
 }
-.scan__steps li:last-child {
-  padding-bottom: 0;
-}
 .scan__n {
   display: grid;
   place-items: center;
@@ -199,17 +189,14 @@ const linesLabel = computed(() => pluralize(count.value, 'line'))
   font-size: 14px;
   color: var(--text-muted);
 }
-.is-waiting .scan__step b {
-  color: var(--text-muted);
-}
-.scan__foot {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-}
 .side-lines {
   display: flex;
   flex-direction: column;
   gap: 20px;
+}
+.chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
 }
 </style>

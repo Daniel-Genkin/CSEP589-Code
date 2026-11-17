@@ -1,21 +1,19 @@
-<script setup>
-// Figma "Data unavailable": the scan could not finish. Missing data is never shown as a clean result.
-import LineChips from '@/components/rally/LineChips.vue'
-import { getSecurity } from '@/api/mock/catalog'
-import { SURVEY_URL } from '@/config/brand'
-import { useLinesStore } from '@/stores/lines'
-import { pluralize } from '@/utils/format'
-import { LINE_OPTIONS } from '@/utils/lines'
-import { storeToRefs } from 'pinia'
+<script setup lang="ts">
+// Figma "Data unavailable": the data could not be read. Missing data is never shown as a clean result.
+import CategoryPicker from '@/components/rally/CategoryPicker.vue'
+import { useCatalogStore } from '@/state/catalog'
+import { useDemoStore } from '@/state/demo'
+import type { Portfolio } from '@/types'
+import { plural } from '@/utils/format'
 import { computed } from 'vue'
 
-const props = defineProps({ symbol: { type: String, required: true } })
-defineEmits(['retry', 'change-fund'])
+const props = defineProps<{ portfolio: Portfolio }>()
+defineEmits<{ retry: [] }>()
 
-const { lineKeys } = storeToRefs(useLinesStore())
-const fund = computed(() => getSecurity(props.symbol))
-const count = computed(() => lineKeys.value.length)
-const linesLabel = computed(() => pluralize(count.value, 'line'))
+const demo = useDemoStore()
+const catalog = useCatalogStore()
+const count = computed(() => catalog.selectedIds.length)
+const tile = computed(() => (props.portfolio.origin === 'fund' ? props.portfolio.id : String(props.portfolio.holdings.length)))
 </script>
 
 <template>
@@ -30,27 +28,22 @@ const linesLabel = computed(() => pluralize(count.value, 'line'))
 
         <section class="card card-pad gone" role="alert">
           <header class="gone__head">
-            <span class="ticker-tile ticker-tile-lg">{{ symbol }}</span>
+            <span class="ticker-tile ticker-tile-lg">{{ tile }}</span>
             <div class="gone__fund">
-              <p class="gone__name">{{ fund?.name ?? symbol }}</p>
-              <p class="body-muted">{{ linesLabel }} · scan incomplete</p>
+              <p class="gone__name">{{ portfolio.name }}</p>
+              <p class="body-muted">{{ plural(count, 'line') }} · scan incomplete</p>
             </div>
             <span class="tag"><span class="dot" style="--dot: var(--flare)" />Data unavailable</span>
           </header>
           <h2 class="title-lg">The data didn’t come through.</h2>
-          <p class="gone__text">
-            We can’t retrieve the holdings and source data needed to verify your fund exposure right now. No completed result is available for this scan.
-          </p>
+          <p class="gone__text">We can’t read the holdings and source data needed to work out your exposure right now. No completed result is available for this scan.</p>
           <div class="inset">
             <p class="label-mono gone__flag">Exposure: unavailable — not zero</p>
-            <p>
-              We won’t pass off missing data as a clean fund, or show an older receipt as a fresh result. Basket building and result sharing are unavailable
-              until a scan succeeds.
-            </p>
+            <p>We won’t pass off missing data as a clean portfolio, or show an older receipt as a fresh result. What-if and trades are unavailable until a scan succeeds.</p>
           </div>
           <div class="gone__actions">
             <button type="button" class="btn btn-primary" @click="$emit('retry')">Retry scan</button>
-            <button type="button" class="btn btn-outline" @click="$emit('change-fund')">Change fund →</button>
+            <button type="button" class="btn btn-outline" @click="demo.setPortfolio(null)">Change fund →</button>
           </div>
           <p class="label-mono">Nothing has moved. No account is connected.</p>
         </section>
@@ -63,17 +56,17 @@ const linesLabel = computed(() => pluralize(count.value, 'line'))
           <ul>
             <li>
               <span class="dot" style="--dot: var(--flare)" />
-              <span class="means__text"><b>Basket building</b><span>Unavailable until a scan succeeds. No stale result will be used.</span></span>
+              <span class="means__text"><b>What-if</b><span>Unavailable until a scan succeeds. No stale result will be used.</span></span>
               <span class="label-mono">Unavailable</span>
             </li>
             <li>
               <span class="dot" style="--dot: var(--flare)" />
-              <span class="means__text"><b>Result sharing</b><span>Unavailable. We won’t share an incomplete receipt.</span></span>
+              <span class="means__text"><b>Trades</b><span>Unavailable. We won’t propose trades from an incomplete scan.</span></span>
               <span class="label-mono">Unavailable</span>
             </li>
             <li>
               <span class="dot" style="--dot: var(--sun)" />
-              <span class="means__text"><b>Your saved lines</b><span>All {{ count }} choices are intact. Edit or retry anytime.</span></span>
+              <span class="means__text"><b>Your saved lines</b><span>All {{ plural(count, 'choice') }} are intact. Edit or retry anytime.</span></span>
               <span class="label-mono">Saved</span>
             </li>
           </ul>
@@ -91,16 +84,9 @@ const linesLabel = computed(() => pluralize(count.value, 'line'))
             <h2 class="title-card">Your lines. Still yours.</h2>
             <p class="label-mono">{{ count }} saved</p>
           </header>
-          <LineChips v-model="lineKeys" :lines="LINE_OPTIONS" />
-          <p class="small">Retry with these choices, or change your fund. We’ll generate a new receipt only after the required data is available.</p>
+          <CategoryPicker :categories="catalog.categories" :selected="catalog.selectedIds" @toggle="catalog.toggle" />
+          <p class="small">Retry with these choices, or change your fund. We’ll print a new receipt only after the data is available.</p>
           <button type="button" class="btn btn-outline" @click="$emit('retry')">Rescan with these lines</button>
-        </section>
-
-        <section class="support">
-          <p class="label-mono">Support · data issues</p>
-          <h2 class="title-card">Still stuck?</h2>
-          <p class="body-muted">If the problem persists, let us know. We log data gaps so we can fix them. No automatic trades. Ever.</p>
-          <a :href="SURVEY_URL" target="_blank" rel="noopener" class="btn btn-outline">Report a data issue ↗</a>
         </section>
       </aside>
     </div>
@@ -216,11 +202,5 @@ const linesLabel = computed(() => pluralize(count.value, 'line'))
 }
 .side-lines > header {
   width: 100%;
-}
-.support {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
 }
 </style>

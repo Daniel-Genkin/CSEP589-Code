@@ -1,14 +1,43 @@
-<script setup>
-// Figma "First visit": nothing scanned yet. Pick a fund (option A) or bring an account (option B).
+<script setup lang="ts">
+// Figma "First visit": no portfolio yet. Start with a fund (option A) or a brokerage account (option B).
 import ReceiptPaper from '@/components/rally/ReceiptPaper.vue'
-import { getSecurity } from '@/api/mock/catalog'
-import { DEMO_FUNDS } from '@/utils/lines'
-import { ref } from 'vue'
+import { portfolioFromInput } from '@/composables/useHoldingsCheck'
+import { DEFAULT_PORTFOLIO_USD } from '@/config/defaults'
+import { provider } from '@/data'
+import { useDemoStore } from '@/state/demo'
+import type { Security } from '@/types'
+import { onMounted, ref } from 'vue'
 
-defineEmits(['continue'])
+const FUND_TICKERS = ['SPY', 'VOO', 'VTI']
+const INDEX: Record<string, string> = { SPY: 'S&P 500 index', VOO: 'S&P 500 index', VTI: 'Total US market' }
 
-const funds = DEMO_FUNDS.slice(0, 3).map(({ symbol }) => getSecurity(symbol))
-const picked = ref(funds[0].symbol)
+const demo = useDemoStore()
+const funds = ref<Security[]>([])
+const picked = ref(FUND_TICKERS[0])
+const busy = ref(false)
+const failed = ref(false)
+
+onMounted(async () => {
+  try {
+    funds.value = await provider.getSecurities(FUND_TICKERS)
+  } catch {
+    failed.value = true
+  }
+})
+
+async function start() {
+  busy.value = true
+  failed.value = false
+  try {
+    const built = await portfolioFromInput(picked.value, DEFAULT_PORTFOLIO_USD)
+    if ('portfolio' in built) demo.setPortfolio(built.portfolio)
+    else failed.value = true
+  } catch {
+    failed.value = true
+  } finally {
+    busy.value = false
+  }
+}
 </script>
 
 <template>
@@ -18,7 +47,7 @@ const picked = ref(funds[0].symbol)
         <header class="page-head">
           <p class="eyebrow">Your Rally · Portfolio</p>
           <h1 class="first__title">First, what’s in<br />your fund?</h1>
-          <p class="lead">Pick your fund. We’ll look inside, not tell you what to buy.</p>
+          <p class="lead">Pick a fund. We’ll look inside, not tell you what to buy.</p>
         </header>
         <ol class="steps">
           <li class="steps__pill is-current">01 Pick a fund</li>
@@ -46,43 +75,47 @@ const picked = ref(funds[0].symbol)
           <h2 class="title-lg option__title">Know your fund’s name? Start there.</h2>
           <p class="label-mono">{{ picked }} selected</p>
         </header>
-        <p class="body-muted">Choose a fund below to continue. No account connection needed to explore a fund.</p>
+        <p class="body-muted">Choose a fund below to continue, or type any tickers on <RouterLink to="/" class="link">Home</RouterLink>. No account connection needed.</p>
 
         <div class="funds" role="radiogroup" aria-label="Fund">
-          <button
-            v-for="fund in funds"
-            :key="fund.symbol"
-            type="button"
-            role="radio"
-            class="fund"
-            :class="{ 'is-on': picked === fund.symbol }"
-            :aria-checked="picked === fund.symbol"
-            @click="picked = fund.symbol"
-          >
-            <span class="ticker-tile fund__tile">{{ fund.symbol }}</span>
-            <span class="fund__text">
-              <span class="fund__name">{{ fund.name }}</span>
-              <span class="fund__sub">{{ fund.issuer }} · {{ fund.sector }}</span>
-            </span>
-            <span class="fund__state"><span class="fund__radio" />{{ picked === fund.symbol ? 'Selected' : 'Choose' }}</span>
-          </button>
+          <template v-if="funds.length">
+            <button
+              v-for="fund in funds"
+              :key="fund.ticker"
+              type="button"
+              role="radio"
+              class="fund"
+              :class="{ 'is-on': picked === fund.ticker }"
+              :aria-checked="picked === fund.ticker"
+              @click="picked = fund.ticker"
+            >
+              <span class="ticker-tile fund__tile">{{ fund.ticker }}</span>
+              <span class="fund__text">
+                <span class="fund__name">{{ fund.name }}</span>
+                <span class="fund__sub">{{ INDEX[fund.ticker] }} · sample holdings</span>
+              </span>
+              <span class="fund__state"><span class="fund__radio" />{{ picked === fund.ticker ? 'Selected' : 'Choose' }}</span>
+            </button>
+          </template>
+          <template v-else>
+            <div v-for="n in 3" :key="n" class="skeleton" style="height: 88px; border-radius: 20px" />
+          </template>
         </div>
 
         <div class="option__foot">
-          <button type="button" class="btn btn-primary" @click="$emit('continue', picked)">Continue with {{ picked }} →</button>
-          <p class="label-mono">Up next · Choose your industry lines</p>
+          <button type="button" class="btn btn-primary" :disabled="busy" @click="start">{{ busy ? 'Scanning…' : `Continue with ${picked} →` }}</button>
+          <p class="label-mono">Up next · Your lines, then the scan</p>
         </div>
+        <p v-if="failed" class="field-error" role="alert">That didn’t load. Nothing was saved. Try again.</p>
       </section>
 
       <section class="card option option--b">
         <p class="label-mono">Option B · Start with your account</p>
         <header class="row-between">
           <h2 class="title-lg option__title">Have an account? Bring it.</h2>
-          <p class="label-mono">Design demo</p>
+          <p class="label-mono">Paid plan · demo</p>
         </header>
-        <p class="body-muted">
-          Prefer to choose from what you already hold? The connection option below is a design demo. No account is linked and no holdings have been loaded.
-        </p>
+        <p class="body-muted">Prefer to start from what you already hold? Connect a brokerage. Rally reads what you own, and the money stays at your broker.</p>
         <div class="empty">
           <p class="empty__title">No account linked</p>
           <p class="body-muted">No holdings have been loaded.</p>

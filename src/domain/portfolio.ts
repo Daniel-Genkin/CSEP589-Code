@@ -27,14 +27,27 @@ export interface Position {
   isFund: boolean
 }
 
-/** "VOO, SPY nvda" -> ['VOO', 'SPY', 'NVDA']. Commas, spaces, semicolons and new lines all separate. */
+/**
+ * "VOO, SPY nvda" -> ['VOO', 'SPY', 'NVDA']. Commas, spaces, semicolons and new lines all
+ * separate. Anything that cannot be part of a ticker ("$", brackets, quotes) is dropped.
+ */
 export function parseTickerInput(text: string): string[] {
   const seen = new Set<string>()
   for (const raw of text.split(/[\s,;]+/)) {
-    const ticker = raw.trim().replace(/^\$/, '').toUpperCase()
+    const ticker = raw.replace(/[^A-Za-z0-9.-]/g, '').toUpperCase()
     if (ticker) seen.add(ticker)
   }
   return [...seen]
+}
+
+/** What to call a portfolio in a label: a fund's ticker, otherwise the portfolio's own name. */
+export const shortName = (portfolio: Portfolio) => (portfolio.origin === 'fund' ? portfolio.id : portfolio.name)
+
+/** Whether two portfolios hold the same things at the same size (so one need not replace the other). */
+export function samePortfolio(a: Portfolio | null, b: Portfolio | null): boolean {
+  if (!a || !b) return a === b
+  if (a.id !== b.id || a.origin !== b.origin || a.totalUsd !== b.totalUsd || a.holdings.length !== b.holdings.length) return false
+  return a.holdings.every((h, i) => h.ticker === b.holdings[i].ticker && Math.abs(h.weight - b.holdings[i].weight) < 1e-9)
 }
 
 /** Levenshtein distance, for "did you mean". */

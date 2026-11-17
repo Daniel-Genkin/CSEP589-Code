@@ -37,10 +37,13 @@ Opening a paid screen on the free plan goes to `/upgrade?next=…` and returns t
 src/types.ts        shared types (Security, Portfolio, Exclusions, …)
 src/state/          plan, account, categories, active portfolio, exclusions; persisted to localStorage
 src/router/         the eight routes and the plan gate
-src/components/     layout (app shell), rally (nav, footer, receipt, dot grid, chips), ui (toast, modal, toggle)
+src/data/           DataProvider, SeededProvider and the seed files (the only place they are imported)
+src/domain/         pure functions: look-through, exposure, exclusions, back-test, trades
+src/composables/    data loading for screens (provider calls + domain functions)
+src/components/     layout (app shell), rally (nav, footer, receipt, chips, input), ui (toast, modal, toggle)
 src/views/          one file per screen
 src/styles/main.css design tokens and shared classes
-scripts/            screenshots for design review
+scripts/            screenshots for design review; scripts/data makes the seed
 ```
 
 The PRD's layers (data, domain, state, ui) arrive in that order; `docs/PROGRESS.md` says which are in place.

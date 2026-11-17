@@ -10,17 +10,33 @@ If you are picking this up cold: read this file and `docs/STYLE.md` first.
 | 1 | `rally-v1/01-redesign` | Redesign: Figma tokens, style guide, restyle of the screens that have frames | Open, [#7](https://github.com/Daniel-Genkin/CSEP589-Code/pull/7) |
 | 2 | `rally-v1/02-shell` | App shell and routing: the eight routes, sample-data banner, plan gate, persisted state, Reset demo; Outvest-era screens removed | Open, [#8](https://github.com/Daniel-Genkin/CSEP589-Code/pull/8) |
 | 3 | `rally-v1/03-data` | Data layer: `DataProvider`, `SeededProvider`, seed files, yfinance price pull, placeholder tags, the unrun Claude tagging script | Open, [#9](https://github.com/Daniel-Genkin/CSEP589-Code/pull/9) |
-| 4 | `rally-v1/04-domain` | Domain functions with unit tests: look-through, exposure, exclusions and redistribution, back-test, trades; reference back-test script | Open |
+| 4 | `rally-v1/04-domain` | Domain functions with unit tests: look-through, exposure, exclusions and redistribution, back-test, trades; reference back-test script | Open, [#10](https://github.com/Daniel-Genkin/CSEP589-Code/pull/10) |
+| 5 | `rally-v1/05-home` | F1 Home: category chips, ticker input with autocomplete, samples, one-line result, free-account prompt; Portfolio moved to seeded data | Open |
 
 Planned stack (14 PRs): 3 data layer and seed, 4 domain functions and tests, 5 to 13 one per requirement F1 to F9, 14 end-to-end demo script.
 
-Next: PR 5, F1 Home (category chips, ticker input with autocomplete, samples, the one-line result and the free-account prompt).
+Next: PR 6, F2 Portfolio (full holdings table with sector, chips that open reason, strength and source, fund grouping, sorting and filtering, inline weights, the receipt-style exposure panel).
 
-## What works after PR 2
+## Requirement status
 
-- Global behaviour (G): single-page routing with the History API, view transitions, back and forward, state kept across navigation, the "Sample data" banner on every screen, plan + categories + portfolio + exclusions persisted to localStorage (`src/state/demo.ts`), "Reset demo" in the footer, and gated routes (`/connect`, `/trades`) redirecting free users to `/upgrade?next=…` and back after the simulated upgrade.
-- `/` and `/portfolio` show the PR 1 designs on the old sample data (made-up companies) until F1 and F2 move them to the seeded provider.
-- `/whatif`, `/settings`, `/connect`, `/trades`, `/alerts` are placeholders in the final chrome; `/upgrade` has the working button but not the pricing card.
+| Requirement | State | Notes |
+| --- | --- | --- |
+| G Global behaviour | Done (PR 2) | Routing, banner, persistence, Reset demo, plan gate. Loading states arrive screen by screen. |
+| F1 Home | Done (PR 5) | Screenshot upload is built and hidden behind `VITE_SHOW_SCREENSHOT_UPLOAD`, as the PRD asks. |
+| F2 Portfolio | Partly (PR 5) | Headline figure, dot grid, top flagged holdings with reason and source link, a plain list of every holding. The full table, chips with popovers, fund grouping, sort and filter, inline weights and the receipt-style exposure panel are PR 6. |
+| F3 to F9 | Not started | `/whatif`, `/settings`, `/connect`, `/trades`, `/alerts` are placeholders; `/upgrade` has the working button but no pricing card. |
+
+## Screens and states with no Figma frame (for design review)
+
+Built from `docs/STYLE.md`. Listed here as they land.
+
+- **Home: the input pill** (tickers, portfolio value, button). Adapted from the Landing frame's fund picker, which only had five fixed fund chips.
+- **Home: category chips** above the input. The Landing frame's rotated line pills were decoration around a receipt; the PRD needs seven working toggles.
+- **Home: the one-line result card** ("21 holdings conflict.") with the free-account form and a skeleton receipt. No frame shows a pre-signup result.
+- **Home: unknown-ticker message** under the input.
+- **Portfolio: the account gate** (portfolio chosen, no account yet). Same card as Home's result.
+- **Portfolio: "Everything you hold" table.** The Dashboard frame only shows two holdings and "3 more companies".
+- **Portfolio: options 2 and 3** now point to What-if and Connect brokerage (see conflict 13).
 
 ## How the Figma frames map to the PRD's routes
 
@@ -82,6 +98,10 @@ Rule from AGENT_TASK: Figma wins for the look, the PRD wins for behaviour, log a
 11. **Navigation labels.** Figma tabs are Dashboard / Your basket / Receipts / How it works; the shell uses the PRD's screens: Portfolio / What-if / Alerts / Values, plus a "Connect brokerage" button (the demo script clicks it). Needs design sign-off.
 12. **Two navs in Figma.** The Landing frame has its own marketing nav (How it works, The lineup, Join the waitlist). The PRD wants one app where a banner and footer appear on every screen, so Home sits inside the same shell as the other seven screens.
 
+13. **Landing content the PRD rules out before signup.** The Landing frame shows a full receipt with company names, a ticker tape, an "awkward part" stats row and a lineup table. The PRD allows only a one-line count before the free account, so Home keeps the hero, "How it works" and the closing headline and drops those four. The receipt appears as a blank skeleton until signup.
+14. **Dashboard "Option 3 · Redirect new money".** Not in the PRD. Replaced by "Bring your real account" (Connect brokerage, paid), which is the PRD's next step in the journey. "Option 2" now opens What-if instead of showing a tracking gap inline.
+15. **A "Home" tab in the nav.** The Figma nav has no Home tab (the wordmark links home). Added one because Home is one of the PRD's eight screens and the demo script returns to it.
+
 ## Placeholders
 
 - **Values tags** (`src/data/seed/generated/tags.json`): rule-based and hand-checked by `scripts/data/placeholder_tags.py`, not the Claude tagging script the PRD describes. `scripts/data/tag_values.py` is written and not run (needs a credential and a human spot-check). Only tags with a checked source exist, so some real exposures are missing (for example, only two drug makers carry an animal-testing tag).
@@ -92,10 +112,8 @@ Rule from AGENT_TASK: Figma wins for the look, the PRD wins for behaviour, log a
 - **`parseScreenshot`**: returns the sample portfolio for any image, as the PRD specifies for v1.
 - **Reference back-test script** (`scripts/data/backtest_reference.py`): the PRD's reference is the team's verified Python script, which was not available. This stand-in is an independent pandas implementation of the method documented in `src/domain/backtest.ts` (fixed weights rebalanced daily, growth of $10,000, compound annual growth rate). The TypeScript matches it; whether both match the team's script is unverified.
 
-- `/` and `/portfolio` still read the old sample data (made-up companies) through `src/utils/lines.js` and `src/api/mock/catalog.js`, with their own small store (`src/stores/lines.js`). F1 and F2 replace these and delete the old files.
-- "Source: sample research note" on the portfolio is plain text; real source links arrive with seeded values tags.
-- Portfolio states can be pinned for review with `/portfolio?state=first-visit|scanning|zero|unavailable`. Remove once the states are driven by real provider results.
-- Option 3 "Redirect new money" is a static design demo.
+- The simulated free account stores an email address in localStorage and sends nothing anywhere.
+- Two brief or rare Portfolio states can be pinned for review: `/portfolio?state=scanning` and `/portfolio?state=unavailable` (a portfolio must be loaded first).
 - `/upgrade` shows no pricing yet (F5).
 
 ## Notes

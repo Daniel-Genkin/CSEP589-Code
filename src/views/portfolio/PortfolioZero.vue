@@ -1,27 +1,24 @@
-<script setup>
-// Figma "Zero conflicts": the scan finished and nothing in the fund crosses the user's lines.
-// With no lines picked nothing was checked, so the screen says that instead of calling the fund clean.
+<script setup lang="ts">
+// Figma "Zero conflicts": the scan finished and nothing in the portfolio crosses the user's lines.
+// With no lines picked nothing was checked, so the screen says that instead of calling it clean.
+import CategoryPicker from '@/components/rally/CategoryPicker.vue'
 import DotGrid from '@/components/rally/DotGrid.vue'
-import LineChips from '@/components/rally/LineChips.vue'
 import ReceiptPaper from '@/components/rally/ReceiptPaper.vue'
-import { useLinesStore } from '@/stores/lines'
-import { pluralize } from '@/utils/format'
-import { LINE_MAP, LINE_OPTIONS } from '@/utils/lines'
-import { storeToRefs } from 'pinia'
+import type { PortfolioData } from '@/composables/usePortfolioData'
+import { useCatalogStore } from '@/state/catalog'
+import { plural } from '@/utils/format'
 import { computed } from 'vue'
 
-const props = defineProps({ result: { type: Object, required: true } })
-defineEmits(['rescan'])
+const props = defineProps<{ data: PortfolioData }>()
 
-const { lineKeys } = storeToRefs(useLinesStore())
-
-const symbol = computed(() => props.result.fund.symbol)
-const count = computed(() => lineKeys.value.length)
-const lines = computed(() => lineKeys.value.map((k) => LINE_MAP[k]).filter(Boolean))
-const lineNames = computed(() => lines.value.map((l) => l.label))
-const lineShorts = computed(() => lines.value.map((l) => l.short))
+const catalog = useCatalogStore()
+const portfolio = computed(() => props.data.portfolio.value!)
+const what = computed(() => (portfolio.value.origin === 'fund' ? portfolio.value.id : 'your portfolio'))
+const receiptName = computed(() => (portfolio.value.origin === 'fund' ? portfolio.value.id : 'your picks'))
+const count = computed(() => catalog.selectedIds.length)
 const none = computed(() => count.value === 0)
-const linesLabel = computed(() => `${pluralize(count.value, 'line')} checked`)
+const names = computed(() => catalog.selected.map((c) => c.label))
+const linesLabel = computed(() => `${plural(count.value, 'line')} checked`)
 </script>
 
 <template>
@@ -58,7 +55,7 @@ const linesLabel = computed(() => `${pluralize(count.value, 'line')} checked`)
 
         <section class="card card-pad every">
           <header class="row-between">
-            <h2 class="title-sm">Where every $100 in {{ symbol }} goes</h2>
+            <h2 class="title-sm">Where every $100 in {{ what }} goes</h2>
             <p v-if="none" class="label-mono">1 dot = $1 · nothing checked</p>
             <p v-else class="label-mono zero__all">1 dot = $1 · all 100 pass</p>
           </header>
@@ -68,30 +65,30 @@ const linesLabel = computed(() => `${pluralize(count.value, 'line')} checked`)
             <li>
               <p class="legend__name">Your lines</p>
               <p class="legend__val">{{ count }}</p>
-              <p class="legend__who">{{ lineNames.join(' · ') || 'No lines picked' }}</p>
+              <p class="legend__who">{{ names.join(' · ') || 'No lines picked' }}</p>
             </li>
             <li>
               <p class="legend__name">Matched companies</p>
               <p class="legend__val">0</p>
-              <p class="legend__who">{{ none ? 'Nothing was checked' : 'No exclusions needed · illustrative scan' }}</p>
+              <p class="legend__who">{{ none ? 'Nothing was checked' : `Of ${plural(data.rows.value.length, 'holding')}` }}</p>
             </li>
             <li>
-              <p class="legend__name">Scan scenario</p>
-              <p class="legend__val">{{ symbol }}</p>
-              <p class="legend__who">Sample holdings · separate from the actual fund</p>
+              <p class="legend__name">Scanned</p>
+              <p class="legend__val">{{ portfolio.origin === 'fund' ? portfolio.id : data.rows.value.length }}</p>
+              <p class="legend__who">{{ portfolio.name }} · sample holdings</p>
             </li>
           </ul>
-          <p class="small">Sample data. This does not describe actual {{ symbol }} exposure.</p>
+          <p class="small">Sample data. Tags cover only what a checked source supports, so a clean result can still miss something.</p>
         </section>
 
         <section class="covers">
           <header class="covers__head">
             <h2 class="title-section">What this scan covers.</h2>
-            <p class="label-mono">Illustrative · holdings only</p>
+            <p class="label-mono">Sample data · holdings only</p>
           </header>
           <p class="covers__text">
-            This result covers only your selected lines<template v-if="lineNames.length"> ({{ lineNames.join(', ') }})</template> and the data available for this
-            illustrative scan. It is not an endorsement of the fund or every company inside it, and it is not a promise forever.
+            This result covers only your selected lines<template v-if="names.length"> ({{ names.join(', ') }})</template> and the tags in the sample data. It is not an
+            endorsement of the fund or of every company inside it, and it is not a promise forever.
           </p>
           <div class="covers__foot rule-top">
             <p class="label-mono">0 matched companies</p>
@@ -101,18 +98,18 @@ const linesLabel = computed(() => `${pluralize(count.value, 'line')} checked`)
       </div>
 
       <aside class="col-side has-receipt">
-        <ReceiptPaper v-if="none" class="side-receipt" compact flat skeleton :subtitle="`Conflict receipt · ${symbol}`" note="Pick a line to print a receipt." />
+        <ReceiptPaper v-if="none" class="side-receipt" compact flat skeleton :subtitle="`Conflict receipt · ${receiptName}`" note="Pick a line to print a receipt." />
         <ReceiptPaper
           v-else
           class="side-receipt"
           compact
           flat
-          :subtitle="`Conflict receipt · ${symbol}`"
+          :subtitle="`Conflict receipt · ${receiptName}`"
           :meta="[
-            { label: 'Checked lines', value: lineShorts.join(' + ') || 'None' },
+            { label: 'Checked lines', value: String(count) },
             { label: 'Matched companies', value: '0' },
           ]"
-          :total="{ label: 'Crosses your lines', note: `per $100 in ${symbol}`, value: '$0.00', tone: 'ink' }"
+          :total="{ label: 'Crosses your lines', note: `per $100 in ${what}`, value: '$0.00', tone: 'ink' }"
           :after="[{ label: 'Passes your lines', value: '$100.00' }]"
           footer="No matches. For now. · Sample data"
         />
@@ -122,9 +119,9 @@ const linesLabel = computed(() => `${pluralize(count.value, 'line')} checked`)
             <h2 class="title-card">Your lines. Still editable.</h2>
             <p class="label-mono">{{ count }} selected</p>
           </header>
-          <LineChips v-model="lineKeys" :lines="LINE_OPTIONS" />
-          <p class="small">Want a wider check? Add an industry and rescan.</p>
-          <button type="button" class="btn btn-outline" @click="$emit('rescan')">Rescan {{ symbol }}</button>
+          <CategoryPicker :categories="catalog.categories" :selected="catalog.selectedIds" @toggle="catalog.toggle" />
+          <p class="small">Want a wider check? Add a line and the result updates.</p>
+          <RouterLink to="/settings" class="btn btn-outline">All categories</RouterLink>
         </section>
       </aside>
     </div>

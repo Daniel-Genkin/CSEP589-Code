@@ -1,86 +1,78 @@
-<script setup>
-// Figma "Rally · Dashboard": the share of the fund that crosses the user's lines,
-// who is behind it, and the three things they can do about it.
+<script setup lang="ts">
+// Figma "Rally · Dashboard": how much of the portfolio crosses the user's lines, who is behind
+// it, and what they can do about it.
+import CategoryPicker from '@/components/rally/CategoryPicker.vue'
 import DotGrid from '@/components/rally/DotGrid.vue'
-import LineChips from '@/components/rally/LineChips.vue'
-import { useToast } from '@/composables/useToast'
-import { useLinesStore } from '@/stores/lines'
-import { headlinePct, pct1 as fmtPct, pluralize, usd2 as fmtUsd } from '@/utils/format'
-import { LINE_OPTIONS, checkBasket } from '@/utils/lines'
-import { storeToRefs } from 'pinia'
+import type { PortfolioData } from '@/composables/usePortfolioData'
+import { categoriesByTicker } from '@/domain/exposure'
+import { shortName } from '@/domain/portfolio'
+import { useCatalogStore } from '@/state/catalog'
+import { useDemoStore } from '@/state/demo'
+import { headlinePct, listNames, pct, plural, usd } from '@/utils/format'
 import { computed } from 'vue'
 
-const props = defineProps({
-  // checkFund() output: { fund, rows, crossers, crossingPct }
-  result: { type: Object, required: true },
-})
-defineEmits(['rescan'])
+const props = defineProps<{ data: PortfolioData }>()
 
 const SHOWN = 2
 const LEGEND_MAX = 3
 
-const store = useLinesStore()
-const { lineKeys, excluded } = storeToRefs(store)
-const toast = useToast()
+const demo = useDemoStore()
+const catalog = useCatalogStore()
 
-const fund = computed(() => props.result.fund)
-const symbol = computed(() => fund.value.symbol)
-const crossers = computed(() => props.result.crossers)
-const pct = computed(() => props.result.crossingPct)
-// Whole dots; a real exposure under 1% still gets one.
-const pctRound = computed(() => Math.max(Math.round(pct.value), pct.value > 0 ? 1 : 0))
-const pctHead = computed(() => headlinePct(pct.value))
+const portfolio = computed(() => props.data.portfolio.value!)
+const rows = computed(() => props.data.rows.value)
+const tags = computed(() => props.data.tags.value)
+const flagged = computed(() => props.data.flagged.value)
+/** "SPY" for a fund, otherwise a plain phrase that reads in a sentence. */
+const what = computed(() => (portfolio.value.origin === 'fund' ? portfolio.value.id : 'your portfolio'))
 
-// One group per line, each company counted under the first line it crosses.
+const linesOf = computed(() => categoriesByTicker(tags.value, props.data.selectedIds.value))
+const crossers = computed(() => rows.value.filter((r) => linesOf.value.has(r.ticker)))
+
+// One group per category, each company counted under the first selected category it is tagged in,
+// so the dots never count a company twice.
 const groups = computed(() => {
-  const byLine = new Map()
+  const byCategory = new Map<string, { id: string; label: string; color: string; share: number; names: string[] }>()
   for (const row of crossers.value) {
-    const line = row.crossed[0]
-    const group = byLine.get(line.key) ?? { key: line.key, label: line.label, color: line.bg, weight: 0, names: [] }
-    group.weight += row.weight
-    group.names.push(row.name)
-    byLine.set(line.key, group)
+    const id = linesOf.value.get(row.ticker)![0]
+    const group = byCategory.get(id) ?? { id, label: catalog.label(id), color: catalog.color(id), share: 0, names: [] }
+    group.share += row.weight
+    group.names.push(props.data.nameOf(row.ticker))
+    byCategory.set(id, group)
   }
-  const sorted = [...byLine.values()].sort((a, b) => b.weight - a.weight)
+  const sorted = [...byCategory.values()].sort((a, b) => b.share - a.share)
   if (sorted.length <= LEGEND_MAX) return sorted
   const rest = sorted.slice(LEGEND_MAX - 1)
   return [
     ...sorted.slice(0, LEGEND_MAX - 1),
-    { key: 'other', label: 'Other lines', color: 'var(--violet)', weight: rest.reduce((sum, g) => sum + g.weight, 0), names: rest.flatMap((g) => g.names) },
+    { id: 'other', label: 'Other lines', color: 'var(--violet)', share: rest.reduce((sum, g) => sum + g.share, 0), names: rest.flatMap((g) => g.names) },
   ]
 })
 
-// Whole dots per group, sharing out the rounding so the coloured dots add up to the headline.
+// Whole dots per group: round the total, then hand out the leftover dots by largest remainder.
 const segments = computed(() => {
-  const target = pctRound.value
-  const floors = groups.value.map((g) => ({ color: g.color, count: Math.floor(g.weight), rest: g.weight % 1 }))
-  let left = target - floors.reduce((sum, f) => sum + f.count, 0)
-  for (const f of [...floors].sort((a, b) => b.rest - a.rest)) {
+  const target = Math.max(Math.round(flagged.value.share * 100), flagged.value.count ? 1 : 0)
+  const parts = groups.value.map((g) => ({ color: g.color, count: Math.floor(g.share * 100), rest: (g.share * 100) % 1 }))
+  let left = target - parts.reduce((sum, p) => sum + p.count, 0)
+  for (const part of [...parts].sort((a, b) => b.rest - a.rest)) {
     if (left <= 0) break
-    f.count += 1
+    part.count += 1
     left -= 1
   }
-  return floors
+  return parts
 })
+const dots = computed(() => segments.value.reduce((sum, s) => sum + s.count, 0))
 
-const shown = computed(() => crossers.value.slice(0, SHOWN))
+const shown = computed(() =>
+  crossers.value.slice(0, SHOWN).map((row) => {
+    const lines = linesOf.value.get(row.ticker)!
+    const tag = tags.value.find((t) => t.ticker === row.ticker && t.category === lines[0])!
+    return { row, lines, tag, host: new URL(tag.sourceUrl).hostname.replace(/^www\./, '') }
+  }),
+)
 const hidden = computed(() => crossers.value.slice(SHOWN))
-const hiddenPct = computed(() => hidden.value.reduce((sum, r) => sum + r.weight, 0))
-
-// Option 2: the fund minus the companies marked "Exclude from basket".
-const basket = computed(() => checkBasket(symbol.value, excluded.value, lineKeys.value))
-const excludedRows = computed(() => props.result.rows.filter((r) => excluded.value.includes(r.symbol)))
-const basketPct = computed(() => basket.value.after.crossingPct)
-const basketTitle = computed(() => {
-  const first = excludedRows.value[0]
-  if (!first) return 'Cut companies. Still your call.'
-  return excludedRows.value.length > 1 ? `Less ${first.symbol} and ${excludedRows.value.length - 1} more. Still your call.` : `Less ${first.symbol}. Still your call.`
-})
-const barWidth = (value) => `${Math.max(2, (value / Math.max(pct.value, basketPct.value, 0.01)) * 100)}%`
-
-function redirect() {
-  toast.info('Design demo', { description: 'Nothing is scheduled. Redirecting new money is not connected yet.' })
-}
+const hiddenShare = computed(() => hidden.value.reduce((sum, r) => sum + r.weight, 0))
+const excludedCount = computed(() => demo.exclusions.tickers.length + demo.exclusions.categories.length)
 </script>
 
 <template>
@@ -88,20 +80,20 @@ function redirect() {
     <div class="page-cols">
       <div class="col-main">
         <section class="hero">
-          <p class="eyebrow">Your Rally · Portfolio · {{ symbol }} · sample data</p>
-          <p class="lead">Here’s what your fund is up to.</p>
+          <p class="eyebrow">Your Rally · Portfolio · {{ shortName(portfolio) }} · sample data</p>
+          <p class="lead">Here’s what {{ what }} is up to.</p>
           <div class="hero__number">
-            <p class="stat-xl">{{ pctHead }}</p>
+            <p class="stat-xl">{{ headlinePct(flagged.share) }}</p>
             <div class="hero__sentence">
-              <h1 class="hero__claim">of your money in {{ symbol }}<br />crosses your lines.</h1>
+              <h1 class="hero__claim">of your money in {{ what }}<br />crosses your lines.</h1>
               <p class="hero__fine">
-                {{ pctHead }} of your dollars, not {{ pctHead }} of the companies<br />
-                {{ fmtUsd(pct) }} of every $100 · {{ crossers.length }} of {{ fund.holdingsCount }} companies
+                {{ headlinePct(flagged.share) }} of your dollars, not {{ headlinePct(flagged.share) }} of the companies<br />
+                {{ usd(flagged.usd) }} of {{ usd(portfolio.totalUsd) }} · {{ flagged.count }} of {{ plural(rows.length, 'company', 'companies') }}
               </p>
             </div>
           </div>
           <ul class="hero__trust">
-            <li class="tag"><span class="dot" />No account connected</li>
+            <li class="tag"><span class="dot" />{{ portfolio.origin === 'connected' ? 'Read-only connection' : 'No account connected' }}</li>
             <li class="tag"><span class="dot" />Every flag links to its source</li>
             <li class="tag"><span class="dot" />Never tells you to buy or sell</li>
           </ul>
@@ -109,23 +101,23 @@ function redirect() {
 
         <section class="card card-pad every">
           <header class="row-between">
-            <h2 class="title-sm">Where every $100 in {{ symbol }} goes</h2>
+            <h2 class="title-sm">Where every $100 in {{ what }} goes</h2>
             <p class="label-mono">1 dot = $1</p>
           </header>
-          <DotGrid :segments="segments" :label="`${pctRound} of 100 dots cross your lines`" />
+          <DotGrid :segments="segments" :label="`${dots} of 100 dots cross your lines`" />
           <ul class="legend">
-            <li v-for="group in groups" :key="group.key">
+            <li v-for="group in groups" :key="group.id">
               <p class="legend__name"><span class="dot dot-10" :style="{ '--dot': group.color }" />{{ group.label }}</p>
-              <p class="legend__pct">{{ fmtPct(group.weight) }}</p>
-              <p class="legend__who">{{ group.names.join(', ') }}</p>
+              <p class="legend__pct">{{ pct(group.share) }}</p>
+              <p class="legend__who">{{ listNames(group.names) }}</p>
             </li>
             <li>
               <p class="legend__name"><span class="dot dot-10" style="--dot: var(--border)" />Passes your lines</p>
-              <p class="legend__pct">{{ fmtPct(100 - pct) }}</p>
-              <p class="legend__who">Everything else in {{ symbol }}</p>
+              <p class="legend__pct">{{ pct(1 - flagged.share) }}</p>
+              <p class="legend__who">Everything else in {{ what }}</p>
             </li>
           </ul>
-          <p class="small">Illustrative weights, not a live scan. Sample names, sample weights.</p>
+          <p class="small">Sample weights, not a live scan. Each company is counted once, under the first of your lines it crosses.</p>
         </section>
       </div>
 
@@ -136,49 +128,78 @@ function redirect() {
             <p class="label-mono">{{ shown.length }} of {{ crossers.length }} shown</p>
           </header>
 
-          <article v-for="row in shown" :key="row.symbol" class="holding rule-top">
+          <article v-for="{ row, lines, tag, host } in shown" :key="row.ticker" class="holding rule-top">
             <div class="holding__top">
-              <span class="ticker-tile">{{ row.symbol }}</span>
+              <span class="ticker-tile">{{ row.ticker }}</span>
               <div class="holding__company">
-                <h3 class="holding__name">{{ row.name }}</h3>
-                <p class="holding__line"><span class="dot" :style="{ '--dot': row.crossed[0].bg }" />{{ row.crossed.map((c) => c.label).join(' · ') }}</p>
+                <h3 class="holding__name">{{ data.nameOf(row.ticker) }}</h3>
+                <p class="holding__line"><span class="dot" :style="{ '--dot': catalog.color(lines[0]) }" />{{ lines.map(catalog.label).join(' · ') }}</p>
               </div>
               <div class="holding__weight">
-                <p class="num-mono holding__pct">{{ fmtPct(row.weight) }}</p>
-                <p class="holding__per">{{ fmtUsd(row.weight) }} per $100</p>
+                <p class="num-mono holding__pct">{{ pct(row.weight) }}</p>
+                <p class="holding__per">{{ usd(row.valueUsd) }}</p>
               </div>
             </div>
-            <p class="holding__why">{{ row.crossed[0].receipt }}</p>
+            <p class="holding__why">{{ tag.reason }}</p>
             <div class="holding__actions">
-              <p class="source-link">Source: sample research note</p>
-              <button v-if="excluded.includes(row.symbol)" type="button" class="btn btn-quiet btn-sm" @click="store.toggleExcluded(row.symbol)">
+              <a :href="tag.sourceUrl" target="_blank" rel="noopener noreferrer" class="source-link">Source: {{ host }} ↗</a>
+              <button v-if="demo.exclusions.tickers.includes(row.ticker)" type="button" class="btn btn-quiet btn-sm" @click="demo.toggleExcludedTicker(row.ticker)">
                 Excluded · Undo
               </button>
-              <button v-else type="button" class="btn btn-outline btn-sm" @click="store.toggleExcluded(row.symbol)">Exclude from basket</button>
+              <button v-else type="button" class="btn btn-outline btn-sm" @click="demo.toggleExcludedTicker(row.ticker)">Exclude in What-if</button>
             </div>
           </article>
 
           <div v-if="hidden.length" class="who__more rule-top">
             <span class="dot" style="--dot: var(--violet)" />
             <div class="who__more-text">
-              <p class="who__more-title">{{ pluralize(hidden.length, 'more company', 'more companies') }}</p>
-              <p class="who__more-sub">Not shown in this sample</p>
+              <p class="who__more-title">{{ plural(hidden.length, 'more company', 'more companies') }}</p>
+              <p class="who__more-sub">In the full list below</p>
             </div>
-            <p class="num-mono who__more-pct">{{ fmtPct(hiddenPct) }}</p>
+            <p class="num-mono who__more-pct">{{ pct(hiddenShare) }}</p>
           </div>
         </section>
 
         <section class="card card-pad lines">
           <header class="row-between">
             <h2 class="title-card">Your lines. Your call.</h2>
-            <p class="label-mono">{{ lineKeys.length }} selected</p>
+            <p class="label-mono">{{ data.selectedIds.value.length }} selected</p>
           </header>
-          <LineChips v-model="lineKeys" :lines="LINE_OPTIONS" />
-          <p class="small">These are industry choices, not verdicts. Rescan {{ symbol }} to update your receipt.</p>
-          <button type="button" class="btn btn-outline btn-md" @click="$emit('rescan')">Rescan {{ symbol }}</button>
+          <CategoryPicker :categories="catalog.categories" :selected="data.selectedIds.value" @toggle="catalog.toggle" />
+          <p class="small">These are industry choices, not verdicts. Every figure on this page follows them.</p>
+          <RouterLink to="/settings" class="btn btn-outline btn-md">All categories</RouterLink>
         </section>
       </aside>
     </div>
+
+    <section class="card card-pad holdings">
+      <header class="row-between">
+        <h2 class="title-card">Everything you hold</h2>
+        <p class="label-mono">{{ plural(rows.length, 'holding') }} · largest first</p>
+      </header>
+      <table>
+        <thead>
+          <tr>
+            <th scope="col">Ticker</th>
+            <th scope="col">Company</th>
+            <th scope="col">Lines crossed</th>
+            <th scope="col" class="num">Weight</th>
+            <th scope="col" class="num">Value</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr v-for="row in rows" :key="row.ticker">
+            <td class="num-mono holdings__ticker">{{ row.ticker }}</td>
+            <td>{{ data.nameOf(row.ticker) }}</td>
+            <td>
+              <span v-for="id in linesOf.get(row.ticker) ?? []" :key="id" class="holdings__line"><span class="dot" :style="{ '--dot': catalog.color(id) }" />{{ catalog.label(id) }}</span>
+            </td>
+            <td class="num num-mono">{{ pct(row.weight, 2) }}</td>
+            <td class="num num-mono">{{ usd(row.valueUsd) }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
 
     <section class="options">
       <header class="options__head">
@@ -191,68 +212,35 @@ function redirect() {
 
       <article class="card keep">
         <div class="keep__text">
-          <p class="label-mono">Option 1 · Keep your fund</p>
-          <h3 class="keep__title">Keep {{ symbol }} as it is.</h3>
-          <p class="body-muted">Nothing changes. {{ pctHead }} stays in companies that cross your lines, and now you know which ones.</p>
+          <p class="label-mono">Option 1 · Keep what you hold</p>
+          <h3 class="keep__title">Keep {{ what }} as it is.</h3>
+          <p class="body-muted">Nothing changes. {{ headlinePct(flagged.share) }} stays in companies that cross your lines, and now you know which ones.</p>
         </div>
-        <span class="tag"><span class="dot" />Original fund unchanged</span>
+        <span class="tag"><span class="dot" />Portfolio unchanged</span>
       </article>
 
       <div class="options__pair">
         <article class="card card-pad option">
-          <p class="label-mono">Option 2 · Cut companies · sample</p>
-          <h3 class="title-lg">{{ basketTitle }}</h3>
-          <div class="option__stat">
-            <p class="stat-md">-{{ basket.removedPct.toFixed(1) }}%</p>
-            <div class="option__stat-text">
-              <p class="option__stat-label">of {{ symbol }} left out of your basket</p>
-              <p class="small">Return comparison vs. the S&amp;P 500 comes with the back-test.</p>
-            </div>
-          </div>
-          <div class="compare">
-            <div>
-              <p class="compare__row"><span>Your basket · crosses your lines</span><span class="num-mono">{{ fmtPct(basketPct) }}</span></p>
-              <div class="bar"><span :style="{ width: barWidth(basketPct) }" /></div>
-            </div>
-            <div>
-              <p class="compare__row"><span>{{ symbol }} as it is</span><span class="num-mono">{{ fmtPct(pct) }}</span></p>
-              <div class="bar"><span :style="{ width: barWidth(pct), background: 'var(--bar-muted)' }" /></div>
-            </div>
-          </div>
-          <p class="small">
-            Your basket = {{ symbol }} minus your selected exclusions, proportionally reweighted. This is not your original fund. Illustrative only; not
-            actual or forecast performance.
+          <p class="label-mono">Option 2 · Cut companies · free</p>
+          <h3 class="title-lg">See what cutting them would cost.</h3>
+          <p class="body-muted">
+            Switch off whole categories or single companies and see the back-tested return next to the S&amp;P 500, before anything changes.
+            <template v-if="excludedCount"> You have {{ plural(excludedCount, 'exclusion') }} waiting there.</template>
           </p>
           <div class="option__actions">
-            <RouterLink to="/whatif" class="btn btn-primary">Build my basket</RouterLink>
-            <button v-for="row in excludedRows.slice(0, 1)" :key="row.symbol" type="button" class="btn btn-outline" @click="store.toggleExcluded(row.symbol)">
-              Excluded · {{ row.name }} ({{ row.symbol }}) · Undo
-            </button>
+            <RouterLink to="/whatif" class="btn btn-primary">Open What-if</RouterLink>
           </div>
-          <p class="small">Review first. Nothing moves automatically. Rally does not hold money or act as a broker.</p>
+          <p class="small">A what-if, not an order. Past performance does not predict future results.</p>
         </article>
 
         <article class="card card-pad option">
-          <p class="label-mono">Option 3 · Redirect new money · demo</p>
-          <h3 class="title-lg">The next dollar is yours.</h3>
-          <div class="option__stat">
-            <p class="stat-md">$100/month</p>
-            <div class="option__stat-text">
-              <p class="small">Illustrative amount</p>
-            </div>
+          <p class="label-mono">Option 3 · Act on it · paid plan</p>
+          <h3 class="title-lg">Bring your real account.</h3>
+          <p class="body-muted">Connect a brokerage to check what you actually hold, keep watch for changes, and review trades before anything is sent.</p>
+          <div class="option__actions">
+            <RouterLink to="/connect" class="btn btn-outline">Connect brokerage</RouterLink>
           </div>
-          <p class="option__lede">Keep my fund. Change only new money.</p>
-          <dl class="details">
-            <div class="rule-top">
-              <dt class="label-mono">Destination</dt>
-              <dd>{{ symbol }} · {{ fund.name }}</dd>
-            </div>
-            <div class="rule-top">
-              <dt class="label-mono">Status</dt>
-              <dd>Not active · no transfer scheduled</dd>
-            </div>
-          </dl>
-          <button type="button" class="btn btn-outline" @click="redirect">Redirect</button>
+          <p class="small">Rally reads what you own. The money stays at your broker.</p>
         </article>
       </div>
     </section>
@@ -446,6 +434,48 @@ function redirect() {
   width: 100%;
 }
 
+/* Everything you hold */
+.holdings {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+.holdings table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.holdings th {
+  padding: 10px 12px;
+  font-family: var(--font-mono);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-align: left;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+.holdings td {
+  padding: 14px 12px;
+  border-top: 1px solid var(--hairline);
+  font-size: 15px;
+}
+.holdings .num {
+  text-align: right;
+  white-space: nowrap;
+}
+.holdings__ticker {
+  color: var(--cream);
+}
+.holdings__line {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  margin-right: 14px;
+  font-size: 14px;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
 /* What you can do about it */
 .options {
   display: flex;
@@ -493,62 +523,12 @@ function redirect() {
   align-items: flex-start;
   gap: 16px;
 }
-.option__stat {
-  display: flex;
-  align-items: flex-end;
-  gap: 20px;
-}
-.option__stat-text {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  padding-bottom: 14px;
-}
-.option__stat-label {
-  font-size: 17px;
-  font-weight: 500;
-  line-height: 1.175;
-}
-.option__lede {
-  font-size: 17px;
-  color: var(--text-muted);
-}
-.compare {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  width: 100%;
-}
-.compare > div {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.compare__row {
-  display: flex;
-  justify-content: space-between;
-  font-weight: 500;
-  line-height: 18px;
-}
 .option__actions {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 12px;
-}
-.details {
-  width: 100%;
-}
-.details > div {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 16px 0;
-}
-.details dd {
-  font-weight: 500;
-  text-align: right;
+  margin-top: auto;
 }
 
 @media (max-width: 1180px) {

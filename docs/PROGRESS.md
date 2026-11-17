@@ -7,9 +7,18 @@ If you are picking this up cold: read this file and `docs/STYLE.md` first.
 
 | PR | Branch | What | State |
 | --- | --- | --- | --- |
-| 1 | `rally-v1/01-redesign` | Redesign: Figma tokens, style guide, restyle of the screens that have frames | Open |
+| 1 | `rally-v1/01-redesign` | Redesign: Figma tokens, style guide, restyle of the screens that have frames | Open, [#7](https://github.com/Daniel-Genkin/CSEP589-Code/pull/7) |
+| 2 | `rally-v1/02-shell` | App shell and routing: the eight routes, sample-data banner, plan gate, persisted state, Reset demo; Outvest-era screens removed | Open |
 
-Next: Phase 2, starting with the app shell and routing (the PRD's eight routes), then the data layer, domain functions, and one PR per screen.
+Planned stack (14 PRs): 3 data layer and seed, 4 domain functions and tests, 5 to 13 one per requirement F1 to F9, 14 end-to-end demo script.
+
+Next: PR 3, the data layer (`DataProvider`, `SeededProvider`, seed files, the yfinance price-pull script and the unrun Claude tagging script).
+
+## What works after PR 2
+
+- Global behaviour (G): single-page routing with the History API, view transitions, back and forward, state kept across navigation, the "Sample data" banner on every screen, plan + categories + portfolio + exclusions persisted to localStorage (`src/state/demo.ts`), "Reset demo" in the footer, and gated routes (`/connect`, `/trades`) redirecting free users to `/upgrade?next=…` and back after the simulated upgrade.
+- `/` and `/portfolio` show the PR 1 designs on the old sample data (made-up companies) until F1 and F2 move them to the seeded provider.
+- `/whatif`, `/settings`, `/connect`, `/trades`, `/alerts` are placeholders in the final chrome; `/upgrade` has the working button but not the pricing card.
 
 ## How the Figma frames map to the PRD's routes
 
@@ -40,17 +49,22 @@ Rule from AGENT_TASK: Figma wins for the look, the PRD wins for behaviour, log a
 8. **Performance numbers on the dashboard.** Figma's "Option 2" card shows a tracking gap vs. the S&P 500 (-0.4 pp, +9.6% vs +10.0%). The existing app has no price data, so PR 1 shows what it can compute (weight left out, share that still crosses) and says the return comparison comes with the back-test. Real figures arrive with F3.
 9. **Flare contrast.** Figma uses flare (`#e85a2a`) for a 13px label on a `#2f2c39` panel (3.9:1, below AA for small text). Kept as designed; flagged for design review.
 
+10. **Sharing the receipt.** The Figma Receipts and Zero conflicts frames have "Share receipt" and "Export image" buttons; the PRD puts social sharing of the receipt out of scope (the receipt-style summary stays). Followed the PRD: the buttons were removed in PR 2.
+11. **Navigation labels.** Figma tabs are Dashboard / Your basket / Receipts / How it works; the shell uses the PRD's screens: Portfolio / What-if / Alerts / Values, plus a "Connect brokerage" button (the demo script clicks it). Needs design sign-off.
+12. **Two navs in Figma.** The Landing frame has its own marketing nav (How it works, The lineup, Join the waitlist). The PRD wants one app where a banner and footer appear on every screen, so Home sits inside the same shell as the other seven screens.
+
 ## Placeholders
 
-- All holdings, weights, company names and alerts in PR 1 come from the existing mock API (made-up companies). Replaced by the seeded dataset in Phase 2.
-- "Source: sample research note" links on the dashboard point at the old company page; real source URLs arrive with seeded values tags.
-- Dashboard states can be pinned for review with `/app?state=first-visit|scanning|zero|unavailable`. Remove once the states are driven by real provider results.
-- "Share receipt" and "Export image" go to the existing `/receipt` page (which can save an image).
+- `/` and `/portfolio` still read the old sample data (made-up companies) through `src/utils/lines.js` and `src/api/mock/catalog.js`, with their own small store (`src/stores/lines.js`). F1 and F2 replace these and delete the old files.
+- "Source: sample research note" on the portfolio is plain text; real source links arrive with seeded values tags.
+- Portfolio states can be pinned for review with `/portfolio?state=first-visit|scanning|zero|unavailable`. Remove once the states are driven by real provider results.
 - Option 3 "Redirect new money" is a static design demo.
+- `/upgrade` shows no pricing yet (F5).
 
 ## Notes
 
 - Figma MCP: Landing, Dashboard, Receipts, First visit and Scanning were read through the Figma MCP (design context and variables). The account's MCP call quota ran out after that, so Zero conflicts and Data unavailable were measured from the PNG exports in `design/` (colours sampled exactly, sizes within about 1px).
-- Pre-redesign screens that have no frame (`/receipt`, `/check`, `/browse`, `/company/:symbol`, `/pricing`, login and signup, scan flow, baskets, monitoring, plan, settings, shared analysis, email preview) only received the new tokens so they stay legible. They are Outvest-era screens that the PRD's routing replaces in the next PR, so they were not restyled one by one.
+- PR 2 removed the Outvest-era screens and their mock API (`/receipt`, `/check`, `/browse`, `/company/:symbol`, `/pricing`, login and signup, scan flow, baskets, monitoring, plan, old settings, shared analysis, email preview). The Receipts screen built in PR 1 went with the old alerts API; F8 rebuilds it on seeded alerts from the same frame.
+- New code is TypeScript (`npm run typecheck`), tested with Vitest (`npm test`). Existing shared components stay JavaScript.
 - Fonts are now bundled (`@fontsource`), so the app loads nothing from Google Fonts.
-- Screenshots: `node scripts/screenshots.mjs <outDir>` with the dev server on port 5199.
+- Screenshots: `node scripts/screenshots.mjs <outDir>` with the dev server on port 5199 (one PNG per route and state).

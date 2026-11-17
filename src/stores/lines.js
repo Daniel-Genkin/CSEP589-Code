@@ -4,6 +4,7 @@ import { defineStore } from 'pinia'
 import { ref, watch } from 'vue'
 
 const KEY = 'rally.lines.v1'
+const DEFAULTS = JSON.stringify({ lineKeys: ['oil', 'pay', 'senators'], baskets: [], fundSymbol: null, excluded: [] })
 
 function load() {
   try {
@@ -27,10 +28,10 @@ export const useLinesStore = defineStore('lines', () => {
     [lineKeys, baskets, fundSymbol, excluded],
     () => {
       try {
-        localStorage.setItem(
-          KEY,
-          JSON.stringify({ lineKeys: lineKeys.value, baskets: baskets.value, fundSymbol: fundSymbol.value, excluded: excluded.value }),
-        )
+        const json = JSON.stringify({ lineKeys: lineKeys.value, baskets: baskets.value, fundSymbol: fundSymbol.value, excluded: excluded.value })
+        // Defaults (fresh, or after "Reset demo") are not worth storing.
+        if (json === DEFAULTS) localStorage.removeItem(KEY)
+        else localStorage.setItem(KEY, json)
       } catch {
         // Storage blocked: changes last for this visit only.
       }
@@ -53,5 +54,13 @@ export const useLinesStore = defineStore('lines', () => {
     excluded.value = excluded.value.includes(symbol) ? excluded.value.filter((s) => s !== symbol) : [...excluded.value, symbol]
   }
 
-  return { lineKeys, baskets, fundSymbol, excluded, saveBasket, deleteBasket, setFund, toggleExcluded }
+  // "Reset demo" puts everything back to the defaults.
+  function reset() {
+    lineKeys.value = ['oil', 'pay', 'senators']
+    baskets.value = []
+    fundSymbol.value = null
+    excluded.value = []
+  }
+
+  return { lineKeys, baskets, fundSymbol, excluded, saveBasket, deleteBasket, setFund, toggleExcluded, reset }
 })

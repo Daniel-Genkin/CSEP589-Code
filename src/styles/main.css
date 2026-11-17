@@ -934,10 +934,15 @@ button.chip-add:hover {
 
 /* ---------- App page scaffolding ---------- */
 
+/* A screen inside the shell: the 1280 column, blocks 40px apart */
 .page {
   display: flex;
   flex-direction: column;
   gap: 40px;
+  width: 100%;
+  max-width: calc(var(--container) + 48px);
+  margin-inline: auto;
+  padding-inline: 24px;
 }
 .page-head {
   display: flex;

@@ -3,24 +3,34 @@
 //   npm run dev -- --port 5199      (in another terminal)
 //   node scripts/screenshots.mjs [outDir] [baseUrl]
 //
-// Each shot is a full-page PNG named after the screen. Not a test: nothing is asserted.
+// Each shot is a full-page PNG named after the screen. Not a test: nothing is asserted,
+// but console errors are printed and make the script exit non-zero.
 import { chromium } from '@playwright/test'
 import { mkdir } from 'node:fs/promises'
 
 const OUT = process.argv[2] ?? 'screenshots'
 const BASE = process.argv[3] ?? 'http://localhost:5199'
 
-// name, path, and what to put in localStorage before the page loads
+// What to put in localStorage before the page loads.
 const LINES_KEY = 'rally.lines.v1'
-const withFund = { [LINES_KEY]: JSON.stringify({ lineKeys: ['oil', 'pay', 'senators'], fundSymbol: 'VOO', excluded: ['LOOP'] }) }
+const DEMO_KEY = 'rally.demo.v1'
+const withFund = { [LINES_KEY]: JSON.stringify({ lineKeys: ['oil', 'pay', 'senators'], baskets: [], fundSymbol: 'VOO', excluded: ['LOOP'] }) }
+const paid = { [DEMO_KEY]: JSON.stringify({ plan: 'paid' }) }
+
 const SHOTS = [
-  { name: 'landing', path: '/' },
-  { name: 'dashboard', path: '/app', storage: withFund, login: true },
-  { name: 'first-visit', path: '/app?state=first-visit', login: true },
-  { name: 'scanning', path: '/app?state=scanning', storage: withFund, login: true },
-  { name: 'zero-conflicts', path: '/app?state=zero', storage: withFund, login: true },
-  { name: 'data-unavailable', path: '/app?state=unavailable', storage: withFund, login: true },
-  { name: 'receipts', path: '/app/alerts', storage: withFund, login: true },
+  { name: 'home', path: '/' },
+  { name: 'portfolio', path: '/portfolio', storage: withFund },
+  { name: 'portfolio-first-visit', path: '/portfolio' },
+  { name: 'portfolio-scanning', path: '/portfolio?state=scanning', storage: withFund },
+  { name: 'portfolio-zero-conflicts', path: '/portfolio?state=zero', storage: withFund },
+  { name: 'portfolio-data-unavailable', path: '/portfolio?state=unavailable', storage: withFund },
+  { name: 'whatif', path: '/whatif' },
+  { name: 'settings', path: '/settings' },
+  { name: 'upgrade', path: '/connect' }, // free plan: lands on the upgrade wall
+  { name: 'connect', path: '/connect', storage: paid },
+  { name: 'trades', path: '/trades', storage: paid },
+  { name: 'alerts', path: '/alerts' },
+  { name: 'not-found', path: '/nope' },
 ]
 
 await mkdir(OUT, { recursive: true })
@@ -32,14 +42,10 @@ for (const shot of SHOTS) {
   const page = await context.newPage()
   page.on('pageerror', (e) => errors.push(`${shot.name}: ${e.message}`))
   page.on('console', (m) => m.type() === 'error' && errors.push(`${shot.name}: ${m.text()}`))
-  if (shot.login) {
-    // The mock API's demo account; lands on /app.
-    await page.goto(`${BASE}/login?demo=1`, { waitUntil: 'networkidle' })
-    await page.waitForURL('**/app')
-  }
   if (shot.storage) {
-    await page.goto(`${BASE}/`, { waitUntil: 'domcontentloaded' })
-    await page.evaluate((entries) => Object.entries(entries).forEach(([k, v]) => localStorage.setItem(k, v)), shot.storage)
+    await context.addInitScript((entries) => {
+      for (const [key, value] of Object.entries(entries)) if (localStorage.getItem(key) === null) localStorage.setItem(key, value)
+    }, shot.storage)
   }
   await page.goto(BASE + shot.path, { waitUntil: 'networkidle' })
   await page.evaluate(() => document.fonts.ready)

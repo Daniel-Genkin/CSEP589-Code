@@ -1,62 +1,46 @@
-# outvest
+# Rally
 
-A clickable Vue 3 mockup of **outvest**. It helps first-time investors check whether their stocks and ETFs line up with the values they care about. Every screen talks to a **mock API layer**. You can later point that layer at a real backend without changing the UI.
+A desktop web demo that shows an investor what they own, where it conflicts with their values, and what changing it would cost. Vue 3, Vite, Pinia and vue-router. Everything runs in the browser on pre-generated sample data: no backend, no accounts, no network calls beyond the app's own files.
 
-> All companies, tickers, scores and headlines are fictional demo data.
+The product brief is `docs/PRD.md`. The look is defined in `docs/STYLE.md` (read from the Figma frames exported in `design/`). Build status, open conflicts and placeholders are tracked in `docs/PROGRESS.md`.
+
+> Sample data throughout. Rally shares information, not investment advice.
 
 ## Run it
 
 ```bash
 npm install
-npm run dev        # http://localhost:5173
-npm run build      # production build in dist/
+npm run dev          # http://localhost:5173
+npm run build        # production build in dist/
+npm test             # unit tests (Vitest)
+npm run typecheck    # vue-tsc over the TypeScript and Vue files
 ```
 
-**Demo shortcuts**
-- `/login` → **Explore the demo account** opens Maya's account. She's on Pro and has scans, alerts and monitoring.
-- `/signup` creates a fresh account on the Free plan. Use it to try the plan limits.
-- `/s/demo` is a public shared analysis.
-- **Settings → Reset demo data** wipes everything stored in the browser.
+## Screens
 
-## Where each flow lives
+| Route | Screen | Tier |
+| --- | --- | --- |
+| `/` | Home: enter a fund or tickers | Free |
+| `/portfolio` | Portfolio: holdings and values exposure | Free |
+| `/whatif` | What-if: exclude, see the impact, swap | Free |
+| `/settings` | Values: choose categories | Free |
+| `/upgrade` | Upgrade: pricing and simulated checkout | Wall |
+| `/connect` | Connect brokerage | Paid |
+| `/trades` | Trade approval | Paid |
+| `/alerts` | Live monitoring | Paid |
 
-| Flow | Routes |
-| --- | --- |
-| Receipt check | `/receipt` (no account; `?fund=VOO` preselects a fund): pick an ETF and your lines → **Print my receipt** → the breakdown stays blurred until you join the waitlist. **Download receipt** saves a shareable image. The waitlist only saves to this browser's localStorage for now (`src/stores/waitlist.js`). |
-| Ad-hoc scan | `/app/scan/new` (link a brokerage or build a list) → `/app/scan/:id/progress` → `/app/scan/:id` (results ranked by score, filter by value/type) → `/app/scan/:id/:symbol` (values, news, **Inside the fund**, **Rebalance outlook**) |
-| Sign-up | `/signup`: account → values (skippable) → done. Google/Apple are mocked. |
-| Continuous monitoring | `/app/monitoring` (watchlist, alert settings, **Check now**) → `/preview/email/:alertId` (the email) → `/app/alerts/:alertId` (what happened, score impact, exposure, sources) |
-| Share with a friend | **Share** on any result or analysis → modal → public branded page `/s/:shareId` → signup with `?ref=` |
-| Pricing / change plan | `/pricing` (public) and `/app/plan` (current plan, usage, change plan, billing history). `?upgrade=pro` opens checkout. |
+Opening a paid screen on the free plan goes to `/upgrade?next=…` and returns there after the simulated upgrade. "Reset demo" in the footer clears everything the demo has stored.
 
-## Architecture
+## Layout
 
 ```
-src/api/
-  client.js        # request(): "mock" → mock/server.js, "http" → fetch(VITE_API_BASE_URL + path)
-  services/*.js    # the only API surface views use; each method documents its endpoint
-  mock/            # in-browser stand-in backend (route table, localStorage DB, fictional research data)
-src/stores/        # Pinia: session (user/plan), alerts (unread badge)
-src/views/         # pages; src/components/ for UI, scan, share and billing pieces
+src/types.ts        shared types (Security, Portfolio, Exclusions, …)
+src/state/          plan, account, categories, active portfolio, exclusions; persisted to localStorage
+src/router/         the eight routes and the plan gate
+src/components/     layout (app shell), rally (nav, footer, receipt, dot grid, chips), ui (toast, modal, toggle)
+src/views/          one file per screen
+src/styles/main.css design tokens and shared classes
+scripts/            screenshots for design review
 ```
 
-## Connecting a real backend
-
-1. Copy `.env.example` to `.env` and set `VITE_API_MODE=http`. Set `VITE_API_BASE_URL` (default `/api`). For local dev, also set `API_PROXY_TARGET`.
-2. Implement the endpoints below. Response shapes match what `src/api/mock/handlers/*` returns, so use those as the spec.
-3. Requests send `Authorization: Bearer <token>` (the token comes from login/signup). Errors should be `{ code, message, details }` using the codes in `src/api/errors.js`. Example: `SCAN_LIMIT_REACHED` or `SYMBOL_LIMIT_EXCEEDED` with status 402 drives the upgrade prompts.
-
-| Area | Endpoints |
-| --- | --- |
-| Auth | `POST /auth/signup`, `POST /auth/login`, `POST /auth/oauth/:provider`, `POST /auth/logout`, `GET/PATCH /me` |
-| Securities | `GET /securities/search?q=`, `GET /securities/popular`, `GET /securities/lookup?symbols=` |
-| Portfolio | `GET /brokerages`, `GET/POST /portfolio/connections`, `DELETE /portfolio/connections/:id` |
-| Scans | `GET/POST /scans`, `GET /scans/:id` (poll until `status: complete`), `GET /scans/:id/holdings/:symbol` |
-| Monitoring | `GET /monitoring`, `PATCH /monitoring/settings`, `POST /monitoring/holdings`, `DELETE /monitoring/holdings/:symbol`, `POST /monitoring/checks` |
-| Alerts | `GET /alerts`, `GET /alerts/:id`, `POST /alerts/:id/read`, `POST /alerts/read-all`, `GET /alerts/:id/email` |
-| Sharing | `POST /shares`, `GET /public/shares/:id` (no auth) |
-| Billing | `GET /billing/plans` (no auth), `GET/POST /billing/subscription`, `GET /billing/invoices` |
-
-Notes for the real implementation:
-- Brokerage linking and card entry are UI mocks. Swap in an aggregator (e.g. Plaid/SnapTrade) and Stripe Elements; the mock only stores display-safe card details.
-- The mock skips password checks. The real backend must hash and verify passwords.
+The PRD's layers (data, domain, state, ui) arrive in that order; `docs/PROGRESS.md` says which are in place.

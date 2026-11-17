@@ -1,239 +1,166 @@
 <script setup>
-import EmptyState from '@/components/ui/EmptyState.vue'
-import SecurityLogo from '@/components/ui/SecurityLogo.vue'
-import SegmentedControl from '@/components/ui/SegmentedControl.vue'
+// Figma "Receipts": the alert feed on the left, the fund receipt and sharing on the right.
+import ReceiptPaper from '@/components/rally/ReceiptPaper.vue'
+import { CATEGORY_LABELS } from '@/api/mock/catalog'
 import { useAlertsStore } from '@/stores/alerts'
-import { useSessionStore } from '@/stores/session'
+import { useLinesStore } from '@/stores/lines'
 import { timeAgo } from '@/utils/format'
-import { BANDS } from '@/utils/scoring'
-import { ArrowRight, BellOff, CalendarClock, CheckCheck, ChevronRight, Radar, ThumbsUp, TriangleAlert } from '@lucide/vue'
-import { computed, onMounted, ref } from 'vue'
+import { checkFund } from '@/utils/lines'
+import { storeToRefs } from 'pinia'
+import { computed, onMounted } from 'vue'
+import { receiptProps } from './dashboard/receipt'
+
+const KINDS = {
+  negative: { label: 'Heads up', color: 'var(--flare)' },
+  positive: { label: 'Good news', color: 'var(--pass)' },
+  forecast: { label: 'Forecast', color: 'var(--brand-400)' },
+}
 
 const alerts = useAlertsStore()
-const session = useSessionStore()
-const filter = ref('all')
+const { lineKeys, fundSymbol } = storeToRefs(useLinesStore())
 
 onMounted(() => alerts.fetch().catch(() => {}))
 
-const KINDS = {
-  negative: { label: 'Heads up', icon: TriangleAlert },
-  positive: { label: 'Good news', icon: ThumbsUp },
-  forecast: { label: 'Forecast', icon: CalendarClock },
+// The receipt is for the fund the user picked on the dashboard; until then it has not printed.
+const result = computed(() => (fundSymbol.value ? checkFund(fundSymbol.value, lineKeys.value) : null))
+const receipt = computed(() => (result.value ? receiptProps(result.value) : null))
+const receiptPath = computed(() => ({ path: '/receipt', query: { fund: fundSymbol.value } }))
+
+const labelOf = (alert) => {
+  const category = CATEGORY_LABELS[alert.categoryChanges?.[0]?.key]
+  return [category, KINDS[alert.kind].label].filter(Boolean).join(' · ')
 }
-
-const options = computed(() => [
-  { value: 'all', label: 'All', count: alerts.items.length },
-  { value: 'unread', label: 'Unread', count: alerts.unreadCount },
-  { value: 'negative', label: 'Heads up' },
-  { value: 'positive', label: 'Good news' },
-  { value: 'forecast', label: 'Forecasts' },
-])
-
-const visible = computed(() => {
-  if (filter.value === 'all') return alerts.items
-  if (filter.value === 'unread') return alerts.items.filter((a) => !a.readAt)
-  return alerts.items.filter((a) => a.kind === filter.value)
-})
 </script>
 
 <template>
   <div class="page">
-    <header class="page-head">
-      <div>
-        <h1 class="page-title">Alerts</h1>
-        <p class="page-sub">Everything worth knowing about your holdings, in one calm place.</p>
+    <div class="page-cols">
+      <div class="col-main">
+        <header class="page-head">
+          <p class="eyebrow">
+            Your Rally · Receipts<template v-if="alerts.unreadCount"> · {{ alerts.unreadCount }} unread</template>
+          </p>
+          <h1 class="feed__title">The latest<br />receipts.</h1>
+          <p class="lead">Sample alerts, not a live feed. Weekly digest.</p>
+          <button v-if="alerts.unreadCount > 1" type="button" class="btn btn-outline btn-sm" @click="alerts.markAllRead()">Mark all read</button>
+        </header>
+
+        <div v-if="!alerts.loaded" class="feed" aria-busy="true">
+          <div v-for="n in 3" :key="n" class="skeleton" style="height: 168px; border-radius: 28px" />
+        </div>
+
+        <ul v-else-if="alerts.items.length" class="feed">
+          <li v-for="alert in alerts.items" :key="alert.id" class="card alert" :class="{ 'is-read': alert.readAt }">
+            <div class="alert__top">
+              <p class="label-mono alert__label"><span class="dot dot-10" :style="{ '--dot': KINDS[alert.kind].color }" />{{ labelOf(alert) }}</p>
+              <button v-if="!alert.readAt" type="button" class="alert__mark" @click="alerts.markRead(alert.id)">Mark read</button>
+              <span v-else class="label-mono">Read</span>
+            </div>
+            <h2 class="alert__title">{{ alert.title }}</h2>
+            <p class="alert__summary">{{ alert.summary }}</p>
+            <RouterLink :to="`/app/alerts/${alert.id}`" class="source-link">{{ alert.security.name }} · {{ timeAgo(alert.createdAt) }} · see the sources ↗</RouterLink>
+          </li>
+        </ul>
+
+        <div v-else class="card card-pad">
+          <h2 class="title-card">No receipts yet.</h2>
+          <p class="body-muted" style="margin-top: 8px">When something changes for a company in your fund, it shows up here.</p>
+        </div>
       </div>
-      <button v-if="alerts.unreadCount" type="button" class="btn btn-secondary" @click="alerts.markAllRead()">
-        <CheckCheck :size="17" /> Mark all as read
-      </button>
-    </header>
 
-    <div v-if="!alerts.loaded" class="stack gap-3">
-      <div v-for="n in 4" :key="n" class="skeleton" style="height: 112px" />
-    </div>
+      <aside class="col-side has-receipt">
+        <p class="label-mono side-label">Your fund receipt</p>
+        <ReceiptPaper v-if="receipt" class="side-receipt" compact flat v-bind="receipt" />
+        <ReceiptPaper v-else class="side-receipt" compact flat skeleton note="Your receipt appears after a scan. Pick a fund on the dashboard." />
 
-    <template v-else-if="alerts.items.length">
-      <SegmentedControl v-model="filter" :options="options" label="Filter alerts" class="filters" />
-
-      <TransitionGroup v-if="visible.length" tag="ul" name="fade" class="list">
-        <li v-for="alert in visible" :key="alert.id">
-          <RouterLink :to="`/app/alerts/${alert.id}`" class="alert card" :class="[`alert--${alert.kind}`, { 'is-unread': !alert.readAt }]">
-            <span class="alert__kind"><component :is="KINDS[alert.kind].icon" :size="18" /></span>
-            <span class="alert__body">
-              <span class="alert__meta">
-                <span class="alert__label">{{ KINDS[alert.kind].label }}</span>
-                <span aria-hidden="true">·</span>
-                <span>{{ timeAgo(alert.createdAt) }}</span>
-                <span v-if="!alert.readAt" class="alert__new">New</span>
-              </span>
-              <span class="alert__title">{{ alert.title }}</span>
-              <span class="alert__summary">{{ alert.summary }}</span>
-              <span class="alert__security">
-                <SecurityLogo :symbol="alert.symbol" :name="alert.security.name" :color="alert.security.color" :type="alert.security.type" :size="24" />
-                {{ alert.security.name }}
-              </span>
-            </span>
-            <span class="alert__scores">
-              <span class="alert__score num" :style="{ color: BANDS[alert.bandBefore].color }">{{ alert.scoreBefore }}</span>
-              <ArrowRight :size="14" class="muted" />
-              <span class="alert__score num" :style="{ color: BANDS[alert.bandAfter].color }">{{ alert.scoreAfter }}</span>
-            </span>
-            <ChevronRight :size="18" class="alert__chevron hide-sm" />
-          </RouterLink>
-        </li>
-      </TransitionGroup>
-      <div v-else class="card">
-        <EmptyState :icon="CheckCheck" title="Nothing here" text="No alerts match this filter right now." />
-      </div>
-    </template>
-
-    <div v-else class="card">
-      <EmptyState
-        v-if="session.isPro"
-        :icon="BellOff"
-        title="You're all caught up"
-        text="We haven't spotted anything worth your attention yet. When something changes, it will show up here and in your inbox."
-      >
-        <RouterLink to="/app/monitoring" class="btn btn-secondary">Manage monitoring</RouterLink>
-      </EmptyState>
-      <EmptyState
-        v-else
-        :icon="Radar"
-        title="Alerts come with Pro"
-        text="Pro keeps watch over your holdings and lets you know, calmly, when something changes how they line up with your values."
-      >
-        <RouterLink :to="{ path: '/app/plan', query: { upgrade: 'pro' } }" class="btn btn-primary">Upgrade to Pro</RouterLink>
-      </EmptyState>
+        <section v-if="receipt" class="share">
+          <p class="label-mono">Share · holdings only</p>
+          <h2 class="title-section">Make the group chat nosy.</h2>
+          <p class="body-muted">Your fund’s business, on a receipt. No balances. No performance figures. Just holdings and the lines you picked.</p>
+          <div class="share__actions">
+            <RouterLink :to="receiptPath" class="btn btn-outline">Share receipt</RouterLink>
+            <RouterLink :to="receiptPath" class="btn btn-outline">Export image</RouterLink>
+          </div>
+        </section>
+      </aside>
     </div>
   </div>
 </template>
 
 <style scoped>
-.filters {
-  margin-bottom: 18px;
+.feed__title {
+  font-size: clamp(88px, 9.2vw, 132px);
+  line-height: 1;
 }
-.list {
+.col-main {
+  gap: 44px !important;
+}
+.col-side {
+  gap: 36px !important;
+}
+.feed {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 20px;
 }
 .alert {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 20px 22px;
-  transition:
-    box-shadow 0.25s var(--ease),
-    border-color 0.25s var(--ease),
-    transform 0.25s var(--ease);
-}
-.alert:hover {
-  border-color: var(--line-strong);
-  box-shadow: var(--shadow);
-  transform: translateY(-1px);
-}
-.alert.is-unread {
-  border-color: var(--brand-200);
-}
-.alert__kind {
-  display: grid;
-  place-items: center;
-  align-self: flex-start;
-  width: 42px;
-  height: 42px;
-  flex-shrink: 0;
-  border-radius: 14px;
-}
-.alert--negative .alert__kind {
-  background: var(--score-low-bg);
-  color: var(--score-low);
-}
-.alert--positive .alert__kind {
-  background: var(--score-great-bg);
-  color: var(--score-great);
-}
-.alert--forecast .alert__kind {
-  background: var(--sky-100);
-  color: var(--sky-700);
-}
-.alert__body {
   display: flex;
   flex-direction: column;
-  gap: 4px;
-  flex: 1;
-  min-width: 0;
+  align-items: flex-start;
+  gap: 20px;
+  padding: 24px;
 }
-.alert__meta {
+.alert__top {
   display: flex;
   align-items: center;
-  gap: 6px;
-  font-size: 12.5px;
-  color: var(--muted);
+  justify-content: space-between;
+  gap: 16px;
+  width: 100%;
 }
 .alert__label {
-  font-weight: 750;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
-.alert--negative .alert__label {
-  color: var(--score-low);
+.alert__mark {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--link);
 }
-.alert--positive .alert__label {
-  color: var(--score-great);
-}
-.alert--forecast .alert__label {
-  color: var(--sky-700);
-}
-.alert__new {
-  padding: 1px 7px;
-  border-radius: var(--radius-pill);
-  background: var(--coral-500);
-  color: #fff;
-  font-size: 10.5px;
-  font-weight: 800;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
+.alert__mark:hover {
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 .alert__title {
-  font-size: 16.5px;
-  font-weight: 720;
+  font-family: var(--font-sans);
+  font-size: 24px;
+  font-weight: 500;
   line-height: 1.35;
+  text-transform: none;
+  color: var(--text);
 }
 .alert__summary {
-  font-size: 14px;
-  color: var(--ink-2);
+  margin-top: -8px;
+  color: var(--text-muted);
 }
-.alert__security {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  margin-top: 6px;
+.alert .source-link {
   font-size: 13px;
-  font-weight: 650;
-  color: var(--muted);
 }
-.alert__scores {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 14px;
-  background: var(--surface-muted);
+.alert.is-read .alert__title {
+  color: var(--text-muted);
 }
-.alert__score {
-  font-size: 18px;
-  font-weight: 780;
+.side-label {
+  align-self: center;
 }
-.alert__chevron {
-  color: var(--subtle);
+.share {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
 }
-@media (max-width: 640px) {
-  .alert {
-    flex-wrap: wrap;
-    padding: 16px;
-    gap: 12px;
-  }
-  .alert__scores {
-    margin-left: 54px;
-  }
+.share__actions {
+  display: flex;
+  gap: 12px;
+  padding-top: 6px;
 }
 </style>

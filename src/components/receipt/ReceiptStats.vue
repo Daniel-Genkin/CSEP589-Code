@@ -49,7 +49,7 @@ const money = computed(() => `$${props.result.perTenK.toLocaleString('en-US')}`)
   flex-direction: column;
   gap: 8px;
   padding: 28px 30px;
-  color: var(--ink);
+  color: var(--text);
 }
 .stat--big {
   flex: 1.35 1 380px;

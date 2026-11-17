@@ -32,6 +32,15 @@ export const formatMoney = (amount) =>
     maximumFractionDigits: 2,
   })
 
+/** "4.1%": one decimal, for weights and shares of a fund. */
+export const pct1 = (value) => `${value.toFixed(1)}%`
+
+/** "$4.10": dollars and cents, for "per $100" figures. */
+export const usd2 = (value) => `$${value.toFixed(2)}`
+
+/** A whole-number headline percentage that never rounds a real exposure down to "0%". */
+export const headlinePct = (value) => (value > 0 && value < 0.5 ? '<1%' : `${Math.round(value)}%`)
+
 export const formatPercent = (value) => `${Number.isInteger(value) ? value : value.toFixed(1)}%`
 
 export const pluralize = (count, word, plural = `${word}s`) => `${count.toLocaleString('en-US')} ${count === 1 ? word : plural}`

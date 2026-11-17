@@ -4,19 +4,22 @@ import { getSecurity } from '@/api/mock/catalog'
 
 const CONCERNING = 45
 
+// `short` is the one-word name printed on receipts; `bg`/`fg` are the line's colour in the Figma palette.
 export const LINES = [
   {
     key: 'oil',
+    short: 'Oil',
     tint: '#FFE3C9',
     label: 'Not my oil money',
     reason: "Burns what you're against",
     category: 'climate',
-    bg: '#E85A2A',
+    bg: '#F7C54E',
     fg: '#17161D',
     test: (sec) => sec.flags.includes('Fossil fuels') || sec.categories.climate.score < CONCERNING,
   },
   {
     key: 'pay',
+    short: 'Pay',
     tint: '#FFE3EF',
     label: 'Pay your people',
     reason: 'Underpays the people',
@@ -27,57 +30,65 @@ export const LINES = [
   },
   {
     key: 'senators',
+    short: 'Senators',
     tint: '#FFF0C2',
     label: 'Stop buying senators',
     reason: 'Lobbies on your dime',
     category: 'governance',
-    bg: '#F7C54E',
-    fg: '#17161D',
+    bg: '#8A6CF2',
+    fg: '#FFFFFF',
     test: (sec) => sec.categories.governance.score < CONCERNING,
   },
   {
     key: 'weapons',
+    short: 'Weapons',
     tint: '#FBDCCF',
     label: 'Weapons',
     reason: 'Makes weapons',
     category: null,
-    bg: '#D6472B',
+    bg: '#E85A2A',
     fg: '#17161D',
     test: (sec) => sec.flags.includes('Weapons'),
   },
   {
     key: 'data',
+    short: 'Data',
     tint: '#ECE4FF',
     label: 'Hands off my data',
     reason: 'Loose with your data',
     category: 'privacy',
-    bg: '#8A6CF2',
-    fg: '#17161D',
+    bg: '#354BF4',
+    fg: '#FFFFFF',
     test: (sec) => sec.categories.privacy.score < CONCERNING,
   },
   {
     key: 'bunnies',
+    short: 'Bunnies',
     tint: '#E3DEFA',
     label: 'Leave the bunnies alone',
     reason: 'Rough on animals',
     category: 'animals',
-    bg: '#3A2A9E',
-    fg: '#FFF4D6',
+    bg: '#FFF4D6',
+    fg: '#17161D',
     test: (sec) => sec.categories.animals.score < CONCERNING,
   },
   {
     key: 'fair',
+    short: 'Fair',
     tint: '#E2E5FF',
     label: 'Treat people fairly',
     reason: 'Falls short on fairness',
     category: 'equity',
-    bg: '#354BF4',
-    fg: '#FFF4D6',
+    bg: '#8692F8',
+    fg: '#17161D',
     test: (sec) => sec.categories.equity.score < CONCERNING,
   },
 ]
 
 export const LINE_MAP = Object.fromEntries(LINES.map((l) => [l.key, l]))
+
+// What the chip picker needs for each line.
+export const LINE_OPTIONS = LINES.map((l) => ({ key: l.key, label: l.label, color: l.bg }))
 
 // The real ETFs the demo lets you pick, with a one-line nickname in the brand voice.
 export const DEMO_FUNDS = [

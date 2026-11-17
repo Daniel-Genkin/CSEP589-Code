@@ -149,7 +149,7 @@ const visible = computed(() => {
   font-size: 16px;
   font-weight: 700;
   line-height: 1.4;
-  color: var(--ink);
+  color: var(--text);
   transition: color 0.2s;
 }
 .news-item__title:hover {

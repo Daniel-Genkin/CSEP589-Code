@@ -129,7 +129,7 @@ const previewValues = [
   padding: 20px;
   border-radius: 24px;
   background: var(--surface);
-  color: var(--ink);
+  color: var(--text);
   border: var(--outline);
   box-shadow: var(--shadow-lg);
   transform: rotate(-1.5deg);

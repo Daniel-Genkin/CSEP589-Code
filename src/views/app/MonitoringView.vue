@@ -500,7 +500,7 @@ const KIND_ICONS = { negative: BellRing, positive: Sparkles, forecast: CalendarC
 }
 .watch__remove:hover {
   background: var(--bg-tint);
-  color: var(--ink);
+  color: var(--text);
 }
 .side {
   display: flex;

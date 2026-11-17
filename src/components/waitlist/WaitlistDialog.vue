@@ -86,7 +86,7 @@ async function submit() {
   flex-direction: column;
   align-items: flex-start;
   gap: 14px;
-  color: var(--ink);
+  color: var(--text);
 }
 .wl__eyebrow {
   color: var(--peach-700);

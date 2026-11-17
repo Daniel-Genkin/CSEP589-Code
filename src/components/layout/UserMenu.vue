@@ -4,7 +4,7 @@ import { useClickOutside } from '@/composables/useClickOutside'
 import { useAlertsStore } from '@/stores/alerts'
 import { useSessionStore } from '@/stores/session'
 import { initialsOf } from '@/utils/format'
-import { ChevronDown, CreditCard, LogOut, Settings } from '@lucide/vue'
+import { CreditCard, LogOut, Settings } from '@lucide/vue'
 import { ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
@@ -32,7 +32,6 @@ async function logout() {
   <div v-if="session.user" ref="root" class="user-menu">
     <button type="button" class="user-menu__button" :aria-expanded="open" aria-label="Account menu" @click="open = !open">
       <span class="avatar">{{ initialsOf(session.user.name) }}</span>
-      <ChevronDown :size="16" class="user-menu__chevron hide-sm" />
     </button>
     <Transition name="pop">
       <div v-if="open" class="user-menu__panel">
@@ -132,6 +131,6 @@ async function logout() {
 }
 .user-menu__item:hover {
   background: var(--surface-muted);
-  color: var(--ink);
+  color: var(--text);
 }
 </style>

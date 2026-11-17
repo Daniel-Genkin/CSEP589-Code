@@ -46,7 +46,7 @@ function toggle(key) {
   padding: 0 18px;
   font-size: 16px;
   border-color: var(--ink-solid);
-  color: var(--ink);
+  color: var(--text);
 }
 .line-chip.is-on {
   border: 3px solid var(--ink-solid);

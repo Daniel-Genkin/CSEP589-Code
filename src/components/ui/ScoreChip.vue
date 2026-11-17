@@ -50,6 +50,6 @@ const meta = computed(() => band(props.score))
   padding-left: 6px;
   margin-left: 2px;
   border-left: 1px solid color-mix(in srgb, currentColor 30%, transparent);
-  color: var(--ink);
+  color: var(--text);
 }
 </style>

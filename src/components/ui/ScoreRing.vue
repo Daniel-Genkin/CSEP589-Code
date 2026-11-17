@@ -84,7 +84,7 @@ watch(
 .ring__score {
   font-weight: 760;
   letter-spacing: -0.03em;
-  color: var(--ink);
+  color: var(--text);
 }
 .ring__caption {
   margin-top: 4px;

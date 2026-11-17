@@ -21,7 +21,7 @@ defineProps({
   display: inline-flex;
   align-items: flex-start;
   gap: 3px;
-  color: var(--ink);
+  color: var(--text);
 }
 .brand--inverse {
   color: var(--cream);

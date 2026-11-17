@@ -432,7 +432,7 @@ async function undoStopWatching() {
   color: var(--muted);
 }
 .impact__cat-nums strong {
-  color: var(--ink);
+  color: var(--text);
 }
 .sources {
   display: flex;
@@ -569,7 +569,7 @@ async function undoStopWatching() {
 }
 .action strong {
   font-size: 14.5px;
-  color: var(--ink);
+  color: var(--text);
 }
 .calm {
   display: flex;

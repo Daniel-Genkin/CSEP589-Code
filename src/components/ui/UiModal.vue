@@ -92,7 +92,7 @@ onBeforeUnmount(() => {
 }
 .modal__close:hover {
   background: var(--bg-tint);
-  color: var(--ink);
+  color: var(--text);
 }
 
 .modal-enter-active,

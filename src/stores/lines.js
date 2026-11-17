@@ -18,12 +18,19 @@ export const useLinesStore = defineStore('lines', () => {
   const lineKeys = ref(saved.lineKeys ?? ['oil', 'pay', 'senators'])
   // A basket is a fund minus the companies the user chose to drop.
   const baskets = ref(saved.baskets ?? [])
+  // The fund the dashboard is about. Empty until the first-visit screen picks one.
+  const fundSymbol = ref(saved.fundSymbol ?? null)
+  // Companies the user marked "Exclude from basket" on the dashboard.
+  const excluded = ref(saved.excluded ?? [])
 
   watch(
-    [lineKeys, baskets],
+    [lineKeys, baskets, fundSymbol, excluded],
     () => {
       try {
-        localStorage.setItem(KEY, JSON.stringify({ lineKeys: lineKeys.value, baskets: baskets.value }))
+        localStorage.setItem(
+          KEY,
+          JSON.stringify({ lineKeys: lineKeys.value, baskets: baskets.value, fundSymbol: fundSymbol.value, excluded: excluded.value }),
+        )
       } catch {
         // Storage blocked: changes last for this visit only.
       }
@@ -38,5 +45,13 @@ export const useLinesStore = defineStore('lines', () => {
     baskets.value = baskets.value.filter((b) => b.id !== id)
   }
 
-  return { lineKeys, baskets, saveBasket, deleteBasket }
+  function setFund(symbol) {
+    if (symbol !== fundSymbol.value) excluded.value = []
+    fundSymbol.value = symbol
+  }
+  function toggleExcluded(symbol) {
+    excluded.value = excluded.value.includes(symbol) ? excluded.value.filter((s) => s !== symbol) : [...excluded.value, symbol]
+  }
+
+  return { lineKeys, baskets, fundSymbol, excluded, saveBasket, deleteBasket, setFund, toggleExcluded }
 })

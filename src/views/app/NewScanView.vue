@@ -529,7 +529,7 @@ const runLinked = ({ connectionId, holdings }) => runScan({ source: 'linked', co
   font-weight: 750;
 }
 .next strong {
-  color: var(--ink);
+  color: var(--text);
 }
 .next__values {
   display: flex;
@@ -638,7 +638,7 @@ const runLinked = ({ connectionId, holdings }) => runScan({ source: 'linked', co
 }
 .basket__remove:hover {
   background: var(--bg-tint);
-  color: var(--ink);
+  color: var(--text);
 }
 .basket__empty {
   display: flex;

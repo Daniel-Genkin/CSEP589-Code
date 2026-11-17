@@ -246,7 +246,7 @@ onBeforeUnmount(() => {
   transition: color 0.3s;
 }
 .stage.is-active {
-  color: var(--ink);
+  color: var(--text);
 }
 .stage.is-done {
   color: var(--ink-2);

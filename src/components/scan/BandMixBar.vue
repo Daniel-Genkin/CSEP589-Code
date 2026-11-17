@@ -69,7 +69,7 @@ onMounted(() => requestAnimationFrame(() => (shown.value = { ...props.mix })))
   gap: 6px;
 }
 .mix__legend strong {
-  color: var(--ink);
+  color: var(--text);
   font-weight: 700;
 }
 .mix__dot {

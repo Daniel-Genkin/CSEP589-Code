@@ -249,7 +249,7 @@ function finish() {
 }
 .invite strong {
   display: block;
-  color: var(--ink);
+  color: var(--text);
 }
 .oauth {
   display: flex;

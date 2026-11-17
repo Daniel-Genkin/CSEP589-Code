@@ -384,8 +384,8 @@ onBeforeUnmount(() => {
   padding: 20px 22px;
   border: var(--outline);
   border-radius: 20px;
-  box-shadow: 3px 3px 0 var(--ink-solid);
   color: var(--ink);
+  box-shadow: 3px 3px 0 var(--ink-solid);
   text-align: left;
   transition: transform 0.12s ease, box-shadow 0.12s ease;
 }
@@ -453,14 +453,8 @@ onBeforeUnmount(() => {
   gap: 16px 24px;
 }
 .big-cta {
-  --btn-h: 72px;
-  padding: 0 34px;
-  border-width: 3px;
-  font-family: var(--font-display);
-  font-weight: 400;
-  font-size: 28px;
-  text-transform: uppercase;
-  box-shadow: 8px 8px 0 var(--ink-solid);
+  padding: 18px 30px;
+  font-size: 17px;
 }
 .big-cta:disabled {
   cursor: not-allowed;
@@ -747,9 +741,8 @@ onBeforeUnmount(() => {
     right: 10px;
   }
   .big-cta {
-    --btn-h: 64px;
-    padding: 0 26px;
-    font-size: 24px;
+    padding: 15px 26px;
+    font-size: 15px;
   }
   .check-receipt :deep(.rc-printer) {
     margin: 0 -4px -10px;

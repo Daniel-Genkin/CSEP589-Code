@@ -160,6 +160,7 @@ const pct = (n) => `${n.toFixed(1)}%`
   padding: 10px 18px;
   border: var(--outline);
   border-radius: 18px;
+  color: var(--ink);
   text-align: left;
 }
 .fund.is-on {
@@ -270,7 +271,7 @@ const pct = (n) => `${n.toFixed(1)}%`
 }
 .summary__save .input {
   flex: 1 1 260px;
-  color: var(--ink);
+  color: var(--text);
 }
 .summary__fine {
   font-size: 13px;

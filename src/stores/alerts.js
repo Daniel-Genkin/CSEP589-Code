@@ -9,14 +9,21 @@ export const useAlertsStore = defineStore('alerts', () => {
 
   const unreadCount = computed(() => items.value.filter((a) => !a.readAt).length)
 
-  async function fetch() {
-    loading.value = true
-    try {
-      items.value = await alertsService.list()
-      loaded.value = true
-    } finally {
-      loading.value = false
-    }
+  let inFlight = null
+
+  // One request at a time: the layout and the Receipts page both ask on mount.
+  function fetch() {
+    inFlight ??= (async () => {
+      loading.value = true
+      try {
+        items.value = await alertsService.list()
+        loaded.value = true
+      } finally {
+        loading.value = false
+        inFlight = null
+      }
+    })()
+    return inFlight
   }
 
   function ensureLoaded() {

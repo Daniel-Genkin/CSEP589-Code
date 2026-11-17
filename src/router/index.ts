@@ -15,24 +15,11 @@ declare module 'vue-router' {
 /** A little longer than the `.page-leave-active` transition in main.css (0.22s). */
 const PAGE_TRANSITION_MS = 260
 
-const stub = () => import('@/views/ScreenStub.vue')
-
 const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: () => import('@/views/HomeView.vue'), meta: { title: 'Know what you own' } },
   { path: '/portfolio', name: 'portfolio', component: () => import('@/views/PortfolioView.vue'), meta: { title: 'Portfolio' } },
   { path: '/whatif', name: 'whatif', component: () => import('@/views/WhatIfView.vue'), meta: { title: 'What-if' } },
-  {
-    path: '/settings',
-    name: 'settings',
-    component: stub,
-    meta: { title: 'Values' },
-    props: {
-      eyebrow: 'Your Rally · Values',
-      title: 'Your lines. Your call.',
-      lead: 'Choose the categories you care about. Every other screen follows.',
-      requirement: 'F9',
-    },
-  },
+  { path: '/settings', name: 'settings', component: () => import('@/views/SettingsView.vue'), meta: { title: 'Values' } },
   {
     path: '/upgrade',
     name: 'upgrade',

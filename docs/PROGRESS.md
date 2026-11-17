@@ -18,11 +18,12 @@ If you are picking this up cold: read this file and `docs/STYLE.md` first.
 | 9 | `rally-v1/09-upgrade` | F5 Upgrade: Free and Paid side by side at `PLAN_PRICE_USD`, simulated checkout, return to `next` | Open, [#15](https://github.com/Daniel-Genkin/CSEP589-Code/pull/15) |
 | 10 | `rally-v1/10-connect` | F6 Connect brokerage: broker list, simulated connection, connected sample account, Disconnect, the Connected badge | Open, [#16](https://github.com/Daniel-Genkin/CSEP589-Code/pull/16) |
 | 11 | `rally-v1/11-trades` | F7 Trade approval: proposed trades for the what-if, approve selected or all, Copy list and Download CSV for list-only brokers | Open, [#17](https://github.com/Daniel-Genkin/CSEP589-Code/pull/17) |
-| 12 | `rally-v1/12-alerts` | F8 Live monitoring: the seeded feed, category filter, mark all read, unread count in the nav, locked preview on the free plan | Open |
+| 12 | `rally-v1/12-alerts` | F8 Live monitoring: the seeded feed, category filter, mark all read, unread count in the nav, locked preview on the free plan | Open, [#18](https://github.com/Daniel-Genkin/CSEP589-Code/pull/18) |
+| 13 | `rally-v1/13-settings` | F9 Values settings: a switch for every category, select all and none, persisted | Open |
 
 Planned stack (14 PRs): 3 data layer and seed, 4 domain functions and tests, 5 to 13 one per requirement F1 to F9, 14 end-to-end demo script.
 
-Next: PR 13, F9 Values settings (a switch for every category, select all and none, persisted).
+Next: PR 14, the end-to-end smoke test that walks the PRD's demo script, and the results by step.
 
 ## Requirement status
 
@@ -37,7 +38,7 @@ Next: PR 13, F9 Values settings (a switch for every category, select all and non
 | F6 Connect brokerage | Done (PR 10) | Every broker loads the same connected sample account. |
 | F7 Trade approval | Done (PR 11) | Estimates use the seeded last price. Approval is simulated: nothing is sent anywhere. |
 | F8 Live monitoring | Done (PR 12) | Eight sample alerts. No real specification for monitoring exists yet (PRD open item). |
-| F9 Values settings | Not started | `/settings` is a placeholder. |
+| F9 Values settings | Done (PR 13) | 18 categories: the seven values categories, then the 11 sectors in the seed. |
 
 ## Screens and states with no Figma frame (for design review)
 
@@ -53,6 +54,7 @@ Built from `docs/STYLE.md`. Listed here as they land.
 - **Portfolio: exposure receipt.** The receipt component is from Figma; using it for one row per category with a headline sentence above it is new. The Dashboard frame has a "Your VOO receipt" link card instead.
 - **Portfolio: options 2 and 3** now point to What-if and Connect brokerage (see conflict 14).
 - **What-if: "Options for what you excluded"** (F4): one row per excluded holding, opening three option cards with the weight it would take, the effect on the back-test, and Swap in / Undo.
+- **Values settings: the whole screen**: two groups of switches (values categories, sectors), the select all / select none row, the explainer card.
 - **Alerts: the states the Receipts frame does not show**: the category filter and "Mark all read" row, the read state of a card, the locked preview on the free plan, and the lock on the nav tab. The feed cards, the headline and the receipt column follow the Receipts frame.
 - **Trade approval: the whole screen**: the trade table, the approve actions, the list-only actions, the empty state. Also the "Ready to act on it?" card at the foot of What-if that links to it.
 - **Connect brokerage: the whole screen**, the connecting dialog, and the "Connected: <broker>" badge on Portfolio. (The First visit frame has an "Option B · Connect an account" card, but no frame shows the broker list or a connected state.)

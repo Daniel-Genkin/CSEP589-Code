@@ -209,9 +209,13 @@ export const useDemoStore = defineStore('demo', () => {
     readAlertIds.value = [...new Set([...readAlertIds.value, ...ids])]
   }
 
+  /** How many times the demo was reset this visit. Not saved: it lets visit-only state (such as which trades were approved) start again. */
+  const resets = ref(0)
+
   /** "Reset demo": back to the free plan with no portfolio, and nothing left in storage. */
   function reset() {
     const fresh = initialState()
+    resets.value += 1
     plan.value = fresh.plan
     account.value = fresh.account
     selectedCategories.value = fresh.selectedCategories
@@ -235,6 +239,7 @@ export const useDemoStore = defineStore('demo', () => {
     previousPortfolio,
     exclusions,
     readAlertIds,
+    resets,
     isPaid,
     hasAccount,
     isConnected,

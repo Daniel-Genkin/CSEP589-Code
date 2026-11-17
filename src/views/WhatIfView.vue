@@ -202,6 +202,14 @@ const barWidth = (value: number) => `${Math.max(whatIf.before.value.usd > 0 ? (v
 
         <AlternativesPanel :data="data" :excluded="whatIf.excluded.value" :swaps="whatIf.plan.value.swaps" />
 
+        <section v-if="whatIf.excluded.value.size" class="card next">
+          <div>
+            <h2 class="title-card">Ready to act on it?</h2>
+            <p class="body-muted">See the trades that would carry out this what-if. Nothing is sent without your approval.</p>
+          </div>
+          <RouterLink to="/trades" class="btn btn-primary">Review trades<template v-if="!demo.isPaid"> · paid plan</template></RouterLink>
+        </section>
+
         <p class="tax"><span class="dot" style="--dot: var(--sun)" />Selling holdings can trigger a tax bill. This is a what-if: nothing has been sold.</p>
       </div>
 
@@ -362,6 +370,18 @@ const barWidth = (value: number) => `${Math.max(whatIf.before.value.usd > 0 ? (v
   display: flex;
   justify-content: space-between;
   font-weight: 500;
+}
+.next {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 24px 28px;
+}
+.next > div {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 .tax {
   display: flex;

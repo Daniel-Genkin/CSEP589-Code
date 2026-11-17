@@ -30,6 +30,18 @@ async function signedUp(page, text = 'SPY', ready = '.dash') {
   await page.waitForSelector(ready)
 }
 
+/** Sign up, exclude every category in What-if, connect a broker, and open the trade list. */
+async function trades(page, broker) {
+  await signedUp(page)
+  await page.goto(`${BASE}/whatif`, { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: /Exclude all/ }).click()
+  await page.goto(`${BASE}/connect`, { waitUntil: 'networkidle' })
+  await page.getByRole('button', { name: `Connect ${broker}` }).click()
+  await page.waitForURL('**/portfolio')
+  await page.goto(`${BASE}/trades`, { waitUntil: 'networkidle' })
+  await page.waitForSelector('.list tbody tr')
+}
+
 const paid = (page) => page.addInitScript((key) => localStorage.getItem(key) ?? localStorage.setItem(key, JSON.stringify({ plan: 'paid' })), DEMO_KEY)
 
 // name, and either a path to open or steps that leave the page on the screen to capture
@@ -141,7 +153,26 @@ const SHOTS = [
       await page.waitForSelector('.connected')
     },
   },
-  { name: 'trades', path: '/trades', before: paid },
+  {
+    // A portfolio with nothing excluded: the empty state that links to What-if.
+    name: 'trades-empty',
+    before: paid,
+    steps: async (page) => {
+      await signedUp(page)
+      await page.goto(`${BASE}/trades`, { waitUntil: 'networkidle' })
+      await page.waitForSelector('.empty')
+    },
+  },
+  { name: 'trades', before: paid, steps: (page) => trades(page, 'Alpaca') },
+  {
+    name: 'trades-sent',
+    before: paid,
+    steps: async (page) => {
+      await trades(page, 'Alpaca')
+      await page.getByRole('button', { name: 'Approve all' }).click()
+    },
+  },
+  { name: 'trades-list-only', before: paid, steps: (page) => trades(page, 'Robinhood') },
   { name: 'alerts', path: '/alerts' },
   { name: 'not-found', path: '/nope' },
 ]

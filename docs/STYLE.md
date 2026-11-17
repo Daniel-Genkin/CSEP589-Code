@@ -113,6 +113,7 @@ Weights stop at 600. Headlines are sentences with a full stop ("Who crosses your
 | Dialog | `UiModal.vue` | A surface card (radius 28, 1px border) centred on a dark scrim. Opens with focus inside and gives it back on close; Escape or a click on the scrim closes it. A tag, a 28px title, one muted sentence, then the progress bar or the buttons. |
 | State badge | `.tag.tag-pass`, `ConnectedBadge.vue` | The green filled tag for a good standing state: "Connected: Alpaca", "No conflicts found", "Sent to Alpaca (simulated)". |
 | Chooser row | see `ConnectView.vue` `.broker` | A list row with a 60px tile, a name (19/600), a capability line with a state dot, a small note, and one outlined button at the right. Dot colours: green can act, sun case by case, brand-400 list only. |
+| Side pill | see `TradesView.vue` `.side` | Mono 12px capitals in a pill: Sell on surface-2 with white text, Buy on cream with ink text. The two sides differ by fill, not by red and green. |
 | Empty state | dashed box, centred | Mono label, a 20px semibold sentence saying what is missing, and the one button that fixes it. |
 | Notice line | see `WhatIfView.vue` `.tax` | A single muted sentence with a sun dot, on the page ground, for things the user should know but not act on here (the tax note). |
 | Badge | `.badge`, `.badge-sun` | Small filled pill for counts ("2 unread"). |

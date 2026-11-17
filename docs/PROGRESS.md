@@ -16,11 +16,12 @@ If you are picking this up cold: read this file and `docs/STYLE.md` first.
 | 7 | `rally-v1/07-whatif` | F3 What-if: category and company toggles, back-tested returns against the S&P 500, growth chart, exposure before and after | Open, [#13](https://github.com/Daniel-Genkin/CSEP589-Code/pull/13) |
 | 8 | `rally-v1/08-alternatives` | F4 Alternatives: up to three same-sector options per excluded holding, effect on the back-test, swap in and undo | Open, [#14](https://github.com/Daniel-Genkin/CSEP589-Code/pull/14) |
 | 9 | `rally-v1/09-upgrade` | F5 Upgrade: Free and Paid side by side at `PLAN_PRICE_USD`, simulated checkout, return to `next` | Open, [#15](https://github.com/Daniel-Genkin/CSEP589-Code/pull/15) |
-| 10 | `rally-v1/10-connect` | F6 Connect brokerage: broker list, simulated connection, connected sample account, Disconnect, the Connected badge | Open |
+| 10 | `rally-v1/10-connect` | F6 Connect brokerage: broker list, simulated connection, connected sample account, Disconnect, the Connected badge | Open, [#16](https://github.com/Daniel-Genkin/CSEP589-Code/pull/16) |
+| 11 | `rally-v1/11-trades` | F7 Trade approval: proposed trades for the what-if, approve selected or all, Copy list and Download CSV for list-only brokers | Open |
 
 Planned stack (14 PRs): 3 data layer and seed, 4 domain functions and tests, 5 to 13 one per requirement F1 to F9, 14 end-to-end demo script.
 
-Next: PR 11, F7 Trade approval (proposed trades from the what-if, approve selected or all, Copy list and Download CSV for list-only brokers).
+Next: PR 12, F8 Alerts (the seeded feed, category filter, mark all read, unread count in the nav, locked preview on the free plan).
 
 ## Requirement status
 
@@ -33,7 +34,8 @@ Next: PR 11, F7 Trade approval (proposed trades from the what-if, approve select
 | F4 Alternatives | Done (PR 8) | Options for energy holdings are uranium companies outside the S&P 500 (see Placeholders): a data decision for the team. |
 | F5 Upgrade | Done (PR 9) | `PLAN_PRICE_USD` is $5, a placeholder. |
 | F6 Connect brokerage | Done (PR 10) | Every broker loads the same connected sample account. |
-| F7 to F9 | Not started | `/settings`, `/trades`, `/alerts` are placeholders. |
+| F7 Trade approval | Done (PR 11) | Estimates use the seeded last price. Approval is simulated: nothing is sent anywhere. |
+| F8 to F9 | Not started | `/settings`, `/alerts` are placeholders. |
 
 ## Screens and states with no Figma frame (for design review)
 
@@ -49,6 +51,7 @@ Built from `docs/STYLE.md`. Listed here as they land.
 - **Portfolio: exposure receipt.** The receipt component is from Figma; using it for one row per category with a headline sentence above it is new. The Dashboard frame has a "Your VOO receipt" link card instead.
 - **Portfolio: options 2 and 3** now point to What-if and Connect brokerage (see conflict 14).
 - **What-if: "Options for what you excluded"** (F4): one row per excluded holding, opening three option cards with the weight it would take, the effect on the back-test, and Swap in / Undo.
+- **Trade approval: the whole screen**: the trade table, the approve actions, the list-only actions, the empty state. Also the "Ready to act on it?" card at the foot of What-if that links to it.
 - **Connect brokerage: the whole screen**, the connecting dialog, and the "Connected: <broker>" badge on Portfolio. (The First visit frame has an "Option B · Connect an account" card, but no frame shows the broker list or a connected state.)
 - **Upgrade: the whole screen.** Two plan cards (Free, Paid) and the promise line.
 - **What-if: the whole screen.** Results card (difference in points, three annualized returns), the growth chart, the before-and-after exposure bars, the two panels of switches, the tax line and the empty states.

@@ -40,18 +40,7 @@ const routes: RouteRecordRaw[] = [
     meta: { title: 'Upgrade' },
   },
   { path: '/connect', name: 'connect', component: () => import('@/views/ConnectView.vue'), meta: { title: 'Connect brokerage', paid: true } },
-  {
-    path: '/trades',
-    name: 'trades',
-    component: stub,
-    meta: { title: 'Trade approval', paid: true },
-    props: {
-      eyebrow: 'Your Rally · Trade approval',
-      title: 'Nothing moves until you say so.',
-      lead: 'The trades that would carry out your what-if choices, for you to review and approve.',
-      requirement: 'F7',
-    },
-  },
+  { path: '/trades', name: 'trades', component: () => import('@/views/TradesView.vue'), meta: { title: 'Trade approval', paid: true } },
   {
     path: '/alerts',
     name: 'alerts',

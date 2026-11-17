@@ -111,6 +111,7 @@ describe('demo store', () => {
 
   it('reset returns to the free plan with no portfolio and leaves nothing in storage', async () => {
     const demo = useDemoStore()
+    expect(demo.resets).toBe(0)
     demo.upgrade()
     demo.setCategories(['defense'])
     demo.setPortfolio(portfolio('SPY', 'fund'))

@@ -2,6 +2,7 @@
 // Figma "Zero conflicts": the scan finished and nothing in the portfolio crosses the user's lines.
 // With no lines picked nothing was checked, so the screen says that instead of calling it clean.
 import CategoryPicker from '@/components/rally/CategoryPicker.vue'
+import ConnectedBadge from '@/components/rally/ConnectedBadge.vue'
 import DotGrid from '@/components/rally/DotGrid.vue'
 import ReceiptPaper from '@/components/rally/ReceiptPaper.vue'
 import type { PortfolioData } from '@/composables/usePortfolioData'
@@ -28,6 +29,7 @@ const linesLabel = computed(() => `${plural(count.value, 'line')} checked`)
       <div class="col-main">
         <header class="page-head zero__head">
           <p class="eyebrow">Your Rally · Portfolio · sample data</p>
+          <ConnectedBadge :portfolio="portfolio" />
           <template v-if="none">
             <p class="tag"><span class="dot" style="--dot: var(--sun)" />No lines picked</p>
             <p class="lead">Nothing has been checked yet.</p>

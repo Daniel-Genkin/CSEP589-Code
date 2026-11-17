@@ -2,6 +2,7 @@
 // Figma "Rally · Dashboard": how much of the portfolio crosses the user's lines, who is behind
 // it, and what they can do about it.
 import CategoryPicker from '@/components/rally/CategoryPicker.vue'
+import ConnectedBadge from '@/components/rally/ConnectedBadge.vue'
 import DotGrid from '@/components/rally/DotGrid.vue'
 import type { PortfolioData } from '@/composables/usePortfolioData'
 import { categoriesByTicker } from '@/domain/exposure'
@@ -26,7 +27,7 @@ const rows = computed(() => props.data.rows.value)
 const tags = computed(() => props.data.tags.value)
 const flagged = computed(() => props.data.flagged.value)
 /** "SPY" for a fund, otherwise a plain phrase that reads in a sentence. */
-const what = computed(() => (portfolio.value.origin === 'fund' ? portfolio.value.id : 'your portfolio'))
+const what = computed(() => (portfolio.value.origin === 'fund' ? portfolio.value.id : portfolio.value.origin === 'connected' ? 'your account' : 'your portfolio'))
 
 const linesOf = computed(() => categoriesByTicker(tags.value, props.data.selectedIds.value))
 const crossers = computed(() => rows.value.filter((r) => linesOf.value.has(r.ticker)))
@@ -83,6 +84,7 @@ const excludedCount = computed(() => demo.exclusions.tickers.length + demo.exclu
       <div class="col-main">
         <section class="hero">
           <p class="eyebrow">Your Rally · Portfolio · {{ shortName(portfolio) }} · sample data</p>
+          <ConnectedBadge :portfolio="portfolio" />
           <p class="lead">Here’s what {{ what }} is up to.</p>
           <div class="hero__number">
             <p class="stat-xl">{{ headlinePct(flagged.share) }}</p>

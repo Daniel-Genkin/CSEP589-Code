@@ -39,18 +39,7 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/UpgradeView.vue'),
     meta: { title: 'Upgrade' },
   },
-  {
-    path: '/connect',
-    name: 'connect',
-    component: stub,
-    meta: { title: 'Connect brokerage', paid: true },
-    props: {
-      eyebrow: 'Your Rally · Connect brokerage',
-      title: 'Bring your account.',
-      lead: 'Rally reads what you own. The money stays at your broker.',
-      requirement: 'F6',
-    },
-  },
+  { path: '/connect', name: 'connect', component: () => import('@/views/ConnectView.vue'), meta: { title: 'Connect brokerage', paid: true } },
   {
     path: '/trades',
     name: 'trades',

@@ -1,5 +1,6 @@
 // Everything the demo remembers: plan, account, chosen categories, the active portfolio and
 // what-if exclusions. Persisted to localStorage; "Reset demo" clears all of it.
+import { brokerById } from '@/config/brokers'
 import type { Account, CategoryId, Exclusions, Plan, Portfolio } from '@/types'
 import { defineStore } from 'pinia'
 import { computed, ref, watch } from 'vue'
@@ -49,14 +50,21 @@ export function loadState(storage: Pick<Storage, 'getItem'> | undefined): DemoSt
   if (ex.swaps && typeof ex.swaps === 'object' && !Array.isArray(ex.swaps)) {
     for (const [from, to] of Object.entries(ex.swaps)) if (typeof to === 'string') swaps[from] = to
   }
-  const portfolio = validPortfolio(saved.portfolio)
+  let portfolio = validPortfolio(saved.portfolio)
+  // Only meaningful while a connected portfolio is active.
+  let previousPortfolio = portfolio?.origin === 'connected' ? validPortfolio(saved.previousPortfolio) : null
+  if (previousPortfolio?.origin === 'connected') previousPortfolio = null
+  // A connected portfolio whose broker is not one we know cannot be labelled or disconnected: go back to what was there before.
+  if (portfolio?.origin === 'connected' && !brokerById(portfolio.brokerId)) {
+    portfolio = previousPortfolio
+    previousPortfolio = null
+  }
   return {
     plan: saved.plan === 'paid' ? 'paid' : 'free',
     account: saved.account && typeof saved.account.email === 'string' ? { email: saved.account.email } : null,
     selectedCategories: list(saved.selectedCategories),
     portfolio,
-    // Only meaningful while a connected portfolio is active.
-    previousPortfolio: portfolio?.origin === 'connected' ? validPortfolio(saved.previousPortfolio) : null,
+    previousPortfolio,
     exclusions: { categories: list(ex.categories) ?? [], tickers: list(ex.tickers) ?? [], swaps },
     readAlertIds: list(saved.readAlertIds) ?? [],
   }

@@ -1,6 +1,6 @@
 <script setup>
 import { X } from '@lucide/vue'
-import { onBeforeUnmount, watch } from 'vue'
+import { nextTick, onBeforeUnmount, ref, watch } from 'vue'
 
 const props = defineProps({
   open: { type: Boolean, default: false },
@@ -10,21 +10,68 @@ const props = defineProps({
 })
 const emit = defineEmits(['close'])
 
+const dialog = ref(null)
+let returnTo = null
+let openedAt = 0
+
+/** A press on the scrim this soon after opening is the tail of a double click, not a dismissal. */
+const DOUBLE_CLICK_MS = 500
+const FOCUSABLE = 'a[href], button:not([disabled]), input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])'
+
 function onKeydown(event) {
   if (event.key === 'Escape' && props.dismissible) emit('close')
+  if (event.key !== 'Tab' || !dialog.value) return
+  // Keep Tab inside the dialog.
+  const stops = [...dialog.value.querySelectorAll(FOCUSABLE)]
+  const first = stops[0] ?? dialog.value
+  const last = stops[stops.length - 1] ?? dialog.value
+  const at = document.activeElement
+  if (!dialog.value.contains(at) || at === dialog.value) {
+    event.preventDefault()
+    ;(event.shiftKey ? last : first).focus()
+  } else if (event.shiftKey ? at === first : at === last) {
+    event.preventDefault()
+    ;(event.shiftKey ? last : first).focus()
+  }
 }
+
+function onScrim() {
+  if (props.dismissible && performance.now() - openedAt > DOUBLE_CLICK_MS) emit('close')
+}
+
+/** Everything behind the dialog (the app root) cannot be focused, clicked or read while it is open. */
+const setBackgroundInert = (inert) => document.getElementById('app')?.toggleAttribute('inert', inert)
+
+/** Put focus on the dialog itself, for when the control that had it is removed. */
+const focus = () => nextTick(() => dialog.value?.focus())
+defineExpose({ focus })
 
 watch(
   () => props.open,
-  (open) => {
+  async (open) => {
     document.body.style.overflow = open ? 'hidden' : ''
-    if (open) window.addEventListener('keydown', onKeydown)
-    else window.removeEventListener('keydown', onKeydown)
+    setBackgroundInert(open)
+    if (open) {
+      openedAt = performance.now()
+      window.addEventListener('keydown', onKeydown)
+      // Move focus into the dialog, and remember where it was so it can go back on close.
+      // (Some browsers do not focus a button on click; the opener can restore focus itself.)
+      returnTo = document.activeElement
+      await nextTick()
+      dialog.value?.focus()
+    } else {
+      window.removeEventListener('keydown', onKeydown)
+      if (returnTo?.isConnected && returnTo !== document.body) returnTo.focus()
+      returnTo = null
+    }
   },
 )
 
 onBeforeUnmount(() => {
-  if (props.open) document.body.style.overflow = ''
+  if (props.open) {
+    document.body.style.overflow = ''
+    setBackgroundInert(false)
+  }
   window.removeEventListener('keydown', onKeydown)
 })
 </script>
@@ -32,8 +79,8 @@ onBeforeUnmount(() => {
 <template>
   <Teleport to="body">
     <Transition name="modal">
-      <div v-if="open" class="modal-root" @pointerdown.self="dismissible && emit('close')">
-        <div class="modal" :class="`modal--${size}`" role="dialog" aria-modal="true" :aria-label="label">
+      <div v-if="open" class="modal-root" @pointerdown.self="onScrim">
+        <div ref="dialog" class="modal" :class="`modal--${size}`" role="dialog" aria-modal="true" :aria-label="label" tabindex="-1">
           <button v-if="dismissible" type="button" class="modal__close" aria-label="Close" @click="emit('close')">
             <X :size="18" />
           </button>
@@ -52,7 +99,7 @@ onBeforeUnmount(() => {
   display: grid;
   place-items: center;
   padding: 24px;
-  background: rgba(23, 22, 29, 0.55);
+  background: rgba(10, 9, 14, 0.72);
   overflow-y: auto;
 }
 .modal {
@@ -64,7 +111,7 @@ onBeforeUnmount(() => {
   background: var(--surface);
   border: var(--outline);
   border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-float);
 }
 .modal--sm {
   max-width: 420px;

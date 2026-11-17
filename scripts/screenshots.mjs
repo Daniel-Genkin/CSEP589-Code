@@ -119,6 +119,28 @@ const SHOTS = [
   { name: 'settings', path: '/settings' },
   { name: 'upgrade', path: '/connect' }, // free plan: lands on the upgrade wall
   { name: 'connect', path: '/connect', before: paid },
+  {
+    name: 'connect-dialog',
+    before: paid,
+    // The simulated connection finishes 1.5 s after the click, so this shot cannot wait long.
+    settleMs: 300,
+    steps: async (page) => {
+      await page.goto(`${BASE}/connect`, { waitUntil: 'networkidle' })
+      await page.getByRole('button', { name: 'Connect Alpaca' }).click()
+      await page.getByRole('dialog').waitFor()
+    },
+  },
+  {
+    name: 'portfolio-connected',
+    before: paid,
+    steps: async (page) => {
+      await signedUp(page)
+      await page.goto(`${BASE}/connect`, { waitUntil: 'networkidle' })
+      await page.getByRole('button', { name: 'Connect Alpaca' }).click()
+      await page.waitForURL('**/portfolio')
+      await page.waitForSelector('.connected')
+    },
+  },
   { name: 'trades', path: '/trades', before: paid },
   { name: 'alerts', path: '/alerts' },
   { name: 'not-found', path: '/nope' },
@@ -140,7 +162,7 @@ for (const shot of SHOTS) {
     if (shot.steps) await shot.steps(page)
     else await page.goto(BASE + shot.path, { waitUntil: 'networkidle' })
     await page.evaluate(() => document.fonts.ready)
-    await page.waitForTimeout(900)
+    await page.waitForTimeout(shot.settleMs ?? 900)
     await page.screenshot({ path: `${OUT}/${shot.name}.png`, fullPage: true })
     console.log(`${shot.name} -> ${OUT}/${shot.name}.png`)
   } catch (error) {

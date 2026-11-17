@@ -52,7 +52,8 @@ const state = computed(() => {
   if (pinned.value) return pinned.value
   if (data.status.value === 'error') return 'unavailable'
   if (data.status.value !== 'ready' || holding.value) return 'scanning'
-  if (!demo.account) return 'gate'
+  // A connected account is past the free-account prompt, whether or not an email was given.
+  if (!demo.account && !demo.isConnected) return 'gate'
   return data.flagged.value.count ? 'result' : 'zero'
 })
 

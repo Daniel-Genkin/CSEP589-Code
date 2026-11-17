@@ -155,4 +155,21 @@ describe('loadState', () => {
     expect(read({ portfolio: null, previousPortfolio: good }).previousPortfolio).toBeNull()
     expect(read({ exclusions: { swaps: { XOM: 5, CVX: 'NEE' } } }).exclusions.swaps).toEqual({ CVX: 'NEE' })
   })
+
+  it('goes back to the earlier portfolio when a saved connected portfolio names no known broker', () => {
+    const before = { id: 'SPY', name: 'SPY', totalUsd: 10_000, origin: 'fund', holdings: [{ ticker: 'AAPL', weight: 1, valueUsd: 10_000, shares: 40 }] }
+    const account = { ...before, id: 'connected', origin: 'connected' }
+    const read = (state: object) => loadState({ getItem: () => JSON.stringify(state) })
+
+    const known = read({ portfolio: { ...account, brokerId: 'alpaca' }, previousPortfolio: before })
+    expect(known.portfolio?.brokerId).toBe('alpaca')
+    expect(known.previousPortfolio?.id).toBe('SPY')
+
+    for (const brokerId of [undefined, 'etrade']) {
+      const unknown = read({ portfolio: { ...account, brokerId }, previousPortfolio: before })
+      expect(unknown.portfolio?.id).toBe('SPY')
+      expect(unknown.previousPortfolio).toBeNull()
+    }
+    expect(read({ portfolio: { ...account } }).portfolio).toBeNull()
+  })
 })

@@ -186,6 +186,25 @@ describe('SeededProvider', () => {
     expect(await provider.getAlternatives('XOM', ['sector:energy'])).toEqual([])
   })
 
+  it('never offers an alternative tagged in any of the selected categories, whatever the selection (PRD F4)', async () => {
+    const selections = [FEATURED, ['fossil_fuels'], ['animal_testing', 'sector:technology'], ['defense', 'sector:industrials'], [...FEATURED, 'sector:healthcare', 'sector:consumer-defensive']]
+    for (const selected of selections) {
+      const tags = await provider.getTags(allTickers)
+      const flagged = new Set(tags.filter((t) => selected.includes(t.category)).map((t) => t.ticker))
+      for (const ticker of flagged) {
+        const [target] = await provider.getSecurities([ticker])
+        if (target.kind !== 'stock') continue
+        const alternatives = await provider.getAlternatives(ticker, selected)
+        expect(alternatives.length).toBeLessThanOrEqual(3)
+        for (const alt of alternatives) {
+          expect(flagged.has(alt.ticker), `${alt.ticker} offered for ${ticker} under ${selected.join(',')}`).toBe(false)
+          expect(alt.sector).toBe(target.sector)
+          expect(alt.ticker).not.toBe(ticker)
+        }
+      }
+    }
+  })
+
   it('offers no alternatives for an unknown ticker or a fund', async () => {
     expect(await provider.getAlternatives('NOPE', FEATURED)).toEqual([])
     expect(await provider.getAlternatives('SPY', FEATURED)).toEqual([])

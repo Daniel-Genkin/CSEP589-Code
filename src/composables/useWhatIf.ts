@@ -80,6 +80,14 @@ export function useWhatIf(data: PortfolioData) {
   // Recalculate when the portfolio (holdings or weights) or the exclusions change.
   watch([() => data.status.value, () => data.portfolio.value, () => demo.exclusions], recalculate, { immediate: true })
 
+  // An alternative qualifies only while it carries no tag in any selected category. If the
+  // user later selects a category the swapped-in company is tagged in, the swap is undone.
+  watch([swapTags, () => data.selectedIds.value], () => {
+    const selected = new Set(data.selectedIds.value)
+    const tagged = new Set(swapTags.value.filter((tag) => selected.has(tag.category)).map((tag) => tag.ticker))
+    for (const [from, to] of Object.entries(demo.exclusions.swaps)) if (tagged.has(to)) demo.undoSwap(from)
+  })
+
   const points = computed(() => (backtest.value ? backtest.value.annualizedPct.filtered - backtest.value.annualizedPct.original : 0))
 
   return { backtest, status, pending, lastMs, plan, excluded, before, after, exposuresBefore, exposuresAfter, points, recalculate }

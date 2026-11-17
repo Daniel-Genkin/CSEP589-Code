@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// F3 What-if. Switch off whole categories or single flagged companies and see what the
+// F3 What-if and F4 Alternatives. Switch off whole categories or single flagged companies and see what the
 // portfolio would have earned with and without the change, next to the S&P 500, plus how much
 // flagged exposure is left. Excluded weight is redistributed pro rata. No Figma frame: built
 // from docs/STYLE.md.
@@ -14,6 +14,7 @@ import { useCatalogStore } from '@/state/catalog'
 import { useDemoStore } from '@/state/demo'
 import { pct, plural, signed, usd } from '@/utils/format'
 import { computed } from 'vue'
+import AlternativesPanel from './whatif/AlternativesPanel.vue'
 
 const COLORS = SERIES_COLORS
 
@@ -198,6 +199,8 @@ const barWidth = (value: number) => `${Math.max(whatIf.before.value.usd > 0 ? (v
             proportion to what you already hold.
           </p>
         </section>
+
+        <AlternativesPanel :data="data" :excluded="whatIf.excluded.value" :swaps="whatIf.plan.value.swaps" />
 
         <p class="tax"><span class="dot" style="--dot: var(--sun)" />Selling holdings can trigger a tax bill. This is a what-if: nothing has been sold.</p>
       </div>

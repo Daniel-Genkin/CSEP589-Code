@@ -93,6 +93,19 @@ const SHOTS = [
     },
   },
   {
+    name: 'whatif-alternatives',
+    steps: async (page) => {
+      await signedUp(page)
+      await page.goto(`${BASE}/whatif`, { waitUntil: 'networkidle' })
+      await page.getByRole('switch', { name: /^Fossil fuels/ }).check({ force: true })
+      const row = page.locator('.alternatives__list > li', { hasText: 'ExxonMobil' })
+      await row.getByRole('button', { name: 'See options' }).click()
+      await row.locator('.option').first().getByRole('button', { name: 'Swap in' }).click()
+      await page.waitForFunction(() => ![...document.querySelectorAll('.option__facts dd')].some((dd) => dd.textContent.trim() === '…'))
+      await page.locator('.alternatives').scrollIntoViewIfNeeded()
+    },
+  },
+  {
     name: 'whatif-spy',
     steps: async (page) => {
       await signedUp(page)

@@ -20,18 +20,7 @@ const stub = () => import('@/views/ScreenStub.vue')
 const routes: RouteRecordRaw[] = [
   { path: '/', name: 'home', component: () => import('@/views/HomeView.vue'), meta: { title: 'Know what you own' } },
   { path: '/portfolio', name: 'portfolio', component: () => import('@/views/PortfolioView.vue'), meta: { title: 'Portfolio' } },
-  {
-    path: '/whatif',
-    name: 'whatif',
-    component: stub,
-    meta: { title: 'What-if' },
-    props: {
-      eyebrow: 'Your Rally · What-if',
-      title: 'What if you cut them?',
-      lead: 'Switch off categories or single companies and see what it would have cost against the S&P 500.',
-      requirement: 'F3 and F4',
-    },
-  },
+  { path: '/whatif', name: 'whatif', component: () => import('@/views/WhatIfView.vue'), meta: { title: 'What-if' } },
   {
     path: '/settings',
     name: 'settings',

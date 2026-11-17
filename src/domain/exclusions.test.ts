@@ -1,7 +1,7 @@
 import { SeededProvider } from '@/data/seeded'
 import type { Exclusions, Portfolio, ValuesTag } from '@/types'
 import { describe, expect, it } from 'vitest'
-import { NO_EXCLUSIONS, activeSwaps, applyExclusions, excludedTickers, exclusionReasons, hasExclusions, planRedistribution, weightsOf } from './exclusions'
+import { NO_EXCLUSIONS, activeSwaps, applyExclusions, excludedTickers, exclusionReasons, filteredRows, hasExclusions, planRedistribution, weightsOf } from './exclusions'
 import { exposureByCategory } from './exposure'
 import { lookThrough, type CompanyRow } from './portfolio'
 
@@ -94,6 +94,14 @@ describe('applyExclusions', () => {
     expect(plan.scale).toBeCloseTo(2, 12)
     expect(plan.swapScale).toBe(1)
     expect(planRedistribution(rows, tags, NO_EXCLUSIONS)).toMatchObject({ remaining: expect.closeTo(1, 12), swapped: 0, unswapped: 0, scale: 1, swapScale: 1 })
+  })
+
+  it('lists the companies left after the what-if, with dollars, largest first', () => {
+    const after = filteredRows(rows, tags, ex({ categories: ['oil'], swaps: { A: 'X' } }), 10_000)
+    expect(after.map((r) => r.ticker)).toEqual(['C', 'X', 'D'])
+    expect(after.map((r) => r.valueUsd)).toEqual([4_000, 4_000, 2_000].map((v) => expect.closeTo(v, 6)))
+    expect(after.reduce((sum, r) => sum + r.valueUsd, 0)).toBeCloseTo(10_000, 6)
+    expect(filteredRows(rows, tags, NO_EXCLUSIONS, 10_000).map((r) => r.ticker)).toEqual(['A', 'B', 'C', 'D'])
   })
 
   it('is empty when everything is excluded and nothing is swapped in', () => {

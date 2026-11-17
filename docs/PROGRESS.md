@@ -12,11 +12,12 @@ If you are picking this up cold: read this file and `docs/STYLE.md` first.
 | 3 | `rally-v1/03-data` | Data layer: `DataProvider`, `SeededProvider`, seed files, yfinance price pull, placeholder tags, the unrun Claude tagging script | Open, [#9](https://github.com/Daniel-Genkin/CSEP589-Code/pull/9) |
 | 4 | `rally-v1/04-domain` | Domain functions with unit tests: look-through, exposure, exclusions and redistribution, back-test, trades; reference back-test script | Open, [#10](https://github.com/Daniel-Genkin/CSEP589-Code/pull/10) |
 | 5 | `rally-v1/05-home` | F1 Home: category chips, ticker input with autocomplete, samples, one-line result, free-account prompt; Portfolio moved to seeded data | Open, [#11](https://github.com/Daniel-Genkin/CSEP589-Code/pull/11) |
-| 6 | `rally-v1/06-portfolio` | F2 Portfolio: holdings table with fund grouping, sort, filter, tag popovers and inline weights; receipt-style exposure panel | Open |
+| 6 | `rally-v1/06-portfolio` | F2 Portfolio: holdings table with fund grouping, sort, filter, tag popovers and inline weights; receipt-style exposure panel | Open, [#12](https://github.com/Daniel-Genkin/CSEP589-Code/pull/12) |
+| 7 | `rally-v1/07-whatif` | F3 What-if: category and company toggles, back-tested returns against the S&P 500, growth chart, exposure before and after | Open |
 
 Planned stack (14 PRs): 3 data layer and seed, 4 domain functions and tests, 5 to 13 one per requirement F1 to F9, 14 end-to-end demo script.
 
-Next: PR 7, F3 What-if (category and company toggles, back-tested returns for original, filtered and S&P 500, the growth chart, exposure before and after).
+Next: PR 8, F4 Alternatives (up to three same-sector options per excluded holding, swap in, undo).
 
 ## Requirement status
 
@@ -25,7 +26,8 @@ Next: PR 7, F3 What-if (category and company toggles, back-tested returns for or
 | G Global behaviour | Done (PR 2) | Routing, banner, persistence, Reset demo, plan gate. Loading states arrive screen by screen. |
 | F1 Home | Done (PR 5) | Screenshot upload is built and hidden behind `VITE_SHOW_SCREENSHOT_UPLOAD`, as the PRD asks. |
 | F2 Portfolio | Done (PR 6) | The "Connected: <broker>" badge belongs to F6 and arrives with it. |
-| F3 to F9 | Not started | `/whatif`, `/settings`, `/connect`, `/trades`, `/alerts` are placeholders; `/upgrade` has the working button but no pricing card. |
+| F3 What-if | Done (PR 7) | Matches the reference back-test for the same inputs; the reference itself is a placeholder (see Placeholders). Fossil fuels alone moves SPY by 0.59 points, outside the PRD's expected 0.5: data-driven, reported in PR 4. |
+| F4 to F9 | Not started | `/settings`, `/connect`, `/trades`, `/alerts` are placeholders; `/upgrade` has the working button but no pricing card. |
 
 ## Screens and states with no Figma frame (for design review)
 
@@ -39,7 +41,8 @@ Built from `docs/STYLE.md`. Listed here as they land.
 - **Portfolio: "Everything you hold" table**, with fund group rows, sort headers, category filter chips, the "By fund / Combined" switch and inline weight fields. The Dashboard frame only shows two holdings and "3 more companies".
 - **Portfolio: tag popover** (reason, strength, source) opened from a chip in the table.
 - **Portfolio: exposure receipt.** The receipt component is from Figma; using it for one row per category with a headline sentence above it is new. The Dashboard frame has a "Your VOO receipt" link card instead.
-- **Portfolio: options 2 and 3** now point to What-if and Connect brokerage (see conflict 13).
+- **Portfolio: options 2 and 3** now point to What-if and Connect brokerage (see conflict 14).
+- **What-if: the whole screen.** Results card (difference in points, three annualized returns), the growth chart, the before-and-after exposure bars, the two panels of switches, the tax line and the empty states.
 
 ## How the Figma frames map to the PRD's routes
 

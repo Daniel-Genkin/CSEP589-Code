@@ -15,8 +15,12 @@ export const pct = (share: number, digits = 1) => `${(share * 100).toFixed(digit
 /** A whole-number headline percentage that never rounds a real exposure down to "0%". */
 export const headlinePct = (share: number) => (share > 0 && share < 0.005 ? '<1%' : `${Math.round(share * 100)}%`)
 
-/** "+0.42" / "-1.10": a signed difference in points, with a real minus sign. */
-export const signed = (value: number, digits = 2) => `${value < 0 ? '−' : '+'}${Math.abs(value).toFixed(digits)}`
+/** "+0.42" / "−1.10": a signed difference in points, with a real minus sign. One that rounds to zero is "0.00". */
+export function signed(value: number, digits = 2): string {
+  const text = Math.abs(value).toFixed(digits)
+  if (Number(text) === 0) return text
+  return `${value < 0 ? '−' : '+'}${text}`
+}
 
 /** "1 holding" / "5 holdings" */
 export const plural = (count: number, one: string, many = `${one}s`) => `${count.toLocaleString('en-US')} ${count === 1 ? one : many}`

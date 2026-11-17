@@ -105,6 +105,11 @@ Weights stop at 600. Headlines are sentences with a full stop ("Who crosses your
 | Tooltip | `InfoTip.vue` | A muted "?" button; on hover or focus, an ink bubble with a border and 13px text. For one-sentence explanations only; anything the user must read is also written on the page. |
 | Inline number field | see `HoldingsTable.vue` `.weight` | 84px wide, 34px tall, ink fill, 1px border, mono, right-aligned, unit after the field. Brand-400 border and ring on focus. |
 | View switch | `.tabs` inside an ink pill | Two or three small tabs for switching how the same data is listed. The active tab is signal, as in the nav. |
+| Switch | `UiToggle.vue` | Label (15/600) with a 13px muted description under it, and a 46 × 28 track on the right: border grey off, brand-400 on, cream thumb. In a list, one per row with a hairline between rows and the category dot or a 44px ticker tile before the label. |
+| Result block | see `WhatIfView.vue` `.results` | The one figure in Anton (`.stat-md`) with its unit and a one-sentence reading beside it, then a row of two or three stat columns separated from it by a hairline. |
+| Before / after bars | see `WhatIfView.vue` `.compare` | Two labelled 10px bars on tracks: "before" in bar-muted, "after" in sun, widths on the same scale, value and share right-aligned in mono. |
+| Empty state | dashed box, centred | Mono label, a 20px semibold sentence saying what is missing, and the one button that fixes it. |
+| Notice line | see `WhatIfView.vue` `.tax` | A single muted sentence with a sun dot, on the page ground, for things the user should know but not act on here (the tax note). |
 | Badge | `.badge`, `.badge-sun` | Small filled pill for counts ("2 unread"). |
 | Ticker tile | `.ticker-tile` (52px), `.ticker-tile-lg` (60px) | Surface-2 square, mono symbol in cream. |
 | Dot grid | `DotGrid.vue` | "1 dot = $1": 100 dots of 26px, 10px gap, coloured by segment. |
@@ -114,7 +119,19 @@ Weights stop at 600. Headlines are sentences with a full stop ("Who crosses your
 | Selectable row | see `PortfolioFirstVisit.vue` | 1px hairline border; selected gets surface-2 and a 1.5px brand-400 border, plus a filled radio. |
 | Step list | see `PortfolioScanning.vue` | 44px numbered marker: sun filled (done), brand-300 outline (now), border outline (waiting); mono status on the right. |
 | Status list | see `PortfolioUnavailable.vue` | 10px dot, title + detail, mono status right, hairline under each row. |
-| Empty box | dashed 1px border, radius 20 | "Nothing here yet" areas. Never a filled card. |
+
+## Charts
+
+One chart so far: growth of $10,000 on What-if (`GrowthChart.vue`). Hand-drawn SVG, no chart library.
+
+- **One y-axis.** Two measures on different scales get two charts, never a second axis.
+- **Lines are 2px with round joins.** Grid lines are 1px solid hairlines; axis text is 12px mono in muted.
+- **Line colours** come from `src/config/chart.ts`: portfolio as it is `#e85a2a` (flare), what-if `#b98a1e` (gold), S&P 500 `#5a6bf6` (brand blue). They were checked with a palette validator against the card surface: same lightness band, separable for colour-blind readers, 3:1 or better against the card. Brand sun is too light to sit in that band, hence the deeper gold. Do not add a fourth line colour without re-running the check.
+- **Text never wears the line colour.** Legends, end labels, tooltip rows and tables use text tokens next to a short stroke of the colour.
+- **Identity is never colour alone:** a legend above the plot and a direct label (name and final value) at the end of each line.
+- **Hover is on by default:** a crosshair that snaps to the nearest date and one tooltip listing every series, value first. The same works from the keyboard (focus the chart; arrow keys, Home, End).
+- **A table view** sits under every chart ("View as a table") with the start, each year-end and the end.
+- When two lines coincide (an S&P 500 fund against the S&P 500), say so in the caption.
 
 ## States every data screen needs
 

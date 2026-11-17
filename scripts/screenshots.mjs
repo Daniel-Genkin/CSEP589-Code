@@ -12,9 +12,12 @@ const OUT = process.argv[2] ?? 'screenshots'
 const BASE = process.argv[3] ?? 'http://localhost:5199'
 const DEMO_KEY = 'rally.demo.v1'
 
-/** Check a fund or tickers on Home and wait for the one-line result. */
+/** Check a fund or tickers on Home (or the sample portfolio, by its button label) and wait for the one-line result. */
 async function check(page, text) {
-  await page.goto(`${BASE}/?q=${encodeURIComponent(text)}`, { waitUntil: 'networkidle' })
+  if (text === 'My sample portfolio') {
+    await page.goto(`${BASE}/`, { waitUntil: 'networkidle' })
+    await page.getByRole('button', { name: text }).click()
+  } else await page.goto(`${BASE}/?q=${encodeURIComponent(text)}`, { waitUntil: 'networkidle' })
   await page.waitForSelector('.teaser__line')
 }
 
@@ -79,7 +82,27 @@ const SHOTS = [
       await page.goto(`${BASE}/portfolio?state=unavailable`, { waitUntil: 'networkidle' })
     },
   },
-  { name: 'whatif', path: '/whatif' },
+  { name: 'whatif-empty', path: '/whatif' },
+  {
+    name: 'whatif',
+    steps: async (page) => {
+      await signedUp(page, 'My sample portfolio')
+      await page.goto(`${BASE}/whatif`, { waitUntil: 'networkidle' })
+      await page.getByRole('button', { name: /Exclude all/ }).click()
+      await page.waitForSelector('.chart__line')
+    },
+  },
+  {
+    name: 'whatif-spy',
+    steps: async (page) => {
+      await signedUp(page)
+      await page.goto(`${BASE}/whatif`, { waitUntil: 'networkidle' })
+      await page.getByRole('switch', { name: /^Fossil fuels/ }).check({ force: true })
+      await page.waitForSelector('.chart__line')
+      const box = await page.locator('.chart svg').boundingBox()
+      await page.mouse.move(box.x + box.width * 0.45, box.y + box.height * 0.5)
+    },
+  },
   { name: 'settings', path: '/settings' },
   { name: 'upgrade', path: '/connect' }, // free plan: lands on the upgrade wall
   { name: 'connect', path: '/connect', before: paid },

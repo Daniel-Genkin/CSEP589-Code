@@ -97,6 +97,16 @@ export function planRedistribution(rows: CompanyRow[], tags: ValuesTag[], exclus
 }
 
 /**
+ * The portfolio's companies after the what-if, largest first, for working out what exposure is
+ * left. Swapped-in alternatives appear as companies held directly.
+ */
+export function filteredRows(rows: CompanyRow[], tags: ValuesTag[], exclusions: Exclusions, totalUsd: number, notCompanies: Iterable<string> = []): CompanyRow[] {
+  return Object.entries(applyExclusions(rows, tags, exclusions, notCompanies))
+    .map(([ticker, weight]) => ({ ticker, weight, valueUsd: weight * totalUsd, slices: [{ via: null, weight }] }))
+    .sort((a, b) => b.weight - a.weight || a.ticker.localeCompare(b.ticker))
+}
+
+/**
  * Filtered company weights. Each excluded holding's weight either goes to its swapped-in
  * alternative, or is spread across the remaining holdings in proportion to their weights.
  * If nothing remains and nothing was swapped in, the result is empty (all cash).

@@ -20,7 +20,9 @@ describe('format', () => {
   it('writes signed differences with a real minus sign', () => {
     expect(signed(-0.914)).toBe('−0.91')
     expect(signed(0.42)).toBe('+0.42')
-    expect(signed(0)).toBe('+0.00')
+    expect(signed(0)).toBe('0.00')
+    expect(signed(-0.003)).toBe('0.00')
+    expect(signed(0.004)).toBe('0.00')
   })
 
   it('counts things', () => {

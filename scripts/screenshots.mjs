@@ -173,7 +173,16 @@ const SHOTS = [
     },
   },
   { name: 'trades-list-only', before: paid, steps: (page) => trades(page, 'Robinhood') },
-  { name: 'alerts', path: '/alerts' },
+  { name: 'alerts-locked', path: '/alerts' }, // free plan: the locked preview
+  {
+    name: 'alerts',
+    before: paid,
+    steps: async (page) => {
+      await signedUp(page, 'My sample portfolio')
+      await page.goto(`${BASE}/alerts`, { waitUntil: 'networkidle' })
+      await page.waitForSelector('.feed .alert')
+    },
+  },
   { name: 'not-found', path: '/nope' },
 ]
 

@@ -2,10 +2,11 @@
 // The pill navigation bar from the Figma frames: wordmark, links, actions.
 // Tabs are data so the same bar serves the landing page and the app.
 import { BRAND_NAME } from '@/config/brand'
+import { Lock } from '@lucide/vue'
 
 defineProps({
   homeTo: { type: [String, Object], default: '/' },
-  // [{ label, to?, href?, active?, count? }]
+  // [{ label, to?, href?, active?, count?, locked? }]
   tabs: { type: Array, default: () => [] },
   label: { type: String, default: 'Main' },
 })
@@ -19,7 +20,8 @@ defineProps({
       <template v-for="tab in tabs" :key="tab.label">
         <a v-if="tab.href" :href="tab.href" class="tab" target="_blank" rel="noopener">{{ tab.label }}</a>
         <RouterLink v-else :to="tab.to" class="tab" :class="{ 'is-active': tab.active }" :aria-current="tab.active ? 'page' : undefined">
-          {{ tab.label }}<template v-if="tab.count"> · {{ tab.count }}</template>
+          {{ tab.label }}<template v-if="tab.count"> · {{ tab.count }}<span class="sr-only"> unread</span></template
+          ><template v-if="tab.locked"><Lock class="tab__lock" :size="13" aria-hidden="true" /><span class="sr-only"> (preview, paid plan)</span></template>
         </RouterLink>
       </template>
     </nav>
@@ -29,6 +31,11 @@ defineProps({
 </template>
 
 <style scoped>
+.tab__lock {
+  margin-left: 6px;
+  vertical-align: -1px;
+  color: var(--sun);
+}
 .nav-pill {
   display: flex;
   align-items: center;

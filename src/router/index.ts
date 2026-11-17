@@ -41,18 +41,8 @@ const routes: RouteRecordRaw[] = [
   },
   { path: '/connect', name: 'connect', component: () => import('@/views/ConnectView.vue'), meta: { title: 'Connect brokerage', paid: true } },
   { path: '/trades', name: 'trades', component: () => import('@/views/TradesView.vue'), meta: { title: 'Trade approval', paid: true } },
-  {
-    path: '/alerts',
-    name: 'alerts',
-    component: stub,
-    meta: { title: 'Alerts' },
-    props: {
-      eyebrow: 'Your Rally · Alerts',
-      title: 'The latest receipts.',
-      lead: 'Changes to the companies you hold, in the categories you care about.',
-      requirement: 'F8',
-    },
-  },
+  // Not behind the plan gate: the free plan sees a locked preview with an upgrade call to action.
+  { path: '/alerts', name: 'alerts', component: () => import('@/views/AlertsView.vue'), meta: { title: 'Alerts' } },
   { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue'), meta: { title: 'Not found' } },
 ]
 

@@ -3,19 +3,30 @@
 // view transition, and the footer with "Reset demo".
 import NavPill from '@/components/rally/NavPill.vue'
 import SiteFooter from '@/components/rally/SiteFooter.vue'
+import { useAlertsStore } from '@/state/alerts'
 import { useDemoStore } from '@/state/demo'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
 const demo = useDemoStore()
+const alerts = useAlertsStore()
+
+// The unread count sits in the nav on every screen of the paid plan, so the feed loads with the
+// shell, and again on moving between screens if an earlier load failed.
+watch(
+  () => [demo.isPaid, route.path],
+  () => demo.isPaid && alerts.status !== 'ready' && alerts.load().catch(() => {}),
+  { immediate: true },
+)
 
 const tabs = computed(() => [
   { label: 'Home', to: '/', active: route.name === 'home' },
   { label: 'Portfolio', to: '/portfolio', active: route.name === 'portfolio' },
   { label: 'What-if', to: '/whatif', active: route.name === 'whatif' || route.name === 'trades' },
-  { label: 'Alerts', to: '/alerts', active: route.name === 'alerts' },
+  // Paid: the unread count. Free: a lock, and the screen behind it is a preview.
+  { label: 'Alerts', to: '/alerts', active: route.name === 'alerts', count: demo.isPaid ? alerts.unreadCount : 0, locked: !demo.isPaid },
   { label: 'Values', to: '/settings', active: route.name === 'settings' },
 ])
 

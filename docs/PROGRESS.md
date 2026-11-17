@@ -20,13 +20,23 @@ If you are picking this up cold: read this file and `docs/STYLE.md` first.
 | 11 | `rally-v1/11-trades` | F7 Trade approval: proposed trades for the what-if, approve selected or all, Copy list and Download CSV for list-only brokers | Open, [#17](https://github.com/Daniel-Genkin/CSEP589-Code/pull/17) |
 | 12 | `rally-v1/12-alerts` | F8 Live monitoring: the seeded feed, category filter, mark all read, unread count in the nav, locked preview on the free plan | Open, [#18](https://github.com/Daniel-Genkin/CSEP589-Code/pull/18) |
 | 13 | `rally-v1/13-settings` | F9 Values settings: a switch for every category, select all and none, persisted | Open, [#19](https://github.com/Daniel-Genkin/CSEP589-Code/pull/19) |
-| 14 | `rally-v1/14-e2e` | End-to-end smoke test of the PRD's demo script, and the results by step | Open |
+| 14 | `rally-v1/14-e2e` | End-to-end smoke test of the PRD's demo script, and the results by step | Open, [#20](https://github.com/Daniel-Genkin/CSEP589-Code/pull/20) |
 
 Planned stack (14 PRs): 3 data layer and seed, 4 domain functions and tests, 5 to 13 one per requirement F1 to F9, 14 end-to-end demo script.
 
 All 14 PRs are open, each based on the one before (PR 1 on `rally-restyle`). Nothing is merged. Review and merge them in order.
 
-Next: human work, tracked as GitHub issues labelled `needs-human` (values tags, real fund holdings and sample portfolios, the reference back-test, design review, product and legal decisions, the monitoring specification).
+Next: human work, tracked as seven GitHub issues labelled `needs-human`:
+
+| Issue | What | PRD | Priority |
+| --- | --- | --- | --- |
+| [#21](https://github.com/Daniel-Genkin/CSEP589-Code/issues/21) | Values tags: run the Claude tagging script and spot-check every tag | F2, F3, F4, F8 | P0 |
+| [#22](https://github.com/Daniel-Genkin/CSEP589-Code/issues/22) | Seed data: real fund holdings, the sample portfolio from a real customer, tickers outside the S&P 500 | F1, F2, F4, F6, F7 | P0 |
+| [#23](https://github.com/Daniel-Genkin/CSEP589-Code/issues/23) | Back-test: confirm the method and the numbers against the team's verified script | F3, F4 | P0 |
+| [#24](https://github.com/Daniel-Genkin/CSEP589-Code/issues/24) | Design review: screens built without a Figma frame, and 15 logged conflicts | F1 to F9 | P0 |
+| [#25](https://github.com/Daniel-Genkin/CSEP589-Code/issues/25) | Decisions before the pitch: price, legal wording, the free gate, featured categories, brokers | F1, F4, F5, F6, F7, F9 | P1 |
+| [#26](https://github.com/Daniel-Genkin/CSEP589-Code/issues/26) | Live monitoring: write the specification and replace the sample feed | F8 | P1 |
+| [#27](https://github.com/Daniel-Genkin/CSEP589-Code/issues/27) | Review and merge the 14 stacked PRs, and verify the demo by hand | F1 to F9 | P0 |
 
 ## Demo script results
 
@@ -56,7 +66,7 @@ Two things to read with these results:
 | --- | --- | --- |
 | G Global behaviour | Done (PR 2) | Routing, banner, persistence, Reset demo, plan gate. Loading states arrive screen by screen. |
 | F1 Home | Done (PR 5) | Screenshot upload is built and hidden behind `VITE_SHOW_SCREENSHOT_UPLOAD`, as the PRD asks. |
-| F2 Portfolio | Done (PR 6) | The "Connected: <broker>" badge was added with F6 (PR 10). |
+| F2 Portfolio | Done (PR 6) | The "Connected: Alpaca" badge was added with F6 (PR 10). |
 | F3 What-if | Done (PR 7) | Matches the reference back-test for the same inputs; the reference itself is a placeholder (see Placeholders). Fossil fuels alone moves SPY by 0.59 points, outside the PRD's expected 0.5: data-driven, reported in PR 4. |
 | F4 Alternatives | Done (PR 8) | Options for energy holdings are uranium companies outside the S&P 500 (see Placeholders): a data decision for the team. |
 | F5 Upgrade | Done (PR 9) | `PLAN_PRICE_USD` is $5, a placeholder. |
@@ -82,7 +92,7 @@ Built from `docs/STYLE.md`. Listed here as they land.
 - **Values settings: the whole screen**: two groups of switches (values categories, sectors), the select all / select none row, the explainer card.
 - **Alerts: the states the Receipts frame does not show**: the category filter and "Mark all read" row, the read state of a card, the locked preview on the free plan, and the lock on the nav tab. The feed cards, the headline and the receipt column follow the Receipts frame.
 - **Trade approval: the whole screen**: the trade table, the approve actions, the list-only actions, the empty state. Also the "Ready to act on it?" card at the foot of What-if that links to it.
-- **Connect brokerage: the whole screen**, the connecting dialog, and the "Connected: <broker>" badge on Portfolio. (The First visit frame has an "Option B · Connect an account" card, but no frame shows the broker list or a connected state.)
+- **Connect brokerage: the whole screen**, the connecting dialog, and the "Connected: Alpaca" badge on Portfolio. (The First visit frame has an "Option B · Connect an account" card, but no frame shows the broker list or a connected state.)
 - **Upgrade: the whole screen.** Two plan cards (Free, Paid) and the promise line.
 - **What-if: the whole screen.** Results card (difference in points, three annualized returns), the growth chart, the before-and-after exposure bars, the two panels of switches, the tax line and the empty states.
 
@@ -172,4 +182,5 @@ Rule from AGENT_TASK: Figma wins for the look, the PRD wins for behaviour, log a
 - Fonts are now bundled (`@fontsource`), so the app loads nothing from Google Fonts.
 - Screenshots: `node scripts/screenshots.mjs <outDir>` with the dev server on port 5199 (one PNG per route and state).
 - Width: every screen was checked for horizontal overflow at 1024 px and 1440 px (none, after PR 14 moved the exposure tooltip). Layout below 1024 px is out of scope for v1.
+- **Vercel previews.** The task said not to deploy to Vercel, and no deploy command was run. The repository's Vercel integration builds a preview for every pushed branch, so each PR has one. Production was not touched. This was noticed only after PR 14 was pushed; see issue #27.
 - End-to-end: `npm run test:e2e` (Playwright, Chromium; run `npx playwright install chromium` once). It is not part of `npm test`.

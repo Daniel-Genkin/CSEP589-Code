@@ -19,11 +19,36 @@ If you are picking this up cold: read this file and `docs/STYLE.md` first.
 | 10 | `rally-v1/10-connect` | F6 Connect brokerage: broker list, simulated connection, connected sample account, Disconnect, the Connected badge | Open, [#16](https://github.com/Daniel-Genkin/CSEP589-Code/pull/16) |
 | 11 | `rally-v1/11-trades` | F7 Trade approval: proposed trades for the what-if, approve selected or all, Copy list and Download CSV for list-only brokers | Open, [#17](https://github.com/Daniel-Genkin/CSEP589-Code/pull/17) |
 | 12 | `rally-v1/12-alerts` | F8 Live monitoring: the seeded feed, category filter, mark all read, unread count in the nav, locked preview on the free plan | Open, [#18](https://github.com/Daniel-Genkin/CSEP589-Code/pull/18) |
-| 13 | `rally-v1/13-settings` | F9 Values settings: a switch for every category, select all and none, persisted | Open |
+| 13 | `rally-v1/13-settings` | F9 Values settings: a switch for every category, select all and none, persisted | Open, [#19](https://github.com/Daniel-Genkin/CSEP589-Code/pull/19) |
+| 14 | `rally-v1/14-e2e` | End-to-end smoke test of the PRD's demo script, and the results by step | Open |
 
 Planned stack (14 PRs): 3 data layer and seed, 4 domain functions and tests, 5 to 13 one per requirement F1 to F9, 14 end-to-end demo script.
 
-Next: PR 14, the end-to-end smoke test that walks the PRD's demo script, and the results by step.
+All 14 PRs are open, each based on the one before (PR 1 on `rally-restyle`). Nothing is merged. Review and merge them in order.
+
+Next: human work, tracked as GitHub issues labelled `needs-human` (values tags, real fund holdings and sample portfolios, the reference back-test, design review, product and legal decisions, the monitoring specification).
+
+## Demo script results
+
+`npm run test:e2e` builds the app, serves the build and walks the PRD's demo script in Chromium (`e2e/demo.spec.ts`). Last run: 2026-11-17, all ten steps pass, twice in a row, with no console errors and no request beyond the app's own files.
+
+| Step | Result | What the test checks |
+| --- | --- | --- |
+| 1. Home: type SPY, one-line result, free account, Portfolio | Pass | Seven categories preselected; "21 holdings conflict." within a second; no table before signup; after signup at least 30 holdings and "You have $375 in fossil fuels." |
+| 2. Values: deselect two categories, exposure updates without a reload | Pass | Fossil fuels and Private prisons off; the headline becomes "You have $214 in animal testing."; no page load |
+| 3. What-if: exclude one category, then all | Pass | Returns and the difference in points equal the reference script: nothing excluded 11.94%, tobacco 11.78% (-0.16), all five still selected 11.66% (-0.27); three chart lines |
+| 4. Alternatives: swap one in, undo | Pass | The filtered return and the chart's end label change on swap and return on undo |
+| 5. Connect brokerage to /upgrade, Start paid plan (demo) to /connect | Pass | `/upgrade?next=/connect`, then `/connect` |
+| 6. Choose Alpaca | Pass | Dialog, then Portfolio after 1.4 to 4 s with "Connected: Alpaca", the VOO and VTI groups and the direct holdings (25 holdings, $48,000) |
+| 7. Trades: sells equal buys within $1, Approve all | Pass | Nothing sent before the click; four-decimal quantities; "Sent to Alpaca (simulated)" and every row marked sent |
+| 8. Disconnect, connect Robinhood, Trades | Pass | Back to SPY on disconnect; "Copy list" and "Download CSV", no approve buttons; the CSV downloads |
+| 9. Alerts: eight alerts, Mark all read, category filter | Pass | "Alerts · 8" in the nav, cleared by Mark all read; the Defense filter leaves LMT and RTX |
+| 10. Reset demo | Pass | Free plan, nothing in storage, Portfolio back to first visit, `/connect` gated again |
+
+Two things to read with these results:
+
+- **Step 3 matches a placeholder reference.** The PRD's reference is the team's verified Python script, which was not available. `scripts/data/backtest_reference.py` stands in for it (see Placeholders). The TypeScript agrees with it to nine significant figures; whether both are right is for the team to confirm.
+- **Step 3 "all" means the five categories still selected** after step 2 switched two off, because What-if lists the selected categories. The reference has a scenario for exactly that.
 
 ## Requirement status
 
@@ -96,7 +121,7 @@ Pure functions in `src/domain/`, no UI, storage or network, all unit tested (138
 
 Numeric acceptance criteria covered by tests:
 - **F2**: every exposure figure for SPY at $10,000 is reproduced by hand arithmetic from the seed (`exposure.test.ts`).
-- **F3**: results equal the reference script to nine significant figures for 16 scenarios (`backtest.reference.test.ts`); exposure to each excluded category is $0 after filtering; a recalculation takes well under 300 ms.
+- **F3**: results equal the reference script to nine significant figures for 17 scenarios (`backtest.reference.test.ts`); exposure to each excluded category is $0 after filtering; a recalculation takes well under 300 ms.
 - **F7**: sells equal buys within $1 for SPY, the sample portfolio and the connected portfolio; quantities have four decimal places; nothing is proposed when nothing is excluded.
 
 **How the back-test treats funds.** A fund position is back-tested on the fund's own price history, and excluding a company inside it subtracts that company's slice (its weight in the fund times its return). So an untouched SPY portfolio tracks the S&P 500 line exactly. The first version looked through to the 60-company sample instead and returned 23% a year for "SPY" against the real 12%, because the sample is weighted by today's market caps; that was a modelling bug and was fixed before this PR.
@@ -146,3 +171,5 @@ Rule from AGENT_TASK: Figma wins for the look, the PRD wins for behaviour, log a
 - New code is TypeScript (`npm run typecheck`), tested with Vitest (`npm test`). Existing shared components stay JavaScript.
 - Fonts are now bundled (`@fontsource`), so the app loads nothing from Google Fonts.
 - Screenshots: `node scripts/screenshots.mjs <outDir>` with the dev server on port 5199 (one PNG per route and state).
+- Width: every screen was checked for horizontal overflow at 1024 px and 1440 px (none, after PR 14 moved the exposure tooltip). Layout below 1024 px is out of scope for v1.
+- End-to-end: `npm run test:e2e` (Playwright, Chromium; run `npx playwright install chromium` once). It is not part of `npm test`.

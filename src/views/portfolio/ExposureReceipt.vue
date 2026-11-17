@@ -33,7 +33,7 @@ const items = computed(() =>
   <section class="exposure" aria-labelledby="exposure-headline">
     <p class="label-mono exposure__label">
       Your exposure · {{ plural(data.selectedIds.value.length, 'line') }}
-      <InfoTip :text="EXPLAINER" label="How exposure is counted" align="start" />
+      <InfoTip :text="EXPLAINER" label="How exposure is counted" align="end" />
     </p>
     <h2 id="exposure-headline" class="title-section exposure__headline">
       <template v-if="largest">You have {{ usd(largest.usd) }} in {{ catalog.label(largest.category).toLowerCase() }}.</template>

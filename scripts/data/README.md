@@ -6,7 +6,7 @@ The app makes no network calls. Everything it shows is generated here, ahead of 
 | --- | --- | --- | --- |
 | `pull_prices.py` | Yes, run on 2026-11-16 | `securities.json`, `funds.json`, `prices.json` | Pulls names, Yahoo Finance sector and industry, market cap, last close and about five years of daily adjusted closes for every ticker in `universe.json`. Fund holdings are weighted by market cap. |
 | `placeholder_tags.py` | Yes | `tags.json` | Placeholder values tags: industry-label rules plus a short hand-checked list. Stands in for the script below. |
-| `backtest_reference.py` | Yes | `src/domain/__fixtures__/backtest_reference.json` | Placeholder for the team's verified back-test script: an independent pandas version of the method in `src/domain/backtest.ts`, run over 16 scenarios. `backtest.reference.test.ts` checks the TypeScript against it. |
+| `backtest_reference.py` | Yes | `src/domain/__fixtures__/backtest_reference.json` | Placeholder for the team's verified back-test script: an independent pandas version of the method in `src/domain/backtest.ts`, run over 17 scenarios. `backtest.reference.test.ts` checks the TypeScript against it. |
 | `tag_values.py` | **No** | `out/tags.candidate.json`, then `tags.json` with `--promote` | The real tagging step: Claude searches the web for each company and proposes tags with a strength, a reason and a source link. Needs an Anthropic credential and a human review of every tag before `--promote`, which replaces the tags of the researched companies and leaves the rest of `tags.json` alone. |
 
 ```bash

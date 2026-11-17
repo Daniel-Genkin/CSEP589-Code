@@ -124,6 +124,8 @@ def main() -> None:
     scenarios += [
         ("SPY", "exclude nothing", none),
         ("SPY", "exclude all seven", {**none, "categories": FEATURED}),
+        # The demo script deselects two categories in Values, then excludes "all" in What-if: the five that are left.
+        ("SPY", "exclude the five left without fossil fuels and private prisons", {**none, "categories": [c for c in FEATURED if c not in ("fossil_fuels", "private_prisons")]}),
         ("SPY", "exclude XOM by ticker", {**none, "tickers": ["XOM"]}),
         ("SPY", "exclude fossil fuels, swap XOM for CCJ", {**none, "categories": ["fossil_fuels"], "swaps": {"XOM": "CCJ"}}),
         ("sample", "exclude all seven", {**none, "categories": FEATURED}),

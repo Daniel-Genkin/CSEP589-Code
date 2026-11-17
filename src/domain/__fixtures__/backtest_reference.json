@@ -258,6 +258,37 @@
   },
   {
    "portfolio": "SPY",
+   "label": "exclude the five left without fossil fuels and private prisons",
+   "exclusions": {
+    "categories": [
+     "defense",
+     "tobacco",
+     "alcohol",
+     "gambling",
+     "animal_testing"
+    ],
+    "tickers": [],
+    "swaps": {}
+   },
+   "annualizedPct": {
+    "original": 11.939408159407726,
+    "filtered": 11.664780041997203,
+    "benchmark": 11.939408159407726
+   },
+   "endUsd": {
+    "original": 17563.58992415346,
+    "filtered": 17349.45761137309,
+    "benchmark": 17563.58992415346
+   },
+   "checkpoints": {
+    "1": 10038.98262143983,
+    "250": 8451.218424890922,
+    "625": 11518.19333022143,
+    "1000": 15703.274006251042
+   }
+  },
+  {
+   "portfolio": "SPY",
    "label": "exclude XOM by ticker",
    "exclusions": {
     "categories": [],

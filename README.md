@@ -13,6 +13,7 @@ npm install
 npm run dev          # http://localhost:5173
 npm run build        # production build in dist/
 npm test             # unit tests (Vitest)
+npm run test:e2e     # the PRD's demo script in a real browser (Playwright; run `npx playwright install chromium` once)
 npm run typecheck    # vue-tsc over the TypeScript and Vue files
 ```
 

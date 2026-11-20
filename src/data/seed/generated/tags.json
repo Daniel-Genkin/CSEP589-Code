@@ -1,0 +1,169 @@
+{
+ "meta": {
+  "status": "PLACEHOLDER: rule-based and hand-checked. Not the output of the Claude tagging script, and not yet spot-checked by the team.",
+  "generatedBy": "scripts/data/placeholder_tags.py"
+ },
+ "tags": [
+  {
+   "ticker": "STZ",
+   "category": "alcohol",
+   "strength": 3,
+   "reason": "Brews and sells beer and other alcoholic drinks. Yahoo Finance industry: Beverages - Brewers.",
+   "sourceUrl": "https://finance.yahoo.com/quote/STZ/"
+  },
+  {
+   "ticker": "TAP",
+   "category": "alcohol",
+   "strength": 3,
+   "reason": "Brews and sells beer and other alcoholic drinks. Yahoo Finance industry: Beverages - Brewers.",
+   "sourceUrl": "https://finance.yahoo.com/quote/TAP/"
+  },
+  {
+   "ticker": "JNJ",
+   "category": "animal_testing",
+   "strength": 2,
+   "reason": "Uses animals in research where regulators require it, under its published position.",
+   "sourceUrl": "https://www.jnj.com/about-jnj/policies-and-positions/our-position-on-the-humane-care-and-use-of-animals"
+  },
+  {
+   "ticker": "PFE",
+   "category": "animal_testing",
+   "strength": 2,
+   "reason": "Uses animals in research where regulators require it, under its published policy.",
+   "sourceUrl": "https://www.pfizer.com/science/clinical-trials/integrity-and-transparency/animals-used-in-research"
+  },
+  {
+   "ticker": "BA",
+   "category": "defense",
+   "strength": 2,
+   "reason": "Listed in the SIPRI Top 100 for its defense business, alongside commercial aircraft.",
+   "sourceUrl": "https://www.sipri.org/publications/2024/sipri-fact-sheets/sipri-top-100-arms-producing-and-military-services-companies-2023"
+  },
+  {
+   "ticker": "GD",
+   "category": "defense",
+   "strength": 3,
+   "reason": "Among the world's largest arms producers in the SIPRI Top 100.",
+   "sourceUrl": "https://www.sipri.org/publications/2024/sipri-fact-sheets/sipri-top-100-arms-producing-and-military-services-companies-2023"
+  },
+  {
+   "ticker": "LMT",
+   "category": "defense",
+   "strength": 3,
+   "reason": "Among the world's largest arms producers in the SIPRI Top 100.",
+   "sourceUrl": "https://www.sipri.org/publications/2024/sipri-fact-sheets/sipri-top-100-arms-producing-and-military-services-companies-2023"
+  },
+  {
+   "ticker": "NOC",
+   "category": "defense",
+   "strength": 3,
+   "reason": "Among the world's largest arms producers in the SIPRI Top 100.",
+   "sourceUrl": "https://www.sipri.org/publications/2024/sipri-fact-sheets/sipri-top-100-arms-producing-and-military-services-companies-2023"
+  },
+  {
+   "ticker": "RTX",
+   "category": "defense",
+   "strength": 3,
+   "reason": "Among the world's largest arms producers in the SIPRI Top 100.",
+   "sourceUrl": "https://www.sipri.org/publications/2024/sipri-fact-sheets/sipri-top-100-arms-producing-and-military-services-companies-2023"
+  },
+  {
+   "ticker": "COP",
+   "category": "fossil_fuels",
+   "strength": 3,
+   "reason": "Explores for and produces oil and natural gas. Yahoo Finance industry: Oil & Gas E&P.",
+   "sourceUrl": "https://finance.yahoo.com/quote/COP/"
+  },
+  {
+   "ticker": "CVX",
+   "category": "fossil_fuels",
+   "strength": 3,
+   "reason": "Explores for, produces and refines oil and natural gas. Yahoo Finance industry: Oil & Gas Integrated.",
+   "sourceUrl": "https://finance.yahoo.com/quote/CVX/"
+  },
+  {
+   "ticker": "EOG",
+   "category": "fossil_fuels",
+   "strength": 3,
+   "reason": "Explores for and produces oil and natural gas. Yahoo Finance industry: Oil & Gas E&P.",
+   "sourceUrl": "https://finance.yahoo.com/quote/EOG/"
+  },
+  {
+   "ticker": "OXY",
+   "category": "fossil_fuels",
+   "strength": 3,
+   "reason": "Explores for and produces oil and natural gas. Yahoo Finance industry: Oil & Gas E&P.",
+   "sourceUrl": "https://finance.yahoo.com/quote/OXY/"
+  },
+  {
+   "ticker": "SLB",
+   "category": "fossil_fuels",
+   "strength": 2,
+   "reason": "Sells equipment and services to oil and gas producers. Yahoo Finance industry: Oil & Gas Equipment & Services.",
+   "sourceUrl": "https://finance.yahoo.com/quote/SLB/"
+  },
+  {
+   "ticker": "XOM",
+   "category": "fossil_fuels",
+   "strength": 3,
+   "reason": "Explores for, produces and refines oil and natural gas. Yahoo Finance industry: Oil & Gas Integrated.",
+   "sourceUrl": "https://finance.yahoo.com/quote/XOM/"
+  },
+  {
+   "ticker": "CZR",
+   "category": "gambling",
+   "strength": 3,
+   "reason": "Owns and operates casinos. Yahoo Finance industry: Resorts & Casinos.",
+   "sourceUrl": "https://finance.yahoo.com/quote/CZR/"
+  },
+  {
+   "ticker": "LVS",
+   "category": "gambling",
+   "strength": 3,
+   "reason": "Owns and operates casinos. Yahoo Finance industry: Resorts & Casinos.",
+   "sourceUrl": "https://finance.yahoo.com/quote/LVS/"
+  },
+  {
+   "ticker": "MGM",
+   "category": "gambling",
+   "strength": 3,
+   "reason": "Owns and operates casinos. Yahoo Finance industry: Resorts & Casinos.",
+   "sourceUrl": "https://finance.yahoo.com/quote/MGM/"
+  },
+  {
+   "ticker": "WYNN",
+   "category": "gambling",
+   "strength": 3,
+   "reason": "Owns and operates casinos. Yahoo Finance industry: Resorts & Casinos.",
+   "sourceUrl": "https://finance.yahoo.com/quote/WYNN/"
+  },
+  {
+   "ticker": "CXW",
+   "category": "private_prisons",
+   "strength": 3,
+   "reason": "Owns and operates private prisons and detention centers.",
+   "sourceUrl": "https://www.corecivic.com/"
+  },
+  {
+   "ticker": "GEO",
+   "category": "private_prisons",
+   "strength": 3,
+   "reason": "Owns and operates private prisons and immigration detention centers.",
+   "sourceUrl": "https://www.geogroup.com/"
+  },
+  {
+   "ticker": "MO",
+   "category": "tobacco",
+   "strength": 3,
+   "reason": "Makes and sells tobacco and nicotine products. Yahoo Finance industry: Tobacco.",
+   "sourceUrl": "https://finance.yahoo.com/quote/MO/"
+  },
+  {
+   "ticker": "PM",
+   "category": "tobacco",
+   "strength": 3,
+   "reason": "Makes and sells tobacco and nicotine products. Yahoo Finance industry: Tobacco.",
+   "sourceUrl": "https://finance.yahoo.com/quote/PM/"
+  }
+ ]
+}

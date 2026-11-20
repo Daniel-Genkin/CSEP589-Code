@@ -1,0 +1,747 @@
+{
+ "meta": {
+  "source": "Yahoo Finance via yfinance 1.8.0",
+  "pulledAt": "2026-11-17T06:32:26Z",
+  "start": "2021-11-01",
+  "end": "2026-10-30",
+  "benchmark": "SPY",
+  "note": "Sample cut of each fund, weighted by market cap. Not the funds' real holdings."
+ },
+ "funds": {
+  "SPY": {
+   "name": "SPDR S&P 500 ETF Trust",
+   "holdings": [
+    {
+     "ticker": "AAPL",
+     "weight": 0.129729
+    },
+    {
+     "ticker": "MSFT",
+     "weight": 0.097342
+    },
+    {
+     "ticker": "NVDA",
+     "weight": 0.095409
+    },
+    {
+     "ticker": "GOOGL",
+     "weight": 0.088266
+    },
+    {
+     "ticker": "AMZN",
+     "weight": 0.070528
+    },
+    {
+     "ticker": "META",
+     "weight": 0.04052
+    },
+    {
+     "ticker": "AVGO",
+     "weight": 0.040274
+    },
+    {
+     "ticker": "TSLA",
+     "weight": 0.037984
+    },
+    {
+     "ticker": "LLY",
+     "weight": 0.032271
+    },
+    {
+     "ticker": "WMT",
+     "weight": 0.02578
+    },
+    {
+     "ticker": "JPM",
+     "weight": 0.022728
+    },
+    {
+     "ticker": "AMD",
+     "weight": 0.020929
+    },
+    {
+     "ticker": "V",
+     "weight": 0.020135
+    },
+    {
+     "ticker": "XOM",
+     "weight": 0.017225
+    },
+    {
+     "ticker": "JNJ",
+     "weight": 0.017212
+    },
+    {
+     "ticker": "MA",
+     "weight": 0.014588
+    },
+    {
+     "ticker": "ABBV",
+     "weight": 0.013175
+    },
+    {
+     "ticker": "COST",
+     "weight": 0.012489
+    },
+    {
+     "ticker": "KO",
+     "weight": 0.010829
+    },
+    {
+     "ticker": "CVX",
+     "weight": 0.010722
+    },
+    {
+     "ticker": "PG",
+     "weight": 0.010148
+    },
+    {
+     "ticker": "CSCO",
+     "weight": 0.009417
+    },
+    {
+     "ticker": "ORCL",
+     "weight": 0.009396
+    },
+    {
+     "ticker": "UNH",
+     "weight": 0.009342
+    },
+    {
+     "ticker": "MRK",
+     "weight": 0.009012
+    },
+    {
+     "ticker": "HD",
+     "weight": 0.008774
+    },
+    {
+     "ticker": "BAC",
+     "weight": 0.008745
+    },
+    {
+     "ticker": "PM",
+     "weight": 0.007732
+    },
+    {
+     "ticker": "RTX",
+     "weight": 0.006655
+    },
+    {
+     "ticker": "CAT",
+     "weight": 0.006606
+    },
+    {
+     "ticker": "GS",
+     "weight": 0.006507
+    },
+    {
+     "ticker": "AMGN",
+     "weight": 0.006328
+    },
+    {
+     "ticker": "NFLX",
+     "weight": 0.006313
+    },
+    {
+     "ticker": "LIN",
+     "weight": 0.006081
+    },
+    {
+     "ticker": "DIS",
+     "weight": 0.005187
+    },
+    {
+     "ticker": "PEP",
+     "weight": 0.00505
+    },
+    {
+     "ticker": "MCD",
+     "weight": 0.004906
+    },
+    {
+     "ticker": "VZ",
+     "weight": 0.00486
+    },
+    {
+     "ticker": "UNP",
+     "weight": 0.004567
+    },
+    {
+     "ticker": "NEE",
+     "weight": 0.004529
+    },
+    {
+     "ticker": "CRM",
+     "weight": 0.004474
+    },
+    {
+     "ticker": "COP",
+     "weight": 0.004204
+    },
+    {
+     "ticker": "PFE",
+     "weight": 0.004163
+    },
+    {
+     "ticker": "LMT",
+     "weight": 0.003421
+    },
+    {
+     "ticker": "MO",
+     "weight": 0.003321
+    },
+    {
+     "ticker": "BA",
+     "weight": 0.003313
+    },
+    {
+     "ticker": "PLD",
+     "weight": 0.003139
+    },
+    {
+     "ticker": "GD",
+     "weight": 0.00246
+    },
+    {
+     "ticker": "ADBE",
+     "weight": 0.002423
+    },
+    {
+     "ticker": "EOG",
+     "weight": 0.00204
+    },
+    {
+     "ticker": "NOC",
+     "weight": 0.001962
+    },
+    {
+     "ticker": "SLB",
+     "weight": 0.001871
+    },
+    {
+     "ticker": "OXY",
+     "weight": 0.001451
+    },
+    {
+     "ticker": "NKE",
+     "weight": 0.001438
+    },
+    {
+     "ticker": "LVS",
+     "weight": 0.000632
+    },
+    {
+     "ticker": "STZ",
+     "weight": 0.000628
+    },
+    {
+     "ticker": "WYNN",
+     "weight": 0.000213
+    },
+    {
+     "ticker": "MGM",
+     "weight": 0.000213
+    },
+    {
+     "ticker": "TAP",
+     "weight": 0.000193
+    },
+    {
+     "ticker": "CZR",
+     "weight": 0.000151
+    }
+   ]
+  },
+  "VOO": {
+   "name": "Vanguard S&P 500 ETF",
+   "holdings": [
+    {
+     "ticker": "AAPL",
+     "weight": 0.129729
+    },
+    {
+     "ticker": "MSFT",
+     "weight": 0.097342
+    },
+    {
+     "ticker": "NVDA",
+     "weight": 0.095409
+    },
+    {
+     "ticker": "GOOGL",
+     "weight": 0.088266
+    },
+    {
+     "ticker": "AMZN",
+     "weight": 0.070528
+    },
+    {
+     "ticker": "META",
+     "weight": 0.04052
+    },
+    {
+     "ticker": "AVGO",
+     "weight": 0.040274
+    },
+    {
+     "ticker": "TSLA",
+     "weight": 0.037984
+    },
+    {
+     "ticker": "LLY",
+     "weight": 0.032271
+    },
+    {
+     "ticker": "WMT",
+     "weight": 0.02578
+    },
+    {
+     "ticker": "JPM",
+     "weight": 0.022728
+    },
+    {
+     "ticker": "AMD",
+     "weight": 0.020929
+    },
+    {
+     "ticker": "V",
+     "weight": 0.020135
+    },
+    {
+     "ticker": "XOM",
+     "weight": 0.017225
+    },
+    {
+     "ticker": "JNJ",
+     "weight": 0.017212
+    },
+    {
+     "ticker": "MA",
+     "weight": 0.014588
+    },
+    {
+     "ticker": "ABBV",
+     "weight": 0.013175
+    },
+    {
+     "ticker": "COST",
+     "weight": 0.012489
+    },
+    {
+     "ticker": "KO",
+     "weight": 0.010829
+    },
+    {
+     "ticker": "CVX",
+     "weight": 0.010722
+    },
+    {
+     "ticker": "PG",
+     "weight": 0.010148
+    },
+    {
+     "ticker": "CSCO",
+     "weight": 0.009417
+    },
+    {
+     "ticker": "ORCL",
+     "weight": 0.009396
+    },
+    {
+     "ticker": "UNH",
+     "weight": 0.009342
+    },
+    {
+     "ticker": "MRK",
+     "weight": 0.009012
+    },
+    {
+     "ticker": "HD",
+     "weight": 0.008774
+    },
+    {
+     "ticker": "BAC",
+     "weight": 0.008745
+    },
+    {
+     "ticker": "PM",
+     "weight": 0.007732
+    },
+    {
+     "ticker": "RTX",
+     "weight": 0.006655
+    },
+    {
+     "ticker": "CAT",
+     "weight": 0.006606
+    },
+    {
+     "ticker": "GS",
+     "weight": 0.006507
+    },
+    {
+     "ticker": "AMGN",
+     "weight": 0.006328
+    },
+    {
+     "ticker": "NFLX",
+     "weight": 0.006313
+    },
+    {
+     "ticker": "LIN",
+     "weight": 0.006081
+    },
+    {
+     "ticker": "DIS",
+     "weight": 0.005187
+    },
+    {
+     "ticker": "PEP",
+     "weight": 0.00505
+    },
+    {
+     "ticker": "MCD",
+     "weight": 0.004906
+    },
+    {
+     "ticker": "VZ",
+     "weight": 0.00486
+    },
+    {
+     "ticker": "UNP",
+     "weight": 0.004567
+    },
+    {
+     "ticker": "NEE",
+     "weight": 0.004529
+    },
+    {
+     "ticker": "CRM",
+     "weight": 0.004474
+    },
+    {
+     "ticker": "COP",
+     "weight": 0.004204
+    },
+    {
+     "ticker": "PFE",
+     "weight": 0.004163
+    },
+    {
+     "ticker": "LMT",
+     "weight": 0.003421
+    },
+    {
+     "ticker": "MO",
+     "weight": 0.003321
+    },
+    {
+     "ticker": "BA",
+     "weight": 0.003313
+    },
+    {
+     "ticker": "PLD",
+     "weight": 0.003139
+    },
+    {
+     "ticker": "GD",
+     "weight": 0.00246
+    },
+    {
+     "ticker": "ADBE",
+     "weight": 0.002423
+    },
+    {
+     "ticker": "EOG",
+     "weight": 0.00204
+    },
+    {
+     "ticker": "NOC",
+     "weight": 0.001962
+    },
+    {
+     "ticker": "SLB",
+     "weight": 0.001871
+    },
+    {
+     "ticker": "OXY",
+     "weight": 0.001451
+    },
+    {
+     "ticker": "NKE",
+     "weight": 0.001438
+    },
+    {
+     "ticker": "LVS",
+     "weight": 0.000632
+    },
+    {
+     "ticker": "STZ",
+     "weight": 0.000628
+    },
+    {
+     "ticker": "WYNN",
+     "weight": 0.000213
+    },
+    {
+     "ticker": "MGM",
+     "weight": 0.000213
+    },
+    {
+     "ticker": "TAP",
+     "weight": 0.000193
+    },
+    {
+     "ticker": "CZR",
+     "weight": 0.000151
+    }
+   ]
+  },
+  "VTI": {
+   "name": "Vanguard Total Stock Market ETF",
+   "holdings": [
+    {
+     "ticker": "AAPL",
+     "weight": 0.129754
+    },
+    {
+     "ticker": "MSFT",
+     "weight": 0.097358
+    },
+    {
+     "ticker": "NVDA",
+     "weight": 0.095425
+    },
+    {
+     "ticker": "GOOGL",
+     "weight": 0.088281
+    },
+    {
+     "ticker": "AMZN",
+     "weight": 0.07054
+    },
+    {
+     "ticker": "META",
+     "weight": 0.040527
+    },
+    {
+     "ticker": "AVGO",
+     "weight": 0.040281
+    },
+    {
+     "ticker": "TSLA",
+     "weight": 0.03799
+    },
+    {
+     "ticker": "LLY",
+     "weight": 0.032276
+    },
+    {
+     "ticker": "WMT",
+     "weight": 0.025785
+    },
+    {
+     "ticker": "JPM",
+     "weight": 0.022732
+    },
+    {
+     "ticker": "AMD",
+     "weight": 0.020933
+    },
+    {
+     "ticker": "V",
+     "weight": 0.020138
+    },
+    {
+     "ticker": "XOM",
+     "weight": 0.017228
+    },
+    {
+     "ticker": "JNJ",
+     "weight": 0.017215
+    },
+    {
+     "ticker": "MA",
+     "weight": 0.01459
+    },
+    {
+     "ticker": "ABBV",
+     "weight": 0.013177
+    },
+    {
+     "ticker": "COST",
+     "weight": 0.012491
+    },
+    {
+     "ticker": "KO",
+     "weight": 0.010831
+    },
+    {
+     "ticker": "CVX",
+     "weight": 0.010724
+    },
+    {
+     "ticker": "PG",
+     "weight": 0.01015
+    },
+    {
+     "ticker": "CSCO",
+     "weight": 0.009418
+    },
+    {
+     "ticker": "ORCL",
+     "weight": 0.009397
+    },
+    {
+     "ticker": "UNH",
+     "weight": 0.009344
+    },
+    {
+     "ticker": "MRK",
+     "weight": 0.009013
+    },
+    {
+     "ticker": "HD",
+     "weight": 0.008775
+    },
+    {
+     "ticker": "BAC",
+     "weight": 0.008746
+    },
+    {
+     "ticker": "PM",
+     "weight": 0.007734
+    },
+    {
+     "ticker": "RTX",
+     "weight": 0.006656
+    },
+    {
+     "ticker": "CAT",
+     "weight": 0.006607
+    },
+    {
+     "ticker": "GS",
+     "weight": 0.006508
+    },
+    {
+     "ticker": "AMGN",
+     "weight": 0.006329
+    },
+    {
+     "ticker": "NFLX",
+     "weight": 0.006314
+    },
+    {
+     "ticker": "LIN",
+     "weight": 0.006082
+    },
+    {
+     "ticker": "DIS",
+     "weight": 0.005187
+    },
+    {
+     "ticker": "PEP",
+     "weight": 0.00505
+    },
+    {
+     "ticker": "MCD",
+     "weight": 0.004906
+    },
+    {
+     "ticker": "VZ",
+     "weight": 0.004861
+    },
+    {
+     "ticker": "UNP",
+     "weight": 0.004568
+    },
+    {
+     "ticker": "NEE",
+     "weight": 0.00453
+    },
+    {
+     "ticker": "CRM",
+     "weight": 0.004475
+    },
+    {
+     "ticker": "COP",
+     "weight": 0.004205
+    },
+    {
+     "ticker": "PFE",
+     "weight": 0.004163
+    },
+    {
+     "ticker": "LMT",
+     "weight": 0.003421
+    },
+    {
+     "ticker": "MO",
+     "weight": 0.003322
+    },
+    {
+     "ticker": "BA",
+     "weight": 0.003314
+    },
+    {
+     "ticker": "PLD",
+     "weight": 0.00314
+    },
+    {
+     "ticker": "GD",
+     "weight": 0.00246
+    },
+    {
+     "ticker": "ADBE",
+     "weight": 0.002423
+    },
+    {
+     "ticker": "EOG",
+     "weight": 0.00204
+    },
+    {
+     "ticker": "NOC",
+     "weight": 0.001962
+    },
+    {
+     "ticker": "SLB",
+     "weight": 0.001871
+    },
+    {
+     "ticker": "OXY",
+     "weight": 0.001452
+    },
+    {
+     "ticker": "NKE",
+     "weight": 0.001438
+    },
+    {
+     "ticker": "LVS",
+     "weight": 0.000632
+    },
+    {
+     "ticker": "STZ",
+     "weight": 0.000628
+    },
+    {
+     "ticker": "WYNN",
+     "weight": 0.000213
+    },
+    {
+     "ticker": "MGM",
+     "weight": 0.000213
+    },
+    {
+     "ticker": "GEO",
+     "weight": 0.000109
+    },
+    {
+     "ticker": "CXW",
+     "weight": 6.8e-05
+    }
+   ]
+  }
+ }
+}

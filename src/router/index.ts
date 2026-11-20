@@ -1,0 +1,56 @@
+// The PRD's eight screens. Client-side routing with the History API: no full page reloads,
+// working back and forward, state kept in the store across navigation.
+import { useDemoStore } from '@/state/demo'
+import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
+import { gateRedirect } from './gate'
+
+declare module 'vue-router' {
+  interface RouteMeta {
+    title: string
+    /** Needs the paid plan; free users are sent to /upgrade?next=… */
+    paid?: boolean
+  }
+}
+
+/** A little longer than the `.page-leave-active` transition in main.css (0.22s). */
+const PAGE_TRANSITION_MS = 260
+
+const routes: RouteRecordRaw[] = [
+  { path: '/', name: 'home', component: () => import('@/views/HomeView.vue'), meta: { title: 'Know what you own' } },
+  { path: '/portfolio', name: 'portfolio', component: () => import('@/views/PortfolioView.vue'), meta: { title: 'Portfolio' } },
+  { path: '/whatif', name: 'whatif', component: () => import('@/views/WhatIfView.vue'), meta: { title: 'What-if' } },
+  { path: '/settings', name: 'settings', component: () => import('@/views/SettingsView.vue'), meta: { title: 'Values' } },
+  {
+    path: '/upgrade',
+    name: 'upgrade',
+    component: () => import('@/views/UpgradeView.vue'),
+    meta: { title: 'Upgrade' },
+  },
+  { path: '/connect', name: 'connect', component: () => import('@/views/ConnectView.vue'), meta: { title: 'Connect brokerage', paid: true } },
+  { path: '/trades', name: 'trades', component: () => import('@/views/TradesView.vue'), meta: { title: 'Trade approval', paid: true } },
+  // Not behind the plan gate: the free plan sees a locked preview with an upgrade call to action.
+  { path: '/alerts', name: 'alerts', component: () => import('@/views/AlertsView.vue'), meta: { title: 'Alerts' } },
+  { path: '/:pathMatch(.*)*', name: 'not-found', component: () => import('@/views/NotFoundView.vue'), meta: { title: 'Not found' } },
+]
+
+const router = createRouter({
+  history: createWebHistory(import.meta.env.BASE_URL),
+  routes,
+  scrollBehavior(to, from, savedPosition) {
+    const samePage = to.path === from.path
+    if (samePage && !to.hash && !savedPosition) return false
+    const position = savedPosition ?? (to.hash ? { el: to.hash, top: 24, behavior: 'smooth' as const } : { top: 0 })
+    if (samePage) return position
+    // The old screen fades out before the new one mounts. Scrolling now would move (or clamp to)
+    // the screen that is leaving, so wait until the new one is in place.
+    return new Promise((resolve) => setTimeout(() => resolve(position), PAGE_TRANSITION_MS))
+  },
+})
+
+router.beforeEach((to) => gateRedirect(to, useDemoStore().plan) ?? true)
+
+router.afterEach((to) => {
+  document.title = to.meta.title ? `${to.meta.title} · Rally` : 'Rally'
+})
+
+export default router

@@ -1,8 +1,0 @@
-export { isMockApi } from './config'
-export { ApiError, ERROR_CODES } from './errors'
-export { alertsService } from './services/alerts.service'
-export { authService } from './services/auth.service'
-export { communityService } from './services/community.service'
-export { copilotService } from './services/copilot.service'
-export { investService } from './services/invest.service'
-export { thesesService } from './services/theses.service'

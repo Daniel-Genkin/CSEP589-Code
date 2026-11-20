@@ -29,7 +29,7 @@ const id = useId()
 .tip__btn {
   display: inline-grid;
   place-items: center;
-  color: var(--subtle);
+  color: var(--text-muted);
   border-radius: 50%;
   transition: color 0.2s;
 }
@@ -43,20 +43,21 @@ const id = useId()
   left: 50%;
   z-index: 40;
   width: max-content;
-  max-width: 260px;
-  padding: 10px 12px;
+  max-width: 300px;
+  padding: 12px 14px;
+  border: 1px solid var(--border);
   border-radius: 12px;
-  border: var(--outline-thin);
   background: var(--ink);
-  color: var(--cream);
+  color: var(--text);
+  font-family: var(--font-sans);
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 400;
   line-height: 1.45;
   letter-spacing: 0;
   text-transform: none;
   text-align: left;
   white-space: normal;
-  box-shadow: 4px 4px 0 var(--sun);
+  box-shadow: var(--shadow-float);
   opacity: 0;
   pointer-events: none;
   transform: translate(-50%, 4px);

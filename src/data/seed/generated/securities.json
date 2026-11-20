@@ -1,0 +1,839 @@
+{
+ "meta": {
+  "source": "Yahoo Finance via yfinance 1.8.0",
+  "pulledAt": "2026-11-17T06:32:26Z",
+  "start": "2021-11-01",
+  "end": "2026-10-30",
+  "benchmark": "SPY"
+ },
+ "securities": [
+  {
+   "ticker": "AAPL",
+   "name": "Apple Inc.",
+   "sector": "Technology",
+   "industry": "Consumer Electronics",
+   "price": 344.63,
+   "kind": "stock",
+   "marketCap": 5126663176192
+  },
+  {
+   "ticker": "MSFT",
+   "name": "Microsoft Corporation",
+   "sector": "Technology",
+   "industry": "Software - Infrastructure",
+   "price": 521.91,
+   "kind": "stock",
+   "marketCap": 3846694502400
+  },
+  {
+   "ticker": "NVDA",
+   "name": "NVIDIA Corporation",
+   "sector": "Technology",
+   "industry": "Semiconductors",
+   "price": 204.64,
+   "kind": "stock",
+   "marketCap": 3770312556544
+  },
+  {
+   "ticker": "AVGO",
+   "name": "Broadcom Inc.",
+   "sector": "Technology",
+   "industry": "Semiconductors",
+   "price": 326.08,
+   "kind": "stock",
+   "marketCap": 1591528259584
+  },
+  {
+   "ticker": "ORCL",
+   "name": "Oracle Corporation",
+   "sector": "Technology",
+   "industry": "Software - Infrastructure",
+   "price": 130.67,
+   "kind": "stock",
+   "marketCap": 371287851008
+  },
+  {
+   "ticker": "CRM",
+   "name": "Salesforce, Inc.",
+   "sector": "Technology",
+   "industry": "Software - Application",
+   "price": 229.17,
+   "kind": "stock",
+   "marketCap": 176805085184
+  },
+  {
+   "ticker": "ADBE",
+   "name": "Adobe Inc.",
+   "sector": "Technology",
+   "industry": "Software - Application",
+   "price": 250.23,
+   "kind": "stock",
+   "marketCap": 95743197184
+  },
+  {
+   "ticker": "CSCO",
+   "name": "Cisco Systems, Inc.",
+   "sector": "Technology",
+   "industry": "Communication Equipment",
+   "price": 104.51,
+   "kind": "stock",
+   "marketCap": 372123369472
+  },
+  {
+   "ticker": "AMD",
+   "name": "Advanced Micro Devices, Inc.",
+   "sector": "Technology",
+   "industry": "Semiconductors",
+   "price": 504.8,
+   "kind": "stock",
+   "marketCap": 827063205888
+  },
+  {
+   "ticker": "INTC",
+   "name": "Intel Corporation",
+   "sector": "Technology",
+   "industry": "Semiconductors",
+   "price": 65.76,
+   "kind": "stock",
+   "marketCap": 294823034880
+  },
+  {
+   "ticker": "IBM",
+   "name": "International Business Machines Corporation",
+   "sector": "Technology",
+   "industry": "Information Technology Services",
+   "price": 257.81,
+   "kind": "stock",
+   "marketCap": 229201248256
+  },
+  {
+   "ticker": "QCOM",
+   "name": "QUALCOMM Incorporated",
+   "sector": "Technology",
+   "industry": "Semiconductors",
+   "price": 164.79,
+   "kind": "stock",
+   "marketCap": 180316405760
+  },
+  {
+   "ticker": "GOOGL",
+   "name": "Alphabet Inc.",
+   "sector": "Communication Services",
+   "industry": "Internet Content & Information",
+   "price": 279.84,
+   "kind": "stock",
+   "marketCap": 3488053460992
+  },
+  {
+   "ticker": "META",
+   "name": "Meta Platforms, Inc.",
+   "sector": "Communication Services",
+   "industry": "Internet Content & Information",
+   "price": 614.99,
+   "kind": "stock",
+   "marketCap": 1601254981632
+  },
+  {
+   "ticker": "NFLX",
+   "name": "Netflix, Inc.",
+   "sector": "Communication Services",
+   "industry": "Entertainment",
+   "price": 62.08,
+   "kind": "stock",
+   "marketCap": 249459310592
+  },
+  {
+   "ticker": "DIS",
+   "name": "The Walt Disney Company",
+   "sector": "Communication Services",
+   "industry": "Entertainment",
+   "price": 110.94,
+   "kind": "stock",
+   "marketCap": 204957728768
+  },
+  {
+   "ticker": "VZ",
+   "name": "Verizon Communications Inc.",
+   "sector": "Communication Services",
+   "industry": "Telecom Services",
+   "price": 44.73,
+   "kind": "stock",
+   "marketCap": 192060686336
+  },
+  {
+   "ticker": "T",
+   "name": "AT&T Inc.",
+   "sector": "Communication Services",
+   "industry": "Telecom Services",
+   "price": 21.41,
+   "kind": "stock",
+   "marketCap": 150627549184
+  },
+  {
+   "ticker": "CMCSA",
+   "name": "Comcast Corporation",
+   "sector": "Communication Services",
+   "industry": "Telecom Services",
+   "price": 23.22,
+   "kind": "stock",
+   "marketCap": 90905763840
+  },
+  {
+   "ticker": "AMZN",
+   "name": "Amazon.com, Inc.",
+   "sector": "Consumer Cyclical",
+   "industry": "Internet Retail",
+   "price": 240.35,
+   "kind": "stock",
+   "marketCap": 2787086172160
+  },
+  {
+   "ticker": "TSLA",
+   "name": "Tesla, Inc.",
+   "sector": "Consumer Cyclical",
+   "industry": "Auto Manufacturers",
+   "price": 399.81,
+   "kind": "stock",
+   "marketCap": 1501020291072
+  },
+  {
+   "ticker": "HD",
+   "name": "The Home Depot, Inc.",
+   "sector": "Consumer Cyclical",
+   "industry": "Home Improvement Retail",
+   "price": 329.2,
+   "kind": "stock",
+   "marketCap": 346707132416
+  },
+  {
+   "ticker": "MCD",
+   "name": "McDonald's Corporation",
+   "sector": "Consumer Cyclical",
+   "industry": "Restaurants",
+   "price": 258.12,
+   "kind": "stock",
+   "marketCap": 193857912832
+  },
+  {
+   "ticker": "NKE",
+   "name": "NIKE, Inc.",
+   "sector": "Consumer Cyclical",
+   "industry": "Footwear & Accessories",
+   "price": 38.67,
+   "kind": "stock",
+   "marketCap": 56827912192
+  },
+  {
+   "ticker": "SBUX",
+   "name": "Starbucks Corporation",
+   "sector": "Consumer Cyclical",
+   "industry": "Restaurants",
+   "price": 103.67,
+   "kind": "stock",
+   "marketCap": 123951669248
+  },
+  {
+   "ticker": "LOW",
+   "name": "Lowe's Companies, Inc.",
+   "sector": "Consumer Cyclical",
+   "industry": "Home Improvement Retail",
+   "price": 209.07,
+   "kind": "stock",
+   "marketCap": 126197874688
+  },
+  {
+   "ticker": "LVS",
+   "name": "Las Vegas Sands Corp.",
+   "sector": "Consumer Cyclical",
+   "industry": "Resorts & Casinos",
+   "price": 36.97,
+   "kind": "stock",
+   "marketCap": 24966748160
+  },
+  {
+   "ticker": "WYNN",
+   "name": "Wynn Resorts, Limited",
+   "sector": "Consumer Cyclical",
+   "industry": "Resorts & Casinos",
+   "price": 74.66,
+   "kind": "stock",
+   "marketCap": 8431793152
+  },
+  {
+   "ticker": "MGM",
+   "name": "MGM Resorts International",
+   "sector": "Consumer Cyclical",
+   "industry": "Resorts & Casinos",
+   "price": 29.96,
+   "kind": "stock",
+   "marketCap": 8407540224
+  },
+  {
+   "ticker": "CZR",
+   "name": "Caesars Entertainment, Inc.",
+   "sector": "Consumer Cyclical",
+   "industry": "Resorts & Casinos",
+   "price": 29.09,
+   "kind": "stock",
+   "marketCap": 5985815040
+  },
+  {
+   "ticker": "WMT",
+   "name": "Walmart Inc.",
+   "sector": "Consumer Defensive",
+   "industry": "Discount Stores",
+   "price": 123.51,
+   "kind": "stock",
+   "marketCap": 1018772389888
+  },
+  {
+   "ticker": "PG",
+   "name": "The Procter & Gamble Company",
+   "sector": "Consumer Defensive",
+   "industry": "Household & Personal Products",
+   "price": 161.57,
+   "kind": "stock",
+   "marketCap": 401022844928
+  },
+  {
+   "ticker": "KO",
+   "name": "The Coca-Cola Company",
+   "sector": "Consumer Defensive",
+   "industry": "Beverages - Non-Alcoholic",
+   "price": 94.08,
+   "kind": "stock",
+   "marketCap": 427953258496
+  },
+  {
+   "ticker": "PEP",
+   "name": "PepsiCo, Inc.",
+   "sector": "Consumer Defensive",
+   "industry": "Beverages - Non-Alcoholic",
+   "price": 137.34,
+   "kind": "stock",
+   "marketCap": 199546175488
+  },
+  {
+   "ticker": "COST",
+   "name": "Costco Wholesale Corporation",
+   "sector": "Consumer Defensive",
+   "industry": "Discount Stores",
+   "price": 1012.28,
+   "kind": "stock",
+   "marketCap": 493530873856
+  },
+  {
+   "ticker": "PM",
+   "name": "Philip Morris International Inc.",
+   "sector": "Consumer Defensive",
+   "industry": "Tobacco",
+   "price": 208.79,
+   "kind": "stock",
+   "marketCap": 305558847488
+  },
+  {
+   "ticker": "MO",
+   "name": "Altria Group, Inc.",
+   "sector": "Consumer Defensive",
+   "industry": "Tobacco",
+   "price": 78.03,
+   "kind": "stock",
+   "marketCap": 131245178880
+  },
+  {
+   "ticker": "STZ",
+   "name": "Constellation Brands, Inc.",
+   "sector": "Consumer Defensive",
+   "industry": "Beverages - Brewers",
+   "price": 135.33,
+   "kind": "stock",
+   "marketCap": 24813348864
+  },
+  {
+   "ticker": "TAP",
+   "name": "Molson Coors Beverage Company",
+   "sector": "Consumer Defensive",
+   "industry": "Beverages - Brewers",
+   "price": 40.12,
+   "kind": "stock",
+   "marketCap": 7638421504
+  },
+  {
+   "ticker": "LLY",
+   "name": "Eli Lilly and Company",
+   "sector": "Healthcare",
+   "industry": "Drug Manufacturers - General",
+   "price": 1417.54,
+   "kind": "stock",
+   "marketCap": 1275252965376
+  },
+  {
+   "ticker": "UNH",
+   "name": "UnitedHealth Group Incorporated",
+   "sector": "Healthcare",
+   "industry": "Healthcare Plans",
+   "price": 406.97,
+   "kind": "stock",
+   "marketCap": 369179230208
+  },
+  {
+   "ticker": "JNJ",
+   "name": "Johnson & Johnson",
+   "sector": "Healthcare",
+   "industry": "Drug Manufacturers - General",
+   "price": 273.2,
+   "kind": "stock",
+   "marketCap": 680185495552
+  },
+  {
+   "ticker": "MRK",
+   "name": "Merck & Co., Inc.",
+   "sector": "Healthcare",
+   "industry": "Drug Manufacturers - General",
+   "price": 149.52,
+   "kind": "stock",
+   "marketCap": 356129406976
+  },
+  {
+   "ticker": "ABBV",
+   "name": "AbbVie Inc.",
+   "sector": "Healthcare",
+   "industry": "Drug Manufacturers - General",
+   "price": 294.89,
+   "kind": "stock",
+   "marketCap": 520651341824
+  },
+  {
+   "ticker": "PFE",
+   "name": "Pfizer Inc.",
+   "sector": "Healthcare",
+   "industry": "Drug Manufacturers - General",
+   "price": 30.52,
+   "kind": "stock",
+   "marketCap": 164497784832
+  },
+  {
+   "ticker": "AMGN",
+   "name": "Amgen Inc.",
+   "sector": "Healthcare",
+   "industry": "Drug Manufacturers - General",
+   "price": 466.01,
+   "kind": "stock",
+   "marketCap": 250074202112
+  },
+  {
+   "ticker": "CVS",
+   "name": "CVS Health Corporation",
+   "sector": "Healthcare",
+   "industry": "Healthcare Plans",
+   "price": 90.25,
+   "kind": "stock",
+   "marketCap": 113348616192
+  },
+  {
+   "ticker": "ELV",
+   "name": "Elevance Health, Inc.",
+   "sector": "Healthcare",
+   "industry": "Healthcare Plans",
+   "price": 420.07,
+   "kind": "stock",
+   "marketCap": 96421421056
+  },
+  {
+   "ticker": "CI",
+   "name": "The Cigna Group",
+   "sector": "Healthcare",
+   "industry": "Healthcare Plans",
+   "price": 298.23,
+   "kind": "stock",
+   "marketCap": 79092932608
+  },
+  {
+   "ticker": "JPM",
+   "name": "JPMorgan Chase & Co.",
+   "sector": "Financial Services",
+   "industry": "Banks - Diversified",
+   "price": 337.04,
+   "kind": "stock",
+   "marketCap": 898153709568
+  },
+  {
+   "ticker": "V",
+   "name": "Visa Inc.",
+   "sector": "Financial Services",
+   "industry": "Credit Services",
+   "price": 413.59,
+   "kind": "stock",
+   "marketCap": 795689091072
+  },
+  {
+   "ticker": "MA",
+   "name": "Mastercard Incorporated",
+   "sector": "Financial Services",
+   "industry": "Credit Services",
+   "price": 638.01,
+   "kind": "stock",
+   "marketCap": 576465993728
+  },
+  {
+   "ticker": "BAC",
+   "name": "Bank of America Corporation",
+   "sector": "Financial Services",
+   "industry": "Banks - Diversified",
+   "price": 50.01,
+   "kind": "stock",
+   "marketCap": 345562480640
+  },
+  {
+   "ticker": "WFC",
+   "name": "Wells Fargo & Company",
+   "sector": "Financial Services",
+   "industry": "Banks - Diversified",
+   "price": 83.4,
+   "kind": "stock",
+   "marketCap": 254676975616
+  },
+  {
+   "ticker": "GS",
+   "name": "The Goldman Sachs Group, Inc.",
+   "sector": "Financial Services",
+   "industry": "Capital Markets",
+   "price": 894.55,
+   "kind": "stock",
+   "marketCap": 257150976000
+  },
+  {
+   "ticker": "MS",
+   "name": "Morgan Stanley",
+   "sector": "Financial Services",
+   "industry": "Capital Markets",
+   "price": 184.3,
+   "kind": "stock",
+   "marketCap": 290054045696
+  },
+  {
+   "ticker": "AXP",
+   "name": "American Express Company",
+   "sector": "Financial Services",
+   "industry": "Credit Services",
+   "price": 319.11,
+   "kind": "stock",
+   "marketCap": 213939601408
+  },
+  {
+   "ticker": "BLK",
+   "name": "BlackRock, Inc.",
+   "sector": "Financial Services",
+   "industry": "Asset Management",
+   "price": 1147.54,
+   "kind": "stock",
+   "marketCap": 184994627584
+  },
+  {
+   "ticker": "XOM",
+   "name": "ExxonMobil Holdings Corporation",
+   "sector": "Energy",
+   "industry": "Oil & Gas Integrated",
+   "price": 187.25,
+   "kind": "stock",
+   "marketCap": 680699822080
+  },
+  {
+   "ticker": "CVX",
+   "name": "Chevron Corporation",
+   "sector": "Energy",
+   "industry": "Oil & Gas Integrated",
+   "price": 235.52,
+   "kind": "stock",
+   "marketCap": 423695220736
+  },
+  {
+   "ticker": "COP",
+   "name": "ConocoPhillips",
+   "sector": "Energy",
+   "industry": "Oil & Gas E&P",
+   "price": 154.03,
+   "kind": "stock",
+   "marketCap": 166141739008
+  },
+  {
+   "ticker": "SLB",
+   "name": "SLB N.V.",
+   "sector": "Energy",
+   "industry": "Oil & Gas Equipment & Services",
+   "price": 53.74,
+   "kind": "stock",
+   "marketCap": 73919561728
+  },
+  {
+   "ticker": "EOG",
+   "name": "EOG Resources, Inc.",
+   "sector": "Energy",
+   "industry": "Oil & Gas E&P",
+   "price": 165.54,
+   "kind": "stock",
+   "marketCap": 80608739328
+  },
+  {
+   "ticker": "OXY",
+   "name": "Occidental Petroleum Corporation",
+   "sector": "Energy",
+   "industry": "Oil & Gas E&P",
+   "price": 64.0,
+   "kind": "stock",
+   "marketCap": 57353961472
+  },
+  {
+   "ticker": "CCJ",
+   "name": "Cameco Corporation",
+   "sector": "Energy",
+   "industry": "Uranium",
+   "price": 76.91,
+   "kind": "stock",
+   "marketCap": 28740820992
+  },
+  {
+   "ticker": "UEC",
+   "name": "Uranium Energy Corp.",
+   "sector": "Energy",
+   "industry": "Uranium",
+   "price": 7.71,
+   "kind": "stock",
+   "marketCap": 3037934080
+  },
+  {
+   "ticker": "LEU",
+   "name": "Centrus Energy Corp.",
+   "sector": "Energy",
+   "industry": "Uranium",
+   "price": 103.29,
+   "kind": "stock",
+   "marketCap": 2010917376
+  },
+  {
+   "ticker": "CAT",
+   "name": "Caterpillar Inc.",
+   "sector": "Industrials",
+   "industry": "Farm & Heavy Construction Machinery",
+   "price": 622.75,
+   "kind": "stock",
+   "marketCap": 261052891136
+  },
+  {
+   "ticker": "RTX",
+   "name": "RTX Corporation",
+   "sector": "Industrials",
+   "industry": "Aerospace & Defense",
+   "price": 199.8,
+   "kind": "stock",
+   "marketCap": 262992461824
+  },
+  {
+   "ticker": "LMT",
+   "name": "Lockheed Martin Corporation",
+   "sector": "Industrials",
+   "industry": "Aerospace & Defense",
+   "price": 636.95,
+   "kind": "stock",
+   "marketCap": 135186227200
+  },
+  {
+   "ticker": "BA",
+   "name": "The Boeing Company",
+   "sector": "Industrials",
+   "industry": "Aerospace & Defense",
+   "price": 171.55,
+   "kind": "stock",
+   "marketCap": 130928574464
+  },
+  {
+   "ticker": "NOC",
+   "name": "Northrop Grumman Corporation",
+   "sector": "Industrials",
+   "industry": "Aerospace & Defense",
+   "price": 557.54,
+   "kind": "stock",
+   "marketCap": 77517496320
+  },
+  {
+   "ticker": "GD",
+   "name": "General Dynamics Corporation",
+   "sector": "Industrials",
+   "industry": "Aerospace & Defense",
+   "price": 372.59,
+   "kind": "stock",
+   "marketCap": 97196769280
+  },
+  {
+   "ticker": "UNP",
+   "name": "Union Pacific Corporation",
+   "sector": "Industrials",
+   "industry": "Railroads",
+   "price": 304.0,
+   "kind": "stock",
+   "marketCap": 180479787008
+  },
+  {
+   "ticker": "UPS",
+   "name": "United Parcel Service, Inc.",
+   "sector": "Industrials",
+   "industry": "Integrated Freight & Logistics",
+   "price": 108.25,
+   "kind": "stock",
+   "marketCap": 95211307008
+  },
+  {
+   "ticker": "DE",
+   "name": "Deere & Company",
+   "sector": "Industrials",
+   "industry": "Farm & Heavy Construction Machinery",
+   "price": 675.48,
+   "kind": "stock",
+   "marketCap": 176332324864
+  },
+  {
+   "ticker": "WM",
+   "name": "Waste Management, Inc.",
+   "sector": "Industrials",
+   "industry": "Waste Management",
+   "price": 233.45,
+   "kind": "stock",
+   "marketCap": 97154138112
+  },
+  {
+   "ticker": "NEE",
+   "name": "NextEra Energy, Inc.",
+   "sector": "Utilities",
+   "industry": "Utilities - Regulated Electric",
+   "price": 83.71,
+   "kind": "stock",
+   "marketCap": 178984091648
+  },
+  {
+   "ticker": "DUK",
+   "name": "Duke Energy Corporation",
+   "sector": "Utilities",
+   "industry": "Utilities - Regulated Electric",
+   "price": 127.39,
+   "kind": "stock",
+   "marketCap": 101822103552
+  },
+  {
+   "ticker": "SO",
+   "name": "The Southern Company",
+   "sector": "Utilities",
+   "industry": "Utilities - Regulated Electric",
+   "price": 93.71,
+   "kind": "stock",
+   "marketCap": 110185660416
+  },
+  {
+   "ticker": "PLD",
+   "name": "Prologis, Inc.",
+   "sector": "Real Estate",
+   "industry": "REIT - Industrial",
+   "price": 127.98,
+   "kind": "stock",
+   "marketCap": 124061777920
+  },
+  {
+   "ticker": "AMT",
+   "name": "American Tower Corporation",
+   "sector": "Real Estate",
+   "industry": "REIT - Specialty",
+   "price": 187.78,
+   "kind": "stock",
+   "marketCap": 88458264576
+  },
+  {
+   "ticker": "EQIX",
+   "name": "Equinix, Inc.",
+   "sector": "Real Estate",
+   "industry": "REIT - Specialty",
+   "price": 1013.7,
+   "kind": "stock",
+   "marketCap": 103250763776
+  },
+  {
+   "ticker": "PSA",
+   "name": "Public Storage",
+   "sector": "Real Estate",
+   "industry": "REIT - Industrial",
+   "price": 324.77,
+   "kind": "stock",
+   "marketCap": 62351527936
+  },
+  {
+   "ticker": "GEO",
+   "name": "The GEO Group, Inc.",
+   "sector": "Industrials",
+   "industry": "Security & Protection Services",
+   "price": 28.52,
+   "kind": "stock",
+   "marketCap": 4298695680
+  },
+  {
+   "ticker": "CXW",
+   "name": "CoreCivic, Inc.",
+   "sector": "Industrials",
+   "industry": "Security & Protection Services",
+   "price": 30.88,
+   "kind": "stock",
+   "marketCap": 2678845440
+  },
+  {
+   "ticker": "LIN",
+   "name": "Linde plc",
+   "sector": "Basic Materials",
+   "industry": "Specialty Chemicals",
+   "price": 514.24,
+   "kind": "stock",
+   "marketCap": 240312008704
+  },
+  {
+   "ticker": "SHW",
+   "name": "The Sherwin-Williams Company",
+   "sector": "Basic Materials",
+   "industry": "Specialty Chemicals",
+   "price": 332.61,
+   "kind": "stock",
+   "marketCap": 84686282752
+  },
+  {
+   "ticker": "FCX",
+   "name": "Freeport-McMoRan Inc.",
+   "sector": "Basic Materials",
+   "industry": "Copper",
+   "price": 62.47,
+   "kind": "stock",
+   "marketCap": 79194120192
+  },
+  {
+   "ticker": "SPY",
+   "name": "SPDR S&P 500 ETF Trust",
+   "sector": "Fund",
+   "industry": "Exchange-traded fund",
+   "price": 755.72,
+   "kind": "etf",
+   "marketCap": null
+  },
+  {
+   "ticker": "VOO",
+   "name": "Vanguard S&P 500 ETF",
+   "sector": "Fund",
+   "industry": "Exchange-traded fund",
+   "price": 694.81,
+   "kind": "etf",
+   "marketCap": null
+  },
+  {
+   "ticker": "VTI",
+   "name": "Vanguard Total Stock Market ETF",
+   "sector": "Fund",
+   "industry": "Exchange-traded fund",
+   "price": 371.57,
+   "kind": "etf",
+   "marketCap": null
+  }
+ ]
+}

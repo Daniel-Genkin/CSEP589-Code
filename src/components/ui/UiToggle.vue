@@ -38,11 +38,12 @@ defineProps({
 }
 .toggle__label {
   font-size: 15px;
-  font-weight: 650;
+  font-weight: 600;
+  line-height: 1.25;
 }
 .toggle__description {
-  font-size: 13.5px;
-  color: var(--muted);
+  font-size: 13px;
+  color: var(--text-muted);
 }
 .toggle__track {
   position: relative;
@@ -50,7 +51,7 @@ defineProps({
   width: 46px;
   height: 28px;
   border-radius: var(--radius-pill);
-  background: var(--line-strong);
+  background: var(--border);
   transition: background-color 0.25s var(--ease);
 }
 .toggle__thumb {
@@ -60,12 +61,11 @@ defineProps({
   width: 22px;
   height: 22px;
   border-radius: 50%;
-  border: 2px solid var(--ink-solid);
   background: var(--cream);
   transition: transform 0.25s var(--ease);
 }
 input:checked + .toggle__track {
-  background: var(--brand-500);
+  background: var(--brand-400);
 }
 input:checked + .toggle__track .toggle__thumb {
   transform: translateX(18px);

@@ -82,26 +82,22 @@ function runAction(toast) {
 .toast__description {
   margin-top: 2px;
   font-size: 13.5px;
-  color: rgba(255, 244, 214, 0.72);
+  color: rgba(255, 255, 255, 0.72);
   line-height: 1.45;
 }
 .toast__action {
   flex-shrink: 0;
   align-self: center;
   padding: 6px 12px;
-  border: 1.5px solid var(--sun);
   border-radius: var(--radius-pill);
-  background: transparent;
+  background: rgba(255, 255, 255, 0.12);
   font-size: 13px;
   font-weight: 700;
-  color: var(--sun);
-  transition:
-    background-color 0.2s,
-    color 0.2s;
+  color: var(--cream);
+  transition: background-color 0.2s;
 }
 .toast__action:hover {
-  background: var(--sun);
-  color: var(--ink);
+  background: rgba(255, 255, 255, 0.2);
 }
 .toast__close {
   flex-shrink: 0;
@@ -110,11 +106,11 @@ function runAction(toast) {
   width: 26px;
   height: 26px;
   border-radius: 50%;
-  color: rgba(255, 244, 214, 0.6);
+  color: rgba(255, 255, 255, 0.6);
 }
 .toast__close:hover {
   color: var(--cream);
-  background: rgba(255, 244, 214, 0.1);
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .toast-enter-active,

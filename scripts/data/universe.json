@@ -1,0 +1,43 @@
+{
+  "_comment": "Seed universe for the Rally v1 demo. Real tickers; fund membership and weights are SAMPLE cuts (largest names by market cap), not the funds' real holdings. Edit here, then re-run pull_prices.py.",
+  "start": "2021-11-01",
+  "end": "2026-11-01",
+  "benchmark": "SPY",
+  "etfs": {
+    "SPY": "SPDR S&P 500 ETF Trust",
+    "VOO": "Vanguard S&P 500 ETF",
+    "VTI": "Vanguard Total Stock Market ETF"
+  },
+  "stocks": [
+    "AAPL", "MSFT", "NVDA", "AVGO", "ORCL", "CRM", "ADBE", "CSCO", "AMD", "INTC", "IBM", "QCOM",
+    "GOOGL", "META", "NFLX", "DIS", "VZ", "T", "CMCSA",
+    "AMZN", "TSLA", "HD", "MCD", "NKE", "SBUX", "LOW", "LVS", "WYNN", "MGM", "CZR",
+    "WMT", "PG", "KO", "PEP", "COST", "PM", "MO", "STZ", "TAP",
+    "LLY", "UNH", "JNJ", "MRK", "ABBV", "PFE", "AMGN", "CVS", "ELV", "CI",
+    "JPM", "V", "MA", "BAC", "WFC", "GS", "MS", "AXP", "BLK",
+    "XOM", "CVX", "COP", "SLB", "EOG", "OXY", "CCJ", "UEC", "LEU",
+    "CAT", "RTX", "LMT", "BA", "NOC", "GD", "UNP", "UPS", "DE", "WM",
+    "NEE", "DUK", "SO",
+    "PLD", "AMT", "EQIX", "PSA", "GEO", "CXW",
+    "LIN", "SHW", "FCX"
+  ],
+  "funds": {
+    "SPY": [
+      "AAPL", "MSFT", "NVDA", "AVGO", "ORCL", "CRM", "ADBE", "CSCO", "AMD",
+      "GOOGL", "META", "NFLX", "DIS", "VZ",
+      "AMZN", "TSLA", "HD", "MCD", "NKE", "LVS", "WYNN", "MGM", "CZR",
+      "WMT", "PG", "KO", "PEP", "COST", "PM", "MO", "STZ", "TAP",
+      "LLY", "UNH", "JNJ", "MRK", "ABBV", "PFE", "AMGN",
+      "JPM", "V", "MA", "BAC", "GS",
+      "XOM", "CVX", "COP", "SLB", "EOG", "OXY",
+      "CAT", "RTX", "LMT", "BA", "NOC", "GD", "UNP",
+      "NEE", "PLD", "LIN"
+    ],
+    "VOO": "SPY",
+    "VTI": {
+      "base": "SPY",
+      "remove": ["CZR", "TAP"],
+      "add": ["GEO", "CXW"]
+    }
+  }
+}

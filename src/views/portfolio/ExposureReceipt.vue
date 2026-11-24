@@ -6,10 +6,12 @@ import ReceiptPaper from '@/components/rally/ReceiptPaper.vue'
 import InfoTip from '@/components/ui/InfoTip.vue'
 import type { PortfolioData } from '@/composables/usePortfolioData'
 import { useCatalogStore } from '@/state/catalog'
+import { useDemoStore } from '@/state/demo'
 import { pct, plural, usd } from '@/utils/format'
 import { computed } from 'vue'
 
 const props = defineProps<{ data: PortfolioData }>()
+const demo = useDemoStore()
 
 const EXPLAINER =
   'Exposure is the full position value of every holding tagged in that category. A holding tagged in several categories counts in each one; the total counts each holding once.'
@@ -48,7 +50,7 @@ const items = computed(() =>
       :items="items"
       :total="{ label: 'Crosses your lines', note: `${plural(flagged.count, 'holding')}, each counted once · ${pct(flagged.share)}`, value: usd(flagged.usd), tone: flagged.count ? 'flare' : 'ink' }"
       :after="[{ label: 'Passes your lines', value: usd(portfolio.totalUsd - flagged.usd) }]"
-      footer="Sample data · No judgment · Just receipts"
+      :footer="demo.isLive ? 'Paper account · Sample tags · Just receipts' : 'Sample data · No judgment · Just receipts'"
     />
     <p class="small exposure__note">{{ EXPLAINER }}</p>
   </section>

@@ -11,6 +11,11 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 const demo = useDemoStore()
+const footerNote = computed(() =>
+  demo.isLive
+    ? 'Design demo. Connected to an Alpaca paper-trading account: no real money moves. Tags and alerts are samples. Rally shares information, not investment advice.'
+    : 'Design demo. Sample data throughout: nothing connects to a real brokerage, payment or market-data service. Rally shares information, not investment advice.',
+)
 const alerts = useAlertsStore()
 
 // The unread count sits in the nav on every screen of the paid plan, so the feed loads with the
@@ -49,8 +54,14 @@ async function reset() {
   <div class="shell">
     <p class="sample-banner" role="note">
       <span class="dot" style="--dot: var(--sun)" />
-      <strong>Sample data.</strong>
-      Prices are real market history. Holdings, weights, tags and alerts are samples, and nothing here is live.
+      <template v-if="demo.isLive">
+        <strong>Paper account.</strong>
+        Your holdings are read from your Alpaca paper-trading account: real positions, no real money. Tags and alerts are samples.
+      </template>
+      <template v-else>
+        <strong>Sample data.</strong>
+        Prices are real market history. Holdings, weights, tags and alerts are samples, and nothing here is live.
+      </template>
     </p>
 
     <div class="shell__bar">
@@ -70,7 +81,7 @@ async function reset() {
     </main>
 
     <div class="shell__bar shell__foot">
-      <SiteFooter note="Design demo. Sample data throughout: nothing connects to a real brokerage, payment or market-data service. Rally shares information, not investment advice.">
+      <SiteFooter :note="footerNote">
         <button type="button" class="reset" @click="reset">Reset demo</button>
       </SiteFooter>
     </div>

@@ -82,7 +82,7 @@ const barWidth = (value: number) => `${Math.max(whatIf.before.value.usd > 0 ? (v
 <template>
   <div class="page">
     <header class="page-head">
-      <p class="eyebrow">Your Rally · What-if<template v-if="portfolio"> · {{ name }}</template> · sample data</p>
+      <p class="eyebrow">Your Rally · What-if<template v-if="portfolio"> · {{ name }}</template> · {{ demo.dataLabel }}</p>
       <h1 class="page-title">What if you<br />cut them?</h1>
       <p class="lead">Switch off categories or single companies. See what it would have cost against the S&amp;P 500, before anything changes.</p>
     </header>
@@ -93,7 +93,8 @@ const barWidth = (value: number) => `${Math.max(whatIf.before.value.usd > 0 ? (v
       <p class="empty__title">Pick a fund or type a few tickers first.</p>
       <RouterLink to="/" class="btn btn-primary">Go to Home</RouterLink>
     </section>
-    <section v-else-if="!demo.account" class="empty">
+    <!-- A connected brokerage counts as having an account, the same rule Portfolio uses. -->
+    <section v-else-if="!demo.account && !demo.isConnected" class="empty">
       <p class="label-mono">Free account needed</p>
       <p class="empty__title">What-if uses the breakdown, which comes with a free account.</p>
       <RouterLink to="/portfolio" class="btn btn-primary">Create a free account</RouterLink>

@@ -1,11 +1,14 @@
 <script lang="ts">
 // Which trades were approved, kept for the visit so that leaving the screen and coming back does
 // not offer the same trades again. It belongs to one trade list: a different list starts clean.
+import type { OrderResult } from '@/domain/broker'
 import { ref } from 'vue'
 
 const sent = ref(new Set<string>())
 const selected = ref(new Set<string>())
 const confirmation = ref('')
+/** What Alpaca said about each order sent, by row key (live paper account only) */
+const orderResults = ref(new Map<string, OrderResult>())
 let listSignature: string | null = null
 </script>
 
@@ -17,13 +20,15 @@ let listSignature: string | null = null
 import { usePortfolioData } from '@/composables/usePortfolioData'
 import { brokerById } from '@/config/brokers'
 import { provider } from '@/data'
+import { cancelAlpacaOrders, loadAlpaca, placeAlpacaOrders } from '@/data/alpaca'
+import { describeOrder, ordersFromTrades, pricesFromPortfolio } from '@/domain/broker'
 import { hasExclusions } from '@/domain/exclusions'
 import { shortName } from '@/domain/portfolio'
 import { proposeTrades, tradeTotals, tradesToCsv, tradesToText } from '@/domain/trades'
 import { useDemoStore } from '@/state/demo'
 import type { ProposedTrade } from '@/types'
 import { plural, usdCents } from '@/utils/format'
-import { computed, nextTick, shallowRef, watch } from 'vue'
+import { computed, nextTick, onMounted, shallowRef, watch } from 'vue'
 
 /** Sells and buys should match to within this many dollars (PRD F7). */
 const BALANCE_USD = 1
@@ -34,6 +39,9 @@ const data = usePortfolioData()
 const broker = computed(() => brokerById(demo.portfolio?.brokerId))
 /** Whether this screen hands over a list instead of sending trades. */
 const listOnly = computed(() => !broker.value || broker.value.listOnly)
+/** Whether approving places real orders on the Alpaca paper account (not a simulated send). */
+const live = computed(() => demo.portfolio?.live === true)
+const sending = shallowRef(false)
 
 // Prices for swapped-in alternatives, which the portfolio's own data does not include.
 const extra = shallowRef(new Map<string, { price: number; name: string }>())
@@ -62,6 +70,9 @@ const prices = computed(() => {
   const out: Record<string, number> = {}
   for (const [ticker, security] of data.securities.value) out[ticker] = security.price
   for (const [ticker, security] of extra.value) out[ticker] = security.price
+  // On a live account, size trades at the prices the broker values the holdings at, so selling a
+  // holding sells every share held instead of leaving a sliver from a price difference.
+  if (live.value && demo.portfolio) Object.assign(out, pricesFromPortfolio(demo.portfolio))
   return out
 })
 const nameOf = (ticker: string) => extra.value.get(ticker)?.name ?? data.nameOf(ticker)
@@ -106,6 +117,7 @@ watch(
     listSignature = signature
     selected.value = new Set(rows.value.map((r) => r.key))
     sent.value = new Set()
+    orderResults.value = new Map()
     confirmation.value = ''
   },
   { immediate: true },
@@ -123,11 +135,98 @@ function toggle(row: Row) {
 }
 
 /** The only two actions that mark trades as sent. */
-function approve(list: Row[]) {
-  if (!list.length || !broker.value || listOnly.value) return
+async function approve(list: Row[]) {
+  if (!list.length || !broker.value || listOnly.value || sending.value) return
+  if (live.value) {
+    sending.value = true
+    try {
+      // The ids come from the whole list, so approving it again (after a reload, say) is refused by Alpaca.
+      const listId = `${demo.portfolio?.id ?? ''}|${rows.value.map((r) => `${r.key}:${r.trade.shares}`).join('|')}`
+      const results = await placeAlpacaOrders(ordersFromTrades(list.map((r) => r.trade), listId))
+      const nextResults = new Map(orderResults.value)
+      const sentNext = new Set(sent.value)
+      list.forEach((row, i) => {
+        const result = results[i]
+        if (!result) return
+        nextResults.set(row.key, result)
+        if (result.ok || result.duplicate) sentNext.add(row.key)
+      })
+      orderResults.value = nextResults
+      sent.value = sentNext
+      const placed = results.filter((r) => r.ok || r.duplicate).length
+      confirmation.value = placed ? `Sent to ${broker.value.name} paper account` : ''
+      void say(`${placed} of ${plural(list.length, 'order')} placed.${placed < list.length ? ' Some were refused: see Status.' : ''}`)
+      void loadOpenOrders()
+    } catch (error) {
+      void say(error instanceof Error ? error.message : 'The orders could not be sent. Nothing was placed.')
+    } finally {
+      sending.value = false
+    }
+    return
+  }
   sent.value = new Set([...sent.value, ...list.map((r) => r.key)])
   confirmation.value = `Sent to ${broker.value.name} (simulated)`
   void say(`${plural(list.length, 'trade')} approved. ${unsent.value.length ? `${plural(unsent.value.length, 'trade')} not sent.` : 'Nothing is left to send.'}`)
+}
+
+/** How many orders are open at Alpaca, and the two-step "cancel them all" button. */
+const openOrders = shallowRef<number | null>(null)
+const confirmingCancel = shallowRef(false)
+const cancelling = shallowRef(false)
+async function loadOpenOrders() {
+  if (!live.value) return
+  try {
+    const account = await loadAlpaca()
+    openOrders.value = account.configured ? account.openOrders : null
+  } catch {
+    openOrders.value = null
+  }
+}
+onMounted(loadOpenOrders)
+async function cancelOpenOrders() {
+  if (!confirmingCancel.value) {
+    confirmingCancel.value = true
+    return
+  }
+  cancelling.value = true
+  confirmingCancel.value = false
+  try {
+    // An order that was already being cancelled is not in Alpaca's reply, so fall back to the count shown.
+    const count = (await cancelAlpacaOrders()) || openOrders.value || 0
+    // The list starts again: nothing is open, so nothing here counts as sent.
+    sent.value = new Set()
+    orderResults.value = new Map()
+    confirmation.value = ''
+    void say(count ? `Cancelled ${plural(count, 'open order')} on your Alpaca paper account.` : 'There were no open orders to cancel.')
+  } catch (error) {
+    void say(error instanceof Error ? error.message : 'The orders could not be cancelled.')
+  } finally {
+    cancelling.value = false
+    await loadOpenOrders()
+  }
+}
+
+/** After orders are placed, read the account again so Portfolio and What-if match it. */
+const refreshing = shallowRef(false)
+async function refreshAccount() {
+  refreshing.value = true
+  try {
+    const account = await loadAlpaca()
+    if (account.configured && account.portfolio) {
+      demo.updatePortfolio(account.portfolio)
+      void say('Portfolio updated from your Alpaca paper account.')
+    }
+  } catch (error) {
+    void say(error instanceof Error ? error.message : 'Could not read the account.')
+  } finally {
+    refreshing.value = false
+  }
+}
+
+const statusOf = (row: Row) => {
+  const result = orderResults.value.get(row.key)
+  if (result) return describeOrder(result)
+  return sent.value.has(row.key) ? 'Sent · simulated' : 'Not sent'
 }
 
 async function copy() {
@@ -161,13 +260,26 @@ function retry() {
 <template>
   <div class="page">
     <header class="page-head">
-      <p class="eyebrow">Your Rally · Trade approval<template v-if="demo.portfolio"> · {{ shortName(demo.portfolio) }}</template> · sample data</p>
+      <p class="eyebrow">Your Rally · Trade approval<template v-if="demo.portfolio"> · {{ shortName(demo.portfolio) }}</template> · {{ demo.dataLabel }}</p>
       <h1 class="page-title">Nothing moves<br />until you say so.</h1>
       <p class="lead">
         <template v-if="listOnly">The trades that would carry out your what-if, as a list to place at your broker.</template>
         <template v-else>The trades that would carry out your what-if. Review them, then approve the ones you want sent.</template>
       </p>
     </header>
+
+    <section v-if="live" class="orders-bar" aria-label="Open orders at Alpaca">
+      <p class="orders-bar__text">
+        <span class="label-mono">Alpaca paper account</span>
+        <span>{{ openOrders === null ? 'Checking open orders…' : `${plural(openOrders, 'open order')} waiting at Alpaca` }}</span>
+      </p>
+      <div class="orders-bar__actions">
+        <button v-if="confirmingCancel" type="button" class="btn btn-outline btn-md" @click="confirmingCancel = false">Keep them</button>
+        <button type="button" class="btn btn-outline btn-md" :disabled="cancelling || openOrders === 0" @click="cancelOpenOrders">
+          {{ cancelling ? 'Cancelling…' : confirmingCancel ? `Yes, cancel ${plural(openOrders ?? 0, 'order')}` : 'Cancel all open orders' }}
+        </button>
+      </div>
+    </section>
 
     <section v-if="!demo.portfolio" class="empty">
       <p class="label-mono">No portfolio yet</p>
@@ -198,13 +310,20 @@ function retry() {
 
     <template v-else>
       <p class="tax"><span class="dot" style="--dot: var(--sun)" />Selling can trigger a tax bill. Check before you place these.</p>
+      <p v-if="rows.some((r) => r.trade.side === 'buy')" class="why-buys">
+        <span class="dot" style="--dot: var(--brand-400)" />
+        <span>
+          <b>Why are there buys?</b> Selling frees up money, and Rally puts it back into what you keep (or into the company you swapped in) so your total stays the same and matches the What-if you tested.
+          Don’t want the buys? Untick them and approve only the sells. You’d then hold the proceeds as cash, which the What-if didn’t assume.
+        </span>
+      </p>
 
       <section class="card list">
         <header class="list__head">
           <div>
             <h2 id="trades-title" class="title-card">{{ plural(rows.length, 'proposed trade') }}</h2>
             <p class="body-muted">
-              <template v-if="broker">{{ broker.name }} · {{ listOnly ? 'trade list only: place these yourself' : 'can place the trades you approve' }}</template>
+              <template v-if="broker">{{ broker.name }}{{ live ? ' paper account' : '' }} · {{ listOnly ? 'trade list only: place these yourself' : 'can place the trades you approve' }}</template>
               <template v-else>No brokerage connected: copy or download the list, or <RouterLink to="/connect" class="link">connect one</RouterLink>.</template>
             </p>
           </div>
@@ -214,8 +333,8 @@ function retry() {
               <button type="button" class="btn btn-outline" @click="download">Download CSV</button>
             </template>
             <template v-else>
-              <button type="button" class="btn btn-outline" :disabled="!selectedUnsent.length" @click="approve(selectedUnsent)">Approve selected · {{ selectedUnsent.length }}</button>
-              <button type="button" class="btn btn-primary" :disabled="!unsent.length" @click="approve(unsent)">Approve all</button>
+              <button type="button" class="btn btn-outline" :disabled="!selectedUnsent.length || sending" @click="approve(selectedUnsent)">Approve selected · {{ selectedUnsent.length }}</button>
+              <button type="button" class="btn btn-primary" :disabled="!unsent.length || sending" @click="approve(unsent)">{{ sending ? 'Sending…' : 'Approve all' }}</button>
             </template>
           </div>
         </header>
@@ -224,6 +343,7 @@ function retry() {
           <p v-if="confirmation && !listOnly" class="tag tag-pass"><span class="dot" style="--dot: var(--pass)" />{{ confirmation }}</p>
           <p class="body-muted" role="status">{{ notice }}</p>
           <p v-if="!listOnly && !confirmation && !notice" class="label-mono">Nothing has been sent</p>
+          <button v-if="live && sent.size" type="button" class="btn btn-outline btn-md" :disabled="refreshing" @click="refreshAccount">{{ refreshing ? 'Updating…' : 'Update portfolio from Alpaca' }}</button>
         </div>
         <p v-if="partial && !listOnly" class="list__partial">
           <span class="dot" style="--dot: var(--sun)" />
@@ -263,7 +383,7 @@ function retry() {
               <td class="num num-mono">{{ row.trade.shares.toFixed(4) }}</td>
               <td class="num num-mono">{{ usdCents(row.trade.estUsd) }}</td>
               <td class="reason">{{ row.trade.reason }}</td>
-              <td v-if="!listOnly" class="label-mono status">{{ sent.has(row.key) ? 'Sent · simulated' : 'Not sent' }}</td>
+              <td v-if="!listOnly" class="label-mono status" :class="{ 'is-refused': orderResults.get(row.key)?.ok === false }">{{ statusOf(row) }}</td>
             </tr>
           </tbody>
         </table>
@@ -276,6 +396,7 @@ function retry() {
       </section>
 
       <p class="small">
+        <template v-if="live">These are market orders on your Alpaca paper account. Outside market hours they wait for the next open.</template>
         Estimates use seeded prices. A company held inside a fund cannot be sold on its own, so the fund is sold whole and the rest is bought back company by company.
         Rally is not a broker and does not hold your money.
       </p>
@@ -311,12 +432,44 @@ function retry() {
   gap: 16px;
 }
 .tax,
+.why-buys,
 .list__partial {
   display: flex;
   align-items: center;
   gap: 10px;
   font-size: 15px;
   color: var(--text-muted);
+}
+.orders-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 14px 20px;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+}
+.orders-bar__text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 15px;
+}
+.orders-bar__actions {
+  display: flex;
+  gap: 10px;
+}
+.why-buys {
+  align-items: flex-start;
+  max-width: 72ch;
+  line-height: 1.5;
+}
+.why-buys .dot {
+  margin-top: 7px;
+}
+.why-buys b {
+  color: var(--text);
+  font-weight: 600;
 }
 .list {
   display: flex;
@@ -402,6 +555,10 @@ tbody td.num {
 }
 .is-sent .status {
   color: var(--pass);
+}
+.status.is-refused {
+  color: var(--flare);
+  white-space: normal;
 }
 .is-sent td,
 .is-sent th {

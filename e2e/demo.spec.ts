@@ -46,6 +46,8 @@ test('the demo script runs start to finish', async ({ page, baseURL }) => {
     const url = request.url()
     if (!url.startsWith(baseURL!) && !url.startsWith('data:') && !url.startsWith('blob:')) outside.push(url)
   })
+  // The demo script runs on the simulated account: keep the live Alpaca endpoint (set up on some machines) out of it.
+  await page.route('**/api/alpaca', (route) => route.fulfill({ json: { configured: false } }))
 
   await test.step('1. Home: SPY gives a one-line result; a free account opens Portfolio with at least 30 holdings and the exposure headline', async () => {
     await page.goto('/')

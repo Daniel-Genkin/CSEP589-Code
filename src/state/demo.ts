@@ -106,6 +106,10 @@ export const useDemoStore = defineStore('demo', () => {
   const isPaid = computed(() => plan.value === 'paid')
   const hasAccount = computed(() => account.value !== null)
   const isConnected = computed(() => portfolio.value?.origin === 'connected')
+  /** The holdings come from a real (paper) brokerage account. Tags and alerts are still samples. */
+  const isLive = computed(() => portfolio.value?.live === true)
+  /** What to call the data in a page eyebrow */
+  const dataLabel = computed(() => (isLive.value ? 'live positions · sample tags' : 'sample data'))
 
   const snapshot = (): DemoState => ({
     plan: plan.value,
@@ -243,6 +247,8 @@ export const useDemoStore = defineStore('demo', () => {
     isPaid,
     hasAccount,
     isConnected,
+    isLive,
+    dataLabel,
     upgrade,
     createAccount,
     setCategories,

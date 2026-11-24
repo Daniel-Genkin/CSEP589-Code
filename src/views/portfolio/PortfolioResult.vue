@@ -83,7 +83,7 @@ const excludedCount = computed(() => demo.exclusions.tickers.length + demo.exclu
     <div class="page-cols">
       <div class="col-main">
         <section class="hero">
-          <p class="eyebrow">Your Rally · Portfolio · {{ shortName(portfolio) }} · sample data</p>
+          <p class="eyebrow">Your Rally · Portfolio · {{ shortName(portfolio) }} · {{ demo.dataLabel }}</p>
           <ConnectedBadge :portfolio="portfolio" />
           <p class="lead">Here’s what {{ what }} is up to.</p>
           <div class="hero__number">
@@ -121,7 +121,11 @@ const excludedCount = computed(() => demo.exclusions.tickers.length + demo.exclu
               <p class="legend__who">Everything else in {{ what }}</p>
             </li>
           </ul>
-          <p class="small">Sample weights, not a live scan. Each company is counted once, under the first of your lines it crosses.</p>
+          <p class="small">
+            <template v-if="demo.isLive">Weights are your paper account’s real positions; tags are samples.</template>
+            <template v-else>Sample weights, not a live scan.</template>
+            Each company is counted once, under the first of your lines it crosses.
+          </p>
         </section>
 
         <section class="card card-pad lines">

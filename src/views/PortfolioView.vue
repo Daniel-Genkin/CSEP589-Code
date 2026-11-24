@@ -8,11 +8,12 @@
 //   otherwise           -> the breakdown
 import ConflictTeaser from '@/components/rally/ConflictTeaser.vue'
 import { countConflicts } from '@/composables/useHoldingsCheck'
+import { loadAlpaca } from '@/data/alpaca'
 import { usePortfolioData } from '@/composables/usePortfolioData'
 import { shortName } from '@/domain/portfolio'
 import { useCatalogStore } from '@/state/catalog'
 import { useDemoStore } from '@/state/demo'
-import { computed, onBeforeUnmount, ref, watch } from 'vue'
+import { computed, onBeforeUnmount, onMounted, ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
 import PortfolioFirstVisit from './portfolio/PortfolioFirstVisit.vue'
 import PortfolioResult from './portfolio/PortfolioResult.vue'
@@ -44,6 +45,18 @@ watch(
 )
 onBeforeUnmount(() => clearTimeout(timer))
 
+// A live account may have changed since this page was last open (orders fill): read it again,
+// quietly. If Alpaca cannot be reached the saved holdings stay as they are.
+onMounted(async () => {
+  if (!demo.isLive) return
+  try {
+    const account = await loadAlpaca()
+    if (account.configured && account.portfolio && demo.isLive) demo.updatePortfolio(account.portfolio)
+  } catch {
+    // keep what is shown
+  }
+})
+
 // ?state=scanning|unavailable pins a state that is otherwise brief or rare, for design review.
 const pinned = computed(() => PINNABLE.find((s) => s === route.query.state) ?? null)
 
@@ -68,7 +81,7 @@ const summary = computed(() => countConflicts({ portfolio: demo.portfolio!, rows
     <PortfolioUnavailable v-else-if="state === 'unavailable'" key="unavailable" :portfolio="demo.portfolio!" @retry="data.reload()" />
     <div v-else-if="state === 'gate'" key="gate" class="page">
       <header class="page-head">
-        <p class="eyebrow">Your Rally · Portfolio · sample data</p>
+        <p class="eyebrow">Your Rally · Portfolio · {{ demo.dataLabel }}</p>
         <h1 class="page-title">One line is free.<br />The rest is one email away.</h1>
       </header>
       <ConflictTeaser :summary="summary" :name="shortName(demo.portfolio!)" :categories="catalog.selectedIds.length" />

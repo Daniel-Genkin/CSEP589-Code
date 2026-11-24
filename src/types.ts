@@ -38,6 +38,8 @@ export interface Portfolio {
   holdings: Holding[]
   origin: 'fund' | 'tickers' | 'connected'
   brokerId?: BrokerId
+  /** True when the holdings were read from a real (paper) brokerage account, not the sample one */
+  live?: boolean
 }
 
 export interface Exclusions {

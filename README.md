@@ -48,3 +48,14 @@ scripts/            screenshots for design review; scripts/data makes the seed
 ```
 
 The PRD's layers (data, domain, state, ui) arrive in that order; `docs/PROGRESS.md` says which are in place.
+
+## Live Alpaca paper account (optional)
+
+With keys set, **Connect brokerage → Alpaca** reads a real Alpaca *paper-trading* account, and **Approve** on the Trades page places the approved trades there as market orders. Without keys everything stays simulated.
+
+1. Create a free paper account at <https://app.alpaca.markets> and generate Paper Trading API keys.
+2. Copy `.env.example` to `.env.local` and fill in `ALPACA_KEY_ID` and `ALPACA_SECRET_KEY`. Never commit it. On Vercel, set the same two variables in the project settings.
+3. Optional: `npm run seed:alpaca` shows a demo portfolio of flagged and ordinary companies; `npm run seed:alpaca -- --place` buys it.
+4. `npm run dev`, then connect Alpaca.
+
+The keys stay on the server (`server/alpaca.js`, served by `api/alpaca.js` on Vercel and by a Vite middleware locally). The server only talks to `paper-api.alpaca.markets`, never sells more than is held, and refuses malformed orders. Orders placed outside US market hours wait for the next open.

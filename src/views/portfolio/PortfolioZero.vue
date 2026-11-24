@@ -7,11 +7,13 @@ import DotGrid from '@/components/rally/DotGrid.vue'
 import ReceiptPaper from '@/components/rally/ReceiptPaper.vue'
 import type { PortfolioData } from '@/composables/usePortfolioData'
 import { useCatalogStore } from '@/state/catalog'
+import { useDemoStore } from '@/state/demo'
 import { plural } from '@/utils/format'
 import { computed } from 'vue'
 import HoldingsTable from './HoldingsTable.vue'
 
 const props = defineProps<{ data: PortfolioData }>()
+const demo = useDemoStore()
 
 const catalog = useCatalogStore()
 const portfolio = computed(() => props.data.portfolio.value!)
@@ -28,7 +30,7 @@ const linesLabel = computed(() => `${plural(count.value, 'line')} checked`)
     <div class="page-cols">
       <div class="col-main">
         <header class="page-head zero__head">
-          <p class="eyebrow">Your Rally · Portfolio · sample data</p>
+          <p class="eyebrow">Your Rally · Portfolio · {{ demo.dataLabel }}</p>
           <ConnectedBadge :portfolio="portfolio" />
           <template v-if="none">
             <p class="tag"><span class="dot" style="--dot: var(--sun)" />No lines picked</p>
@@ -81,13 +83,13 @@ const linesLabel = computed(() => `${plural(count.value, 'line')} checked`)
               <p class="legend__who">{{ portfolio.name }} · sample holdings</p>
             </li>
           </ul>
-          <p class="small">Sample data. Tags cover only what a checked source supports, so a clean result can still miss something.</p>
+          <p class="small">{{ demo.isLive ? 'Paper account.' : 'Sample data.' }} Tags cover only what a checked source supports, so a clean result can still miss something.</p>
         </section>
 
         <section class="covers">
           <header class="covers__head">
             <h2 class="title-section">What this scan covers.</h2>
-            <p class="label-mono">Sample data · holdings only</p>
+            <p class="label-mono">{{ demo.isLive ? 'Paper account · holdings only' : 'Sample data · holdings only' }}</p>
           </header>
           <p class="covers__text">
             This result covers only your selected lines<template v-if="names.length"> ({{ names.join(', ') }})</template> and the tags in the sample data. It is not an
@@ -114,7 +116,7 @@ const linesLabel = computed(() => `${plural(count.value, 'line')} checked`)
           ]"
           :total="{ label: 'Crosses your lines', note: `per $100 in ${what}`, value: '$0.00', tone: 'ink' }"
           :after="[{ label: 'Passes your lines', value: '$100.00' }]"
-          footer="No matches. For now. · Sample data"
+          :footer="`No matches. For now. · ${demo.isLive ? 'Paper account' : 'Sample data'}`"
         />
 
         <section class="card card-pad side-lines">

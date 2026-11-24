@@ -5,6 +5,7 @@
 import ConnectedBadge from '@/components/rally/ConnectedBadge.vue'
 import UiModal from '@/components/ui/UiModal.vue'
 import { BROKERS, CAPABILITY_LABEL, CONNECT_MS, type Broker, brokerById } from '@/config/brokers'
+import { loadAlpaca } from '@/data/alpaca'
 import { provider } from '@/data'
 import { useDemoStore } from '@/state/demo'
 import { plural, usd } from '@/utils/format'
@@ -16,6 +17,10 @@ const router = useRouter()
 
 const connecting = ref<Broker | null>(null)
 const failed = ref(false)
+const failure = ref('')
+/** True when `notice` is a warning (the sample account was loaded instead of the live one) */
+const noticeWarns = ref(false)
+const refreshing = ref(false)
 let attempt = 0
 /** The button that opened the dialog, so focus can go back to it. */
 let trigger: HTMLElement | null = null
@@ -23,6 +28,9 @@ const modal = ref<{ focus: () => void } | null>(null)
 const brokersTitle = ref<HTMLElement | null>(null)
 /** What just happened, for a screen reader: the section it describes may have been removed. */
 const notice = ref('')
+
+/** The paper account answered but holds nothing: the person has to fix that, so it is shown, not hidden by a fallback. */
+class EmptyAccount extends Error {}
 
 const connected = computed(() => (demo.isConnected ? brokerById(demo.portfolio?.brokerId) : null))
 const DOT: Record<Broker['capability'], string> = { trades: 'var(--pass)', case_by_case: 'var(--sun)', list_only: 'var(--brand-400)' }
@@ -32,16 +40,62 @@ async function connect(broker: Broker, event?: Event) {
   if (event?.currentTarget instanceof HTMLElement && !connecting.value) trigger = event.currentTarget
   connecting.value = broker
   failed.value = false
+  failure.value = ''
   notice.value = ''
+  noticeWarns.value = false
   try {
-    // The connection is simulated: wait about a second and a half, then load the sample account.
-    const [account] = await Promise.all([provider.getSamplePortfolio('connected'), new Promise((resolve) => setTimeout(resolve, CONNECT_MS))])
+    // Alpaca reads the real paper account when the server has keys for one. Every other broker
+    // (and Alpaca without keys) is simulated: wait about a second and a half, then load the sample account.
+    let fellBack = ''
+    const load = async () => {
+      if (broker.id === 'alpaca') {
+        try {
+          const live = await loadAlpaca()
+          if (live.configured) {
+            if (!live.portfolio) throw new EmptyAccount('Your Alpaca paper account holds no positions yet. Buy a few stocks there, or run "npm run seed:alpaca".')
+            return live.portfolio
+          }
+        } catch (error) {
+          if (error instanceof EmptyAccount) throw error
+          // Alpaca is unreachable or refused the keys: keep the demo going on the sample account, and say so.
+          fellBack = error instanceof Error ? error.message : 'no answer'
+        }
+      }
+      return { ...(await provider.getSamplePortfolio('connected')), brokerId: broker.id }
+    }
+    const [account] = await Promise.all([load(), new Promise((resolve) => setTimeout(resolve, CONNECT_MS))])
     if (mine !== attempt) return // cancelled, or another broker was picked meanwhile
-    demo.connect({ ...account, brokerId: broker.id })
+    demo.connect(account)
     connecting.value = null
+    if (fellBack) {
+      // Stay here so the note is seen: the sample account is loaded, not the live one.
+      notice.value = `Couldn’t reach your Alpaca paper account (${fellBack}). Rally loaded the sample account instead. Connect Alpaca again to retry.`
+      noticeWarns.value = true
+      void nextTick(() => brokersTitle.value?.focus())
+      return
+    }
     router.push('/portfolio')
-  } catch {
-    if (mine === attempt) failed.value = true
+  } catch (error) {
+    if (mine !== attempt) return
+    failed.value = true
+    failure.value = error instanceof Error ? error.message : ''
+  }
+}
+
+/** Read the live account again, for example after trades were placed outside Rally. */
+async function refresh() {
+  refreshing.value = true
+  noticeWarns.value = false
+  try {
+    const live = await loadAlpaca()
+    if (live.configured && live.portfolio) {
+      demo.updatePortfolio(live.portfolio)
+      notice.value = `Alpaca paper account refreshed: ${plural(live.portfolio.holdings.length, 'holding')}.`
+    }
+  } catch (error) {
+    notice.value = error instanceof Error ? error.message : 'Could not refresh the account.'
+  } finally {
+    refreshing.value = false
   }
 }
 
@@ -63,6 +117,7 @@ function retry(broker: Broker) {
 function disconnect() {
   const name = connected.value?.name ?? 'Your broker'
   demo.disconnect()
+  noticeWarns.value = false
   notice.value = demo.portfolio ? `${name} disconnected. Back to ${demo.portfolio.name}.` : `${name} disconnected.`
   // The card that held the button is gone.
   void nextTick(() => brokersTitle.value?.focus())
@@ -73,7 +128,7 @@ onBeforeUnmount(() => (attempt += 1))
 <template>
   <div class="page">
     <header class="page-head">
-      <p class="eyebrow">Your Rally · Connect brokerage · paid plan · sample data</p>
+      <p class="eyebrow">Your Rally · Connect brokerage · paid plan · {{ demo.dataLabel }}</p>
       <h1 class="page-title">Bring your<br />account.</h1>
       <p class="lead">Rally reads what you own. The money stays at your broker.</p>
       <ul class="trust">
@@ -88,12 +143,13 @@ onBeforeUnmount(() => (attempt += 1))
         <ConnectedBadge :portfolio="demo.portfolio" />
         <h2 class="title-lg">{{ connected.name }} is connected.</h2>
         <p class="body-muted">
-          {{ plural(demo.portfolio!.holdings.length, 'holding') }} · {{ usd(demo.portfolio!.totalUsd) }} · sample account · {{ CAPABILITY_LABEL[connected.capability].toLowerCase() }}
+          {{ plural(demo.portfolio!.holdings.length, 'holding') }} · {{ usd(demo.portfolio!.totalUsd) }} · {{ demo.portfolio!.live ? 'paper account, live from Alpaca' : 'sample account' }} · {{ CAPABILITY_LABEL[connected.capability].toLowerCase() }}
         </p>
       </div>
       <div class="linked__actions">
         <RouterLink to="/portfolio" class="btn btn-primary">See connected holdings</RouterLink>
         <RouterLink to="/trades" class="btn btn-outline">Review trades</RouterLink>
+        <button v-if="demo.portfolio!.live" type="button" class="btn btn-outline" :disabled="refreshing" @click="refresh">{{ refreshing ? 'Refreshing…' : 'Refresh' }}</button>
         <button type="button" class="btn btn-outline" @click="disconnect">Disconnect</button>
       </div>
     </section>
@@ -104,7 +160,7 @@ onBeforeUnmount(() => (attempt += 1))
           <h2 ref="brokersTitle" class="title-card" tabindex="-1">{{ connected ? 'Switch broker' : 'Choose your broker' }}</h2>
           <p class="label-mono">{{ BROKERS.length }} brokers · simulated</p>
         </header>
-        <p class="body-muted brokers__notice" role="status">{{ notice }}</p>
+        <p class="brokers__notice" :class="{ 'is-warn': noticeWarns }" role="status">{{ notice }}</p>
         <ul>
           <li v-for="broker in BROKERS" :key="broker.id" class="broker rule-top">
             <span class="ticker-tile ticker-tile-lg broker__tile">{{ broker.name.slice(0, 2).toUpperCase() }}</span>
@@ -136,7 +192,7 @@ onBeforeUnmount(() => (attempt += 1))
               <span>Where the broker allows it, Rally places the trades you approve. Otherwise you get a list to place yourself.</span>
             </li>
           </ul>
-          <p class="small">In this demo every broker loads the same sample account, and no real connection is made.</p>
+          <p class="small">In this demo every broker loads the same sample account. Alpaca reads your paper-trading account instead when its keys are set up; nothing real is ever connected.</p>
         </section>
       </aside>
     </div>
@@ -147,7 +203,7 @@ onBeforeUnmount(() => (attempt += 1))
           <span class="tag"><span class="dot" style="--dot: var(--flare)" />Not connected</span>
           <div role="alert">
             <h2 class="title-lg">That didn’t connect.</h2>
-            <p class="body-muted">Nothing was loaded and nothing changed.</p>
+            <p class="body-muted">{{ failure || 'Nothing was loaded and nothing changed.' }}</p>
           </div>
           <div class="dialog__actions">
             <button type="button" class="btn btn-primary" @click="retry(connecting)">Try again</button>
@@ -155,7 +211,7 @@ onBeforeUnmount(() => (attempt += 1))
           </div>
         </template>
         <template v-else>
-          <span class="tag"><span class="dot" />Read-only · simulated</span>
+          <span class="tag"><span class="dot" />{{ connecting.id === 'alpaca' ? 'Read-only · paper trading' : 'Read-only · simulated' }}</span>
           <h2 class="title-lg">Connecting to {{ connecting.name }}…</h2>
           <p class="body-muted">Reading the holdings in your account. Rally can see what you own; it cannot move it.</p>
           <div class="dialog__bar" role="progressbar" :aria-label="`Connecting to ${connecting.name}`"><span /></div>
@@ -167,6 +223,16 @@ onBeforeUnmount(() => (attempt += 1))
 </template>
 
 <style scoped>
+.brokers__notice {
+  font-size: 15px;
+  color: var(--text-muted);
+}
+.brokers__notice.is-warn {
+  padding: 12px 16px;
+  border: 1px solid var(--sun);
+  border-radius: var(--radius-md, 14px);
+  color: var(--text);
+}
 .brokers__notice:empty {
   display: none;
 }

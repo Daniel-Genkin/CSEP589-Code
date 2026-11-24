@@ -33,7 +33,7 @@ export async function portfolioFromInput(text: string, totalUsd: number): Promis
   if (unknown) return { problem: { kind: 'unknown', ticker: unknown, suggestion: await suggestionFor(unknown) } }
 
   if (securities.length === 1 && securities[0].kind === 'etf') {
-    // The fund arrives with shares worked out from seeded prices, so resizing keeps them right.
+    // The fund's constituents carry values from their real dated holdings file; resize keeps the same weights.
     const fund = await provider.getFund(securities[0].ticker)
     if (fund) return { portfolio: resizePortfolio(fund, totalUsd) }
   }

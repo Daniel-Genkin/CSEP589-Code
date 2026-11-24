@@ -149,7 +149,7 @@ onMounted(async () => {
 
         <div class="lines">
           <p class="label-mono">Your lines · tap to change</p>
-          <CategoryChips v-if="catalog.featured.length" :categories="catalog.featured" :selected="catalog.selectedIds" label="Values categories" @toggle="catalog.toggle" />
+          <CategoryChips v-if="catalog.featured.length" :categories="catalog.featured" :selected="catalog.selectedIds" label="Portfolio lines" @toggle="catalog.toggle" />
           <div v-else class="skeleton lines__loading" />
         </div>
 
@@ -166,7 +166,7 @@ onMounted(async () => {
         <div id="finder-message" class="finder__message" role="alert">
           <template v-if="problem?.kind === 'unknown'">
             <p>
-              We don’t have <strong>{{ problem.ticker }}</strong> in the sample.
+              We don’t have <strong>{{ problem.ticker }}</strong> in the active US-equity catalog.
               <template v-if="problem.suggestion">Closest match: <strong>{{ problem.suggestion }}</strong>.</template>
             </p>
             <button v-if="problem.suggestion" type="button" class="btn btn-outline btn-sm" @click="useSuggestion">Use {{ problem.suggestion }}</button>
@@ -186,7 +186,7 @@ onMounted(async () => {
           </label>
         </div>
         <p v-if="fromScreenshot" class="small">Read from your screenshot. Correct anything that’s wrong, then check.</p>
-        <p class="label-mono">No account needed for the count. Sample data for now.</p>
+        <p class="label-mono">No account needed for the count. Live prices · dated ETF holdings and sector lines.</p>
       </div>
 
       <div ref="result" class="col result">
@@ -216,7 +216,7 @@ onMounted(async () => {
           <li class="step step--1">
             <p class="step__n" style="color: var(--flare)">01</p>
             <h3 class="step__title">Pick a fund.</h3>
-            <p class="step__body">Start with the fund you already own, or type a few tickers. Three funds and 89 companies are in the sample.</p>
+            <p class="step__body">Start with the fund you already own, or type a few tickers. Rally opens covered ETFs to their current available constituent file.</p>
             <div class="step__example">
               <button v-for="ticker in SAMPLE_FUNDS" :key="ticker" type="button" class="mini-fund" :class="{ 'is-on': checkedName === ticker }" :disabled="busy" @click="checkFund(ticker)">
                 {{ ticker }}
@@ -264,7 +264,7 @@ onMounted(async () => {
           <button type="button" class="btn btn-primary" @click="focusInput">Check my holdings</button>
           <RouterLink to="/settings" class="btn btn-outline">Choose your lines</RouterLink>
         </div>
-        <p class="closing__fine">Real tickers and prices, sample holdings and weights. Information, not investment advice. Options, never recommendations.</p>
+        <p class="closing__fine">Live Alpaca prices, dated TickerInside ETF holdings and sector lines. Information, not investment advice. Options, never recommendations.</p>
       </div>
     </section>
   </div>

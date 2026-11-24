@@ -92,7 +92,7 @@ async function start() {
               <span class="ticker-tile fund__tile">{{ fund.ticker }}</span>
               <span class="fund__text">
                 <span class="fund__name">{{ fund.name }}</span>
-                <span class="fund__sub">{{ INDEX[fund.ticker] }} · sample holdings</span>
+                <span class="fund__sub">{{ INDEX[fund.ticker] }} · dated constituent holdings</span>
               </span>
               <span class="fund__state"><span class="fund__radio" />{{ picked === fund.ticker ? 'Selected' : 'Choose' }}</span>
             </button>

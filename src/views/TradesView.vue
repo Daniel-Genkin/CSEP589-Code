@@ -43,26 +43,33 @@ const listOnly = computed(() => !broker.value || broker.value.listOnly)
 const live = computed(() => demo.portfolio?.live === true)
 const sending = shallowRef(false)
 
-// Prices for swapped-in alternatives, which the portfolio's own data does not include.
+// Prices for all trade legs. Portfolio look-through intentionally loads constituent metadata
+// without quotes so the Portfolio screen stays fast; the Trade screen quotes the required set.
 const extra = shallowRef(new Map<string, { price: number; name: string }>())
 const swapKey = computed(() => [...new Set(Object.values(demo.exclusions.swaps))].sort().join(','))
 /** The swap targets `extra` was loaded for. The list waits until it matches the current ones. */
 const extraKey = shallowRef<string | null>(null)
 const extraFailed = shallowRef(false)
+let priceRequest = 0
 
 async function loadExtra() {
+  const mine = ++priceRequest
   const key = swapKey.value
+  extraKey.value = null
   extraFailed.value = false
   try {
-    const found = key ? await provider.getSecurities(key.split(',')) : []
-    if (key !== swapKey.value) return // the swaps changed while this was loading
+    const tickers = hasExclusions(demo.exclusions)
+      ? [...new Set([...data.rows.value.map((row) => row.ticker), ...(data.portfolio.value?.holdings.map((holding) => holding.ticker) ?? []), ...Object.values(demo.exclusions.swaps)])]
+      : []
+    const found = tickers.length ? await provider.getSecurities(tickers) : []
+    if (mine !== priceRequest || key !== swapKey.value) return
     extra.value = new Map(found.map((s) => [s.ticker, { price: s.price, name: s.name }]))
     extraKey.value = key
   } catch {
-    if (key === swapKey.value) extraFailed.value = true
+    if (mine === priceRequest && key === swapKey.value) extraFailed.value = true
   }
 }
-watch(swapKey, loadExtra, { immediate: true })
+watch([swapKey, () => hasExclusions(demo.exclusions), () => data.rows.value.map((row) => row.ticker).join(',')], loadExtra, { immediate: true })
 
 const ready = computed(() => data.status.value === 'ready' && extraKey.value === swapKey.value)
 
@@ -397,7 +404,7 @@ function retry() {
 
       <p class="small">
         <template v-if="live">These are market orders on your Alpaca paper account. Outside market hours they wait for the next open.</template>
-        Estimates use seeded prices. A company held inside a fund cannot be sold on its own, so the fund is sold whole and the rest is bought back company by company.
+        Estimates use current Alpaca prices. A company held inside a fund cannot be sold on its own, so the fund is sold whole and the rest is bought back company by company.
         Rally is not a broker and does not hold your money.
       </p>
     </template>

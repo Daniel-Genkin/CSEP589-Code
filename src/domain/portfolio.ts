@@ -2,7 +2,7 @@
 // Pure functions: no UI, storage or network.
 import type { Holding, Portfolio, Security } from '@/types'
 
-/** Fund ticker -> the companies it holds, weights summing to 1 (the holdings of `DataProvider.getFund`). */
+/** Fund ticker -> externally supplied companies, weights summing to 1. Alpaca production data does not provide this. */
 export type FundMap = Record<string, Pick<Holding, 'ticker' | 'weight'>[]>
 
 /** One way a company is held: directly (`via: null`) or inside a fund. */
@@ -99,7 +99,7 @@ export function buildTickerPortfolio(securities: Security[], totalUsd: number): 
     name: securities.map((s) => s.ticker).join(', '),
     totalUsd,
     origin: 'tickers',
-    holdings: securities.map((s) => ({ ticker: s.ticker, weight, valueUsd: totalUsd * weight, shares: sharesOf(totalUsd * weight, s.price) })),
+    holdings: securities.map((s) => ({ ticker: s.ticker, kind: s.kind, weight, valueUsd: totalUsd * weight, shares: sharesOf(totalUsd * weight, s.price) })),
   }
 }
 

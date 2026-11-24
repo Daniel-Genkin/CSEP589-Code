@@ -5,7 +5,7 @@ import { BRAND_NAME, BRAND_TAGLINE } from '@/config/brand'
 defineProps({
   note: {
     type: String,
-    default: 'Design demo only. No account connected. Sample holdings and weights are illustrative, not actual fund holdings. Rally shares information, not investment advice.',
+    default: 'Design demo only. Quotes and ETF constituents come from live and dated external sources. Brokerage and trade actions remain simulated. Rally shares information, not investment advice.',
   },
 })
 </script>

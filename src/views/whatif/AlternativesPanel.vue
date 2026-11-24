@@ -142,7 +142,7 @@ function retry(ticker: string) {
           <p v-else-if="options === 'error'" class="field-error" role="alert">
             Options didn’t load. <button type="button" class="link" @click="retry(row.ticker)">Try again</button>
           </p>
-          <p v-else-if="!list.length" class="body-muted">No company in the same sector is free of your flagged categories in the sample data.</p>
+          <p v-else-if="!list.length" class="body-muted">No company in the live TickerInside sector pool is free of your selected categories.</p>
           <ul v-else class="options__list">
             <li v-for="option in list" :key="option.security.ticker" class="option" :class="{ 'is-in': swaps[row.ticker] === option.security.ticker }">
               <div class="option__head">

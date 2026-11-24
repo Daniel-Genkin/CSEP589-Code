@@ -80,19 +80,21 @@ const linesLabel = computed(() => `${plural(count.value, 'line')} checked`)
             <li>
               <p class="legend__name">Scanned</p>
               <p class="legend__val">{{ portfolio.origin === 'fund' ? portfolio.id : data.rows.value.length }}</p>
-              <p class="legend__who">{{ portfolio.name }} · sample holdings</p>
+              <p class="legend__who">{{ portfolio.name }} · dated holdings</p>
             </li>
           </ul>
-          <p class="small">{{ demo.isLive ? 'Paper account.' : 'Sample data.' }} Tags cover only what a checked source supports, so a clean result can still miss something.</p>
+          <p class="small">
+            {{ demo.isLive ? 'Paper positions from Alpaca.' : 'Live market data.' }} Sector lines cover the holdings classified by TickerInside, so a clean result can still miss companies without a profile.
+          </p>
         </section>
 
         <section class="covers">
           <header class="covers__head">
             <h2 class="title-section">What this scan covers.</h2>
-            <p class="label-mono">{{ demo.isLive ? 'Paper account · holdings only' : 'Sample data · holdings only' }}</p>
+            <p class="label-mono">{{ demo.isLive ? 'Paper positions · classified holdings only' : 'Live quotes · classified holdings only' }}</p>
           </header>
           <p class="covers__text">
-            This result covers only your selected lines<template v-if="names.length"> ({{ names.join(', ') }})</template> and the tags in the sample data. It is not an
+            This result covers only your selected lines<template v-if="names.length"> ({{ names.join(', ') }})</template> and the sector profiles TickerInside currently provides. It is not an
             endorsement of the fund or of every company inside it, and it is not a promise forever.
           </p>
           <div class="covers__foot rule-top">
@@ -116,7 +118,7 @@ const linesLabel = computed(() => `${plural(count.value, 'line')} checked`)
           ]"
           :total="{ label: 'Crosses your lines', note: `per $100 in ${what}`, value: '$0.00', tone: 'ink' }"
           :after="[{ label: 'Passes your lines', value: '$100.00' }]"
-          :footer="`No matches. For now. · ${demo.isLive ? 'Paper account' : 'Sample data'}`"
+          :footer="`No matches. For now. · ${demo.isLive ? 'Paper account · Live sources' : 'Live sources'}`"
         />
 
         <section class="card card-pad side-lines">

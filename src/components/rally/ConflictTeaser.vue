@@ -38,7 +38,7 @@ function create() {
 <template>
   <section class="teaser card" aria-live="polite">
     <div class="teaser__main">
-      <p class="label-mono">Result · {{ name }} · {{ usd(summary.totalUsd) }} · sample data</p>
+      <p class="label-mono">Result · {{ name }} · {{ usd(summary.totalUsd) }} · live market data</p>
       <h2 v-if="unchecked" class="teaser__line is-unchecked">No lines picked.</h2>
       <h2 v-else class="teaser__line" :class="{ 'is-clean': clean }">{{ plural(summary.count, 'holding') }} {{ summary.count === 1 ? 'conflicts' : 'conflict' }}.</h2>
       <p class="teaser__sub">

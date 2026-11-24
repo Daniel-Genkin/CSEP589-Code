@@ -1,6 +1,6 @@
 <script setup lang="ts">
 // Figma "Scanning": the portfolio is being checked against the user's lines; no result yet.
-// This is the loading state for seeded calls on this screen.
+// This is the loading state for live quote, profile and ETF-holdings requests.
 import ReceiptPaper from '@/components/rally/ReceiptPaper.vue'
 import { useCatalogStore } from '@/state/catalog'
 import type { Portfolio } from '@/types'
@@ -79,7 +79,7 @@ const tile = computed(() => (props.portfolio.origin === 'fund' ? props.portfolio
           <ul class="chips">
             <li v-for="category in catalog.selected" :key="category.id" class="chip"><span class="dot dot-10" :style="{ '--dot': category.color }" />{{ category.label }}</li>
           </ul>
-          <p class="small">Sample data. Nothing is sent anywhere.</p>
+          <p class="small">Live Alpaca prices and dated TickerInside holdings. Nothing is sent to a broker.</p>
         </section>
       </aside>
     </div>

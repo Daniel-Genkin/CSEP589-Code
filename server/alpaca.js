@@ -48,8 +48,8 @@ export const resetRateLimit = () => {
 
 /** @param {Record<string, string | undefined>} env */
 export function alpacaKeys(env) {
-  const id = env.ALPACA_KEY_ID?.trim()
-  const secret = env.ALPACA_SECRET_KEY?.trim()
+  const id = (env.ALPACA_API_KEY_ID ?? env.ALPACA_KEY_ID)?.trim()
+  const secret = (env.ALPACA_API_SECRET_KEY ?? env.ALPACA_SECRET_KEY)?.trim()
   return id && secret ? { id, secret } : null
 }
 
@@ -119,8 +119,8 @@ async function placeOrders(keys, orders) {
       const free = available.get(symbol) ?? have
       if (free < 1e-3) return { ...base, ok: false, error: `Your ${symbol} shares are already in a pending sell order` }
       if (free < have && qty > free) qty = free // part of the position is already spoken for
-      // Seeded prices differ a little from live ones, so a "sell it all" can ask for slightly
-      // more than is held: sell exactly what is held rather than refuse.
+      // A market-data quote can differ a little from the broker's position price, so a "sell it
+      // all" can ask for slightly more than is held: sell exactly what is held rather than refuse.
       if (qty > have || qty >= have * 0.995) qty = have
     }
     try {

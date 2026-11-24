@@ -1,4 +1,4 @@
-// The monitoring feed: seeded alerts from the provider, and which of them the user has read.
+// The monitoring feed: provider alerts, and which of them the user has read.
 import { provider } from '@/data'
 import type { Alert } from '@/types'
 import { defineStore } from 'pinia'

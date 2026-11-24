@@ -71,7 +71,7 @@ Two things to read with these results:
 | F4 Alternatives | Done (PR 8) | Options for energy holdings are uranium companies outside the S&P 500 (see Placeholders): a data decision for the team. |
 | F5 Upgrade | Done (PR 9) | `PLAN_PRICE_USD` is $5, a placeholder. |
 | F6 Connect brokerage | Done (PR 10) | Every broker loads the same connected sample account. |
-| F7 Trade approval | Done (PR 11) | Estimates use the seeded last price. Approval is simulated: nothing is sent anywhere. |
+| F7 Trade approval | Done (PR 11) | Estimates use current Alpaca prices through the middleware. Approval is simulated: nothing is sent anywhere. |
 | F8 Live monitoring | Done (PR 12) | Eight sample alerts. No real specification for monitoring exists yet (PRD open item). |
 | F9 Values settings | Done (PR 13) | 18 categories: the seven values categories, then the 11 sectors in the seed. |
 
@@ -102,7 +102,7 @@ Built from `docs/STYLE.md`. Listed here as they land.
 | --- | --- | --- | --- |
 | Landing | 97:210 | `/` | `/` Home (F1). The fund picker becomes the ticker input with category chips above it; the hero receipt becomes the one-line result and the signup prompt. |
 | First visit | 81:1007 | `/app` with no fund chosen | `/portfolio` with no active portfolio (empty state that sends the user to Home or to Connect brokerage). |
-| Scanning | 81:1124 | `/app` while a scan runs | The loading state for seeded calls (G: "Seeded calls show a loading state"), used on `/portfolio` and in the Connect dialog. |
+| Scanning | 81:1124 | `/app` while a scan runs | The shimmer loading state while curated portfolio data and Alpaca market data are requested, used on `/portfolio` and in the Connect dialog. |
 | Dashboard | 81:211 | `/app` with a result | `/portfolio` (F2): hero figure, dot grid, "Who crosses your lines", category chips, receipt summary. "What you can do about it" becomes the entry to `/whatif` (F3/F4), `/connect` and `/trades`. |
 | Zero conflicts | 81:1254 | `/app` when nothing crosses | `/portfolio` when no holding is flagged in the selected categories. |
 | Data unavailable | 81:1520 | `/app` when the fund cannot be read | Error state for any provider failure or unknown ticker on `/portfolio`. |
@@ -113,9 +113,12 @@ PRD screens with **no Figma frame** (to be built from `docs/STYLE.md` and listed
 
 ## Data layer (PR 3)
 
-- `src/data/provider.ts` is the PRD's `DataProvider` plus two additions the screens need: `getCategories()` and `getSecurities(tickers)`. `src/data/index.ts` exports the one `provider` instance; nothing outside `src/data/` imports seed files.
-- `SeededProvider` answers from `src/data/seed/`: 89 stocks across 11 Yahoo Finance sectors plus SPY, VOO and VTI (60 holdings each); 23 placeholder values tags; one extra category per sector, derived from the data; two sample portfolios; eight sample alerts; 1,255 trading days of adjusted closes (2021-11-01 to 2026-10-30).
-- How the files are made, and what is real versus sample: `scripts/data/README.md`.
+- Production no longer reads `SeededProvider`, generated prices or sample market/tag data. `AlpacaProvider` searches Alpaca's official active asset catalog, loads latest quotes and requests adjusted historical bars. The original sample-portfolio and brokerage buttons remain as live-priced demo presets.
+- `api/market-data.js` and `server/alpaca-market-data.js` form the server-only Alpaca middleware. Credentials stay outside the browser, symbol requests are batched, historical pages are followed to completion, and daily closes are aligned before the app runs its back-test.
+- ETF constituent look-through now uses TickerInside's free, keyless US ETF holdings API. The middleware caches dated issuer/SEC holdings maps and preserves `holdings_as_of`, source layer, citation and licence for the UI.
+- Alpaca remains authoritative for the ETF's live quote/history. TickerInside data is shown only as dated holdings, including any cash/other/unmapped remainder, rather than being presented as real-time.
+- TickerInside's sector profiles now feed the original category chips, exposure receipt, What-if exclusions and alternatives, so the hosted UI flow is preserved with real classifications instead of the old sample tags.
+- The old seeded provider remains only as a Vitest/domain-test fixture. Vite's production module graph does not import it, and the production build no longer emits the generated prices chunk.
 
 ## Domain layer (PR 4)
 

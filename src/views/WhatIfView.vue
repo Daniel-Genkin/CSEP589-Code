@@ -173,7 +173,7 @@ const barWidth = (value: number) => `${Math.max(whatIf.before.value.usd > 0 ? (v
             <p class="label-mono">Hover, or use the slider</p>
           </header>
           <GrowthChart v-if="ready" :dates="result.dates" :series="series" :summary="chartSummary">
-            <p class="disclosure">Back-test on historical prices. Past performance does not predict future results.</p>
+            <p class="disclosure">Back-test on Alpaca historical prices. Past performance does not predict future results.</p>
             <p v-if="tracksBenchmark">{{ name }} tracks the S&amp;P 500, so “As it is” and “S&amp;P 500” are the same line here.</p>
           </GrowthChart>
           <div v-else class="skeleton" style="height: 360px" />

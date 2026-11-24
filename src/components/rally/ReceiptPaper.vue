@@ -49,8 +49,8 @@ const SKELETON_WIDTHS = [42, 53, 33, 47, 38]
 
       <template v-if="skeleton">
         <div v-for="n in skeletonRows" :key="n" class="paper__row paper__ghost" aria-hidden="true">
-          <span :style="{ width: `${SKELETON_WIDTHS[(n - 1) % SKELETON_WIDTHS.length]}%` }" />
-          <span style="width: 12%" />
+          <span class="skeleton" :style="{ width: `${SKELETON_WIDTHS[(n - 1) % SKELETON_WIDTHS.length]}%` }" />
+          <span class="skeleton" style="width: 12%" />
         </div>
         <slot name="skeleton-extra" />
         <p v-if="note" class="paper__note">{{ note }}</p>
@@ -225,7 +225,8 @@ const SKELETON_WIDTHS = [42, 53, 33, 47, 38]
 .paper__ghost span {
   height: 12px;
   border-radius: 6px;
-  background: var(--paper-ghost);
+  --skeleton-base: var(--paper-ghost);
+  --skeleton-highlight: rgba(255, 255, 255, 0.68);
 }
 .paper.is-compact {
   width: var(--paper-width, 416px);

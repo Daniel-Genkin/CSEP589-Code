@@ -256,6 +256,19 @@ const sectorOf = (ticker: string) => props.data.securities.value.get(ticker)?.se
               </td>
               <td>
                 <strong>{{ data.nameOf(group.fund) }}</strong>
+                <small v-if="data.fundSources.value.get(group.fund)" class="group__source">
+                  {{ data.fundSources.value.get(group.fund)!.holdingsAsOf ?? 'Date not stated' }}
+                  ·
+                  <a
+                    v-if="data.fundSources.value.get(group.fund)!.pageUrl"
+                    :href="data.fundSources.value.get(group.fund)!.pageUrl!"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                  >
+                    TickerInside ↗
+                  </a>
+                  <template v-else>TickerInside · CC BY 4.0</template>
+                </small>
               </td>
               <td class="muted">Fund</td>
               <td class="muted">{{ group.lines.length === group.size ? plural(group.size, 'company', 'companies') : `${group.lines.length} of ${group.size} companies` }} inside</td>
@@ -297,6 +310,9 @@ const sectorOf = (ticker: string) => props.data.securities.value.get(ticker)?.se
         </template>
       </table>
       <p v-if="nothingMatches" class="holdings__empty">Nothing you hold is tagged in that category.</p>
+      <p v-if="data.fundSources.value.size" class="small holdings__source-note">
+        ETF constituent weights are from TickerInside (CC BY 4.0), using dated issuer files or SEC Form N-PORT filings; each fund’s date appears above.
+      </p>
     </div>
   </section>
 </template>
@@ -401,6 +417,16 @@ td {
 .group strong {
   font-weight: 600;
 }
+.group__source {
+  display: block;
+  margin-top: 3px;
+  font-size: 11px;
+  font-family: var(--font-mono);
+  color: var(--text-muted);
+}
+.group__source a {
+  color: var(--link);
+}
 .group__toggle {
   display: inline-flex;
   align-items: center;
@@ -454,5 +480,8 @@ td {
   padding: 28px 12px;
   text-align: center;
   color: var(--text-muted);
+}
+.holdings__source-note {
+  padding-top: 8px;
 }
 </style>

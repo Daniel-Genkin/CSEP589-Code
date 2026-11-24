@@ -6,7 +6,7 @@
 //   npm run seed:alpaca            show what would be bought (changes nothing)
 //   npm run seed:alpaca -- --place place the orders
 //
-// Reads ALPACA_KEY_ID and ALPACA_SECRET_KEY from .env.local (or the environment).
+// Reads ALPACA_API_KEY_ID and ALPACA_API_SECRET_KEY from .env.local (or the environment).
 import { existsSync, readFileSync } from 'node:fs'
 
 const PAPER_URL = 'https://paper-api.alpaca.markets'
@@ -31,11 +31,13 @@ function loadEnv() {
 }
 
 const env = loadEnv()
-if (!env.ALPACA_KEY_ID || !env.ALPACA_SECRET_KEY) {
-  console.error('Set ALPACA_KEY_ID and ALPACA_SECRET_KEY in .env.local first (see .env.example).')
+const keyId = env.ALPACA_API_KEY_ID || env.ALPACA_KEY_ID
+const secretKey = env.ALPACA_API_SECRET_KEY || env.ALPACA_SECRET_KEY
+if (!keyId || !secretKey) {
+  console.error('Set ALPACA_API_KEY_ID and ALPACA_API_SECRET_KEY in .env.local first (see .env.example).')
   process.exit(1)
 }
-const headers = { 'APCA-API-KEY-ID': env.ALPACA_KEY_ID, 'APCA-API-SECRET-KEY': env.ALPACA_SECRET_KEY, 'content-type': 'application/json' }
+const headers = { 'APCA-API-KEY-ID': keyId, 'APCA-API-SECRET-KEY': secretKey, 'content-type': 'application/json' }
 const call = async (method, path, body) => {
   const response = await fetch(`${PAPER_URL}${path}`, { method, headers, body: body ? JSON.stringify(body) : undefined })
   const json = await response.json().catch(() => null)

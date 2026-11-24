@@ -32,6 +32,11 @@ export const useCatalogStore = defineStore('catalog', () => {
       status.value = 'loading'
       try {
         categories.value = await provider.getCategories()
+        const demo = useDemoStore()
+        const saved = demo.selectedCategories
+        if (saved?.length && !saved.some((id) => categories.value.some((category) => category.id === id))) {
+          demo.setCategories(featuredIds.value)
+        }
         status.value = 'ready'
       } catch (error) {
         status.value = 'error'

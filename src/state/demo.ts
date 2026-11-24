@@ -106,10 +106,10 @@ export const useDemoStore = defineStore('demo', () => {
   const isPaid = computed(() => plan.value === 'paid')
   const hasAccount = computed(() => account.value !== null)
   const isConnected = computed(() => portfolio.value?.origin === 'connected')
-  /** The holdings come from a real (paper) brokerage account. Tags and alerts are still samples. */
+  /** The holdings come from a real paper-trading account. */
   const isLive = computed(() => portfolio.value?.live === true)
   /** What to call the data in a page eyebrow */
-  const dataLabel = computed(() => (isLive.value ? 'live positions · sample tags' : 'sample data'))
+  const dataLabel = computed(() => (isLive.value ? 'live paper positions · dated sector lines' : 'live market data'))
 
   const snapshot = (): DemoState => ({
     plan: plan.value,
@@ -166,7 +166,7 @@ export const useDemoStore = defineStore('demo', () => {
     portfolio.value = next
   }
   /**
-   * Load the connected sample account; remember what was there so Disconnect can restore it.
+   * Load the connected demo account; remember what was there so Disconnect can restore it.
    * Exclusions stay as they are in both directions: category exclusions carry over, and ticker
    * exclusions and swaps only take effect for holdings the active portfolio contains (PRD F7).
    */

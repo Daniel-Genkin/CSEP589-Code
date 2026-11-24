@@ -122,8 +122,8 @@ const excludedCount = computed(() => demo.exclusions.tickers.length + demo.exclu
             </li>
           </ul>
           <p class="small">
-            <template v-if="demo.isLive">Weights are your paper account’s real positions; tags are samples.</template>
-            <template v-else>Sample weights, not a live scan.</template>
+            <template v-if="demo.isLive">Weights are your paper account’s real positions. Quotes and sector lines come from Alpaca and TickerInside.</template>
+            <template v-else>Live quotes with dated ETF constituent weights and sector lines.</template>
             Each company is counted once, under the first of your lines it crosses.
           </p>
         </section>

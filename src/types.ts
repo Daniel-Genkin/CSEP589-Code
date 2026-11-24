@@ -13,6 +13,11 @@ export interface Security {
   kind: 'stock' | 'etf'
   /** yfinance industry, when the source has one */
   industry?: string
+  exchange?: string
+  assetClass?: string
+  priceAsOf?: string
+  tradable?: boolean
+  fractionable?: boolean
 }
 
 export interface ValuesTag {
@@ -25,6 +30,7 @@ export interface ValuesTag {
 
 export interface Holding {
   ticker: string
+  kind?: 'stock' | 'etf'
   /** share of the portfolio, 0 to 1 */
   weight: number
   valueUsd: number
@@ -40,6 +46,32 @@ export interface Portfolio {
   brokerId?: BrokerId
   /** True when the holdings were read from a real (paper) brokerage account, not the sample one */
   live?: boolean
+  fundDetails?: FundConstituents
+}
+
+export interface FundHolding {
+  ticker: string
+  /** share of the fund, 0 to 1 */
+  weight: number
+}
+
+export interface FundConstituents {
+  ticker: string
+  name: string
+  holdingsAsOf: string | null
+  sourceLayer: string | null
+  positions: number
+  zeroWeightPositions: number
+  /** fraction of the fund represented by mapped/listed holdings */
+  listedWeight: number
+  /** cash, other assets, rounding residual, or unmapped lines outside the ticker map */
+  unrepresentedWeight: number
+  unmappedWeight: number
+  citation: string
+  pageUrl: string | null
+  sourceUrl: string | null
+  license: string
+  holdings: FundHolding[]
 }
 
 export interface Exclusions {

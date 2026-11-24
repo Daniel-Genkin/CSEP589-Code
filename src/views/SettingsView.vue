@@ -31,7 +31,7 @@ const selectFeatured = () => demo.setCategories(catalog.featuredIds)
     <header class="page-head">
       <p class="eyebrow">Your Rally · Values · {{ count }} of {{ total }} selected</p>
       <h1 class="page-title">Your lines.<br />Your call.</h1>
-      <p class="lead">Choose the categories you care about. Portfolio, What-if and Alerts follow this choice straight away.</p>
+      <p class="lead">Choose the sector lines you care about. Portfolio and What-if follow this choice straight away.</p>
     </header>
 
     <div v-if="catalog.status === 'error'" class="card card-pad failed" role="alert">
@@ -51,7 +51,7 @@ const selectFeatured = () => demo.setCategories(catalog.featuredIds)
 
         <section class="card card-pad group" aria-labelledby="group-values">
           <header class="row-between">
-            <h2 id="group-values" class="title-card">Values categories</h2>
+            <h2 id="group-values" class="title-card">Featured sector lines</h2>
             <p class="label-mono">{{ catalog.featured.filter((c) => selected.has(c.id)).length }} of {{ catalog.featured.length }} on</p>
           </header>
           <ul v-if="catalog.featured.length" class="switches">
@@ -91,7 +91,7 @@ const selectFeatured = () => demo.setCategories(catalog.featuredIds)
             <RouterLink to="/whatif" class="btn btn-outline btn-md">Open What-if</RouterLink>
           </div>
         </section>
-        <p class="small">Tags are sample data: only what a checked source supports is tagged, so a category can be incomplete.</p>
+        <p class="small">Sector lines come from TickerInside security profiles and are linked to their source. A company without a profile remains unclassified.</p>
       </aside>
     </div>
   </div>

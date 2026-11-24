@@ -1042,9 +1042,20 @@ button.chip-add:hover {
 /* ---------- Loading ---------- */
 
 .skeleton {
+  --skeleton-base: var(--track);
+  --skeleton-highlight: rgba(255, 255, 255, 0.13);
+  position: relative;
+  overflow: hidden;
   border-radius: 12px;
-  background: var(--track);
-  animation: pulse 1.2s ease-in-out infinite;
+  background: var(--skeleton-base);
+}
+.skeleton::after {
+  position: absolute;
+  inset: 0;
+  content: '';
+  background: linear-gradient(100deg, transparent 20%, var(--skeleton-highlight) 48%, transparent 76%);
+  transform: translateX(-100%);
+  animation: shimmer 1.35s ease-in-out infinite;
 }
 
 .spinner {
@@ -1057,16 +1068,8 @@ button.chip-add:hover {
 }
 
 @keyframes shimmer {
-  from {
-    background-position: 200% 0;
-  }
   to {
-    background-position: -200% 0;
-  }
-}
-@keyframes pulse {
-  50% {
-    opacity: 0.55;
+    transform: translateX(100%);
   }
 }
 @keyframes spin {
@@ -1078,6 +1081,18 @@ button.chip-add:hover {
   from {
     opacity: 0;
     transform: translateY(10px);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .skeleton::after {
+      display: none;
+      animation: none;
+    }
+    .spinner,
+    .scan__bar span,
+    .dialog__bar span {
+      animation-duration: 2.8s;
+    }
   }
   to {
     opacity: 1;

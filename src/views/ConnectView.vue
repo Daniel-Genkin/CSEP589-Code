@@ -1,6 +1,6 @@
 <script setup lang="ts">
-// F6 Connect brokerage (paid). Pick a broker; a short simulated connection loads the connected
-// sample account. Rally only reads what you own: the money stays at your broker, and trades
+// F6 Connect brokerage (paid). Pick a broker; Alpaca can read a paper account, while the other
+// brokers load a live-priced demo account. Rally only reads what you own: the money stays at your broker, and trades
 // need separate approval. No Figma frame: built from docs/STYLE.md.
 import ConnectedBadge from '@/components/rally/ConnectedBadge.vue'
 import UiModal from '@/components/ui/UiModal.vue'
@@ -45,7 +45,7 @@ async function connect(broker: Broker, event?: Event) {
   noticeWarns.value = false
   try {
     // Alpaca reads the real paper account when the server has keys for one. Every other broker
-    // (and Alpaca without keys) is simulated: wait about a second and a half, then load the sample account.
+    // (and Alpaca without keys) is simulated with current market prices.
     let fellBack = ''
     const load = async () => {
       if (broker.id === 'alpaca') {
@@ -68,8 +68,8 @@ async function connect(broker: Broker, event?: Event) {
     demo.connect(account)
     connecting.value = null
     if (fellBack) {
-      // Stay here so the note is seen: the sample account is loaded, not the live one.
-      notice.value = `Couldn’t reach your Alpaca paper account (${fellBack}). Rally loaded the sample account instead. Connect Alpaca again to retry.`
+      // Stay here so the note is seen: the simulated account is loaded, not the live one.
+      notice.value = `Couldn’t reach your Alpaca paper account (${fellBack}). Rally loaded the live-priced demo account instead. Connect Alpaca again to retry.`
       noticeWarns.value = true
       void nextTick(() => brokersTitle.value?.focus())
       return
@@ -143,7 +143,7 @@ onBeforeUnmount(() => (attempt += 1))
         <ConnectedBadge :portfolio="demo.portfolio" />
         <h2 class="title-lg">{{ connected.name }} is connected.</h2>
         <p class="body-muted">
-          {{ plural(demo.portfolio!.holdings.length, 'holding') }} · {{ usd(demo.portfolio!.totalUsd) }} · {{ demo.portfolio!.live ? 'paper account, live from Alpaca' : 'sample account' }} · {{ CAPABILITY_LABEL[connected.capability].toLowerCase() }}
+          {{ plural(demo.portfolio!.holdings.length, 'holding') }} · {{ usd(demo.portfolio!.totalUsd) }} · {{ demo.portfolio!.live ? 'paper account, live from Alpaca' : 'simulated account with live prices' }} · {{ CAPABILITY_LABEL[connected.capability].toLowerCase() }}
         </p>
       </div>
       <div class="linked__actions">
@@ -158,7 +158,7 @@ onBeforeUnmount(() => (attempt += 1))
       <section class="col-main card card-pad brokers">
         <header class="row-between">
           <h2 ref="brokersTitle" class="title-card" tabindex="-1">{{ connected ? 'Switch broker' : 'Choose your broker' }}</h2>
-          <p class="label-mono">{{ BROKERS.length }} brokers · simulated</p>
+          <p class="label-mono">{{ BROKERS.length }} brokers · Alpaca paper + demo</p>
         </header>
         <p class="brokers__notice" :class="{ 'is-warn': noticeWarns }" role="status">{{ notice }}</p>
         <ul>
@@ -192,7 +192,7 @@ onBeforeUnmount(() => (attempt += 1))
               <span>Where the broker allows it, Rally places the trades you approve. Otherwise you get a list to place yourself.</span>
             </li>
           </ul>
-          <p class="small">In this demo every broker loads the same sample account. Alpaca reads your paper-trading account instead when its keys are set up; nothing real is ever connected.</p>
+          <p class="small">Other brokers load a fixed demo account with current market prices. Alpaca can read your paper-trading account when its keys are configured; no real money moves.</p>
         </section>
       </aside>
     </div>

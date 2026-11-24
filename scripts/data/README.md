@@ -1,6 +1,6 @@
-# Seed data scripts
+# Legacy test-fixture data scripts
 
-The app makes no network calls. Everything it shows is generated here, ahead of time, and saved under `src/data/seed/generated/`. The app reads those files only through `SeededProvider` (`src/data/seeded.ts`).
+Production no longer reads these files. They remain only for deterministic domain/unit tests that exercise the old pure back-test, exposure and trade algorithms without requiring Alpaca credentials. The production module graph uses `src/data/alpaca.ts`.
 
 | Script | Run? | Writes | What it does |
 | --- | --- | --- | --- |
@@ -21,7 +21,7 @@ pip install anthropic                # for tag_values.py, when the team is ready
 python scripts/data/tag_values.py --only XOM LMT    # try two companies first
 ```
 
-After changing any generated file, run `npm test`: `src/data/seeded.test.ts` checks the seed against the PRD's contract (counts, weights summing to 1, three alternatives for every flagged company, sources on every tag, five years of prices).
+After changing a legacy generated file, run `npm test`: `src/data/seeded.test.ts` checks the test fixture contract.
 
 ## What is real and what is a sample
 

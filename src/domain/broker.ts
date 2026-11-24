@@ -42,7 +42,7 @@ export function portfolioFromPositions(positions: BrokerPosition[], brokerId: Br
 
 /**
  * Each held ticker's price as the broker values it (value / shares). Sizing trades with these,
- * not the seeded prices, is what makes "sell this holding" sell every share held.
+ * not a separate market-data quote, is what makes "sell this holding" sell every share held.
  */
 export function pricesFromPortfolio(portfolio: Portfolio): Record<string, number> {
   const prices: Record<string, number> = {}

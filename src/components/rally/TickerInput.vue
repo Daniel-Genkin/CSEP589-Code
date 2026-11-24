@@ -14,6 +14,8 @@ const input = ref<HTMLInputElement | null>(null)
 const options = ref<Security[]>([])
 const open = ref(false)
 const active = ref(-1)
+const searching = ref(false)
+const failed = ref(false)
 // True from a keystroke until a suggestion is taken or the input is submitted, so a search
 // that finishes late cannot reopen the list over the result.
 const typing = ref(false)
@@ -28,18 +30,26 @@ watch(token, async (value) => {
   if (!value) {
     options.value = []
     open.value = false
+    searching.value = false
+    failed.value = false
     return
   }
   let found: Security[] = []
+  let searchFailed = false
+  searching.value = true
+  failed.value = false
+  open.value = typing.value && document.activeElement === input.value
   try {
     found = await provider.searchSecurities(value)
   } catch {
-    // No suggestions is a fine fallback: the input still works.
+    searchFailed = true
   }
   if (mine !== request) return // a later keystroke already asked again
-  // Nothing to suggest once the ticker is typed in full.
-  options.value = found.length === 1 && found[0].ticker === value.toUpperCase() ? [] : found
-  open.value = typing.value && options.value.length > 0 && document.activeElement === input.value
+  searching.value = false
+  failed.value = searchFailed
+  // Nothing to suggest once the exact ticker is present, even when a live catalog also has SPY* funds.
+  options.value = found.some((security) => security.ticker === value.toUpperCase()) ? [] : found
+  open.value = typing.value && (searching.value || failed.value || options.value.length > 0) && document.activeElement === input.value
 })
 
 function choose(option: Security) {
@@ -104,6 +114,11 @@ defineExpose({ focus: () => input.value?.focus() })
     />
     <Transition name="pop">
       <ul v-show="open" :id="listId" class="ticker-input__list" role="listbox" aria-label="Matching securities">
+        <li v-if="searching" class="ticker-input__loading" role="status">
+          <span class="skeleton ticker-input__loading-ticker" />
+          <span class="skeleton ticker-input__loading-name" />
+        </li>
+        <li v-else-if="failed" class="ticker-input__error" role="alert">Alpaca search is unavailable. You can still submit an exact ticker.</li>
         <li
           v-for="(option, index) in options"
           :id="`${listId}-${index}`"
@@ -173,6 +188,26 @@ defineExpose({ focus: () => input.value?.focus() })
 }
 .ticker-input__option.is-active {
   background: var(--surface-2);
+}
+.ticker-input__loading,.ticker-input__error {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  min-height: 42px;
+  padding: 10px 12px;
+}
+.ticker-input__loading-ticker {
+  width: 64px;
+  height: 14px;
+}
+.ticker-input__loading-name {
+  width: 55%;
+  height: 14px;
+}
+.ticker-input__error {
+  font-size: 13px;
+  line-height: 1.4;
+  color: #f6a283;
 }
 .ticker-input__ticker {
   flex: none;

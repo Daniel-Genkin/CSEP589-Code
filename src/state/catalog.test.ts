@@ -46,4 +46,13 @@ describe('catalog store', () => {
     useDemoStore().setCategories(['defense', 'retired_category'])
     expect(catalog.selectedIds).toEqual(['defense'])
   })
+
+  it('migrates a fully stale saved selection to the featured live lines', async () => {
+    const catalog = useCatalogStore()
+    const demo = useDemoStore()
+    demo.setCategories(['retired_category'])
+    await catalog.load()
+    expect(catalog.selectedIds).toEqual(FEATURED)
+    expect(demo.selectedCategories).toEqual(FEATURED)
+  })
 })

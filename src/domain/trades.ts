@@ -17,7 +17,7 @@ const list = (tickers: string[]) => (tickers.length <= 3 ? tickers.join(', ') : 
 
 /**
  * Sells first (largest first), then buys (largest first).
- * `prices` are the seeded prices per ticker. A trade in a ticker with no price is an error, not
+ * `prices` are the provider's current prices per ticker. A trade with no price is an error, not
  * a line quietly left out: a list missing one leg would no longer reach the what-if portfolio.
  * With nothing excluded in this portfolio the list is empty.
  */

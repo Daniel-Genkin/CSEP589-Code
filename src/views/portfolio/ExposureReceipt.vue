@@ -50,7 +50,7 @@ const items = computed(() =>
       :items="items"
       :total="{ label: 'Crosses your lines', note: `${plural(flagged.count, 'holding')}, each counted once · ${pct(flagged.share)}`, value: usd(flagged.usd), tone: flagged.count ? 'flare' : 'ink' }"
       :after="[{ label: 'Passes your lines', value: usd(portfolio.totalUsd - flagged.usd) }]"
-      :footer="demo.isLive ? 'Paper account · Sample tags · Just receipts' : 'Sample data · No judgment · Just receipts'"
+      :footer="demo.isLive ? 'Paper positions · Live quotes · Dated lines' : 'Live quotes · Dated holdings · Just receipts'"
     />
     <p class="small exposure__note">{{ EXPLAINER }}</p>
   </section>

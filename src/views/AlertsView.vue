@@ -1,12 +1,11 @@
 <script setup lang="ts">
-// F8 Live monitoring (Figma "Receipts"). A feed of seeded alerts about holdings: relative time,
+// F8 Live monitoring (Figma "Receipts"). The live feed shape is preserved while no alert
 // type, the holding, the category and one line of explanation. Filter by category, mark all
 // read; the unread count shows in the nav. On the free plan the feed is a locked preview with
 // an upgrade call to action.
 //
-// The feed is the same eight samples for everyone: it does not yet follow the user's holdings
-// or selected categories (there is no specification for real monitoring). Each card says
-// whether its holding is in the active portfolio.
+// A production event source is not configured, so the feed resolves empty instead of fabricating
+// alerts. The same cards and filters render automatically when a source is connected.
 import ReceiptPaper from '@/components/rally/ReceiptPaper.vue'
 import { usePortfolioData } from '@/composables/usePortfolioData'
 import { provider } from '@/data'
@@ -92,7 +91,7 @@ function markAllRead() {
             Your Rally · Alerts<template v-if="demo.isPaid && feed.unreadCount"> · {{ feed.unreadCount }} unread</template><template v-if="!demo.isPaid"> · paid plan</template>
           </p>
           <h1 class="feed__title">The latest<br />receipts.</h1>
-          <p class="lead">Sample alerts, not a live feed. They show what monitoring would tell you about what you hold.</p>
+          <p class="lead">No live event source is connected, so Rally does not manufacture alerts about what you hold.</p>
         </header>
 
         <!-- Free plan: a locked preview -->
@@ -102,7 +101,8 @@ function markAllRead() {
             <h2 class="title-lg">Rally keeps watch after you stop looking.</h2>
             <p class="body-muted">
               Live monitoring tells you when a company you hold is newly tagged, loses a tag, files, or drifts.
-              <template v-if="status === 'ready' && visible.length">Below is a preview of {{ visible.length }} of {{ plural(feed.alerts.length, 'sample alert') }}.</template>
+              <template v-if="status === 'ready' && visible.length">Below is a preview of {{ visible.length }} of {{ plural(feed.alerts.length, 'alert') }}.</template>
+              <template v-else-if="status === 'ready'">No live alert events are available yet.</template>
             </p>
           </div>
           <RouterLink :to="{ path: '/upgrade', query: { next: '/alerts' } }" class="btn btn-primary">See the paid plan</RouterLink>
@@ -156,7 +156,7 @@ function markAllRead() {
               <template v-if="hasPortfolio"> · {{ held.has(alert.ticker) ? 'in your portfolio' : 'not in your portfolio' }}</template>
             </p>
           </li>
-          <li v-if="!visible.length" class="feed__empty">No alerts in that category.</li>
+          <li v-if="!visible.length" class="feed__empty">{{ activeFilter ? 'No alerts in that category.' : 'No live alert events are connected yet.' }}</li>
         </ul>
         <p v-if="!demo.isPaid && status === 'ready' && feed.alerts.length > visible.length" class="label-mono">{{ feed.alerts.length - visible.length }} more on the paid plan</p>
       </div>
@@ -178,7 +178,7 @@ function markAllRead() {
             <li class="rule-top"><b>Filing</b><span>A new annual or quarterly report from a flagged holding.</span></li>
             <li class="rule-top"><b>Drift</b><span>A flagged holding has grown as a share of what you own.</span></li>
           </ul>
-          <p class="small">These eight are samples and the same for everyone. A real specification for live monitoring is still open.</p>
+          <p class="small">These are the supported event types. Rally shows no event until a real holdings and monitoring source is connected.</p>
         </section>
       </aside>
     </div>

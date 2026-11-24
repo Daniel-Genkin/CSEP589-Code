@@ -1,5 +1,5 @@
 <script setup lang="ts">
-// The one frame every screen sits in: sample-data banner, pill nav, the routed screen with a
+// The one frame every screen sits in: live-data banner, pill nav, the routed screen with a
 // view transition, and the footer with "Reset demo".
 import NavPill from '@/components/rally/NavPill.vue'
 import SiteFooter from '@/components/rally/SiteFooter.vue'
@@ -13,8 +13,8 @@ const router = useRouter()
 const demo = useDemoStore()
 const footerNote = computed(() =>
   demo.isLive
-    ? 'Design demo. Connected to an Alpaca paper-trading account: no real money moves. Tags and alerts are samples. Rally shares information, not investment advice.'
-    : 'Design demo. Sample data throughout: nothing connects to a real brokerage, payment or market-data service. Rally shares information, not investment advice.',
+    ? 'Alpaca supplies this paper account’s positions, quotes, history, and approved paper orders. TickerInside supplies dated ETF holdings and sector classifications under CC BY 4.0. No real money moves. Rally shares information, not investment advice.'
+    : 'Alpaca supplies quotes and history. TickerInside supplies dated ETF holdings and sector classifications under CC BY 4.0. Brokerage connections other than configured Alpaca paper trading remain simulated. Rally shares information, not investment advice.',
 )
 const alerts = useAlertsStore()
 
@@ -56,11 +56,11 @@ async function reset() {
       <span class="dot" style="--dot: var(--sun)" />
       <template v-if="demo.isLive">
         <strong>Paper account.</strong>
-        Your holdings are read from your Alpaca paper-trading account: real positions, no real money. Tags and alerts are samples.
+        Positions come from your Alpaca paper-trading account. Quotes and dated sector lines are live, and no real money moves.
       </template>
       <template v-else>
-        <strong>Sample data.</strong>
-        Prices are real market history. Holdings, weights, tags and alerts are samples, and nothing here is live.
+        <strong>Live market data.</strong>
+        Prices and history come from Alpaca. ETF holdings and sector lines use dated issuer and SEC data from TickerInside.
       </template>
     </p>
 

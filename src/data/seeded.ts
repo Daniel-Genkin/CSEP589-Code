@@ -8,7 +8,6 @@ import { backtestPortfolio } from '@/domain/backtest'
 import type { FundMap } from '@/domain/portfolio'
 import type { Alert, BacktestResult, Category, CategoryId, Exclusions, Holding, Portfolio, Security, ValuesTag } from '@/types'
 import { DEFAULT_PORTFOLIO_USD } from '@/config/defaults'
-import type { DataProvider } from './provider'
 import { ALERTS } from './seed/alerts'
 import { FEATURED_CATEGORIES, SECTOR_BASIS, SECTOR_COLOR, sectorCategoryId } from './seed/categories'
 import fundsFile from './seed/generated/funds.json'
@@ -36,7 +35,8 @@ export interface PriceHistory {
 
 const yahooUrl = (ticker: string) => `https://finance.yahoo.com/quote/${ticker}/`
 
-export class SeededProvider implements DataProvider {
+/** Legacy deterministic fixture for pure domain tests; it is not part of the production provider graph. */
+export class SeededProvider {
   private readonly securities: SeedSecurity[]
   private readonly byTicker: Map<string, SeedSecurity>
   private readonly funds: Record<string, { name: string; holdings: { ticker: string; weight: number }[] }>
@@ -180,6 +180,10 @@ export class SeededProvider implements DataProvider {
   getSecurities(tickers: string[]): Promise<Security[]> {
     const found = tickers.map((t) => this.byTicker.get(t.toUpperCase())).filter((s): s is SeedSecurity => Boolean(s))
     return this.wait(found.map((s) => this.toSecurity(s)))
+  }
+
+  getSecurityMetadata(tickers: string[]): Promise<Security[]> {
+    return this.getSecurities(tickers)
   }
 
   /**

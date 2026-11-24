@@ -72,10 +72,53 @@ describe('Alpaca market data middleware', () => {
   })
 
   it('returns an actionable no-store error when server credentials are absent', async () => {
-    const result = await handleMarketDataRequest(new URL('http://localhost/api/market-data?symbols=AAPL'), {})
+    const result = await handleMarketDataRequest(new URL('http://localhost/api/market-data?mode=latest&symbols=AAPL'), {})
     expect(result.status).toBe(503)
     expect(result.headers['Cache-Control']).toBe('no-store')
     expect((result.body as { error: { code: string } }).error.code).toBe('alpaca_not_configured')
+  })
+
+  it('serves keyless TickerInside profiles without Alpaca credentials or config', async () => {
+    const fetchImpl = vi.fn(async () =>
+      new Response(
+        JSON.stringify({
+          as_of: '2026-11-23',
+          stocks: [
+            ['AAPL', 'Apple Inc.', 'Information Technology'],
+            ['XOM', 'Exxon Mobil', 'Energy'],
+          ],
+        }),
+      ),
+    ) as typeof fetch
+    const result = await handleMarketDataRequest(
+      new URL('http://localhost/api/market-data?mode=profiles'),
+      {},
+      { fetchImpl },
+    )
+    expect(result.status).toBe(200)
+    expect(result.body).toMatchObject({
+      source: 'tickerinside',
+      asOf: '2026-11-23',
+      profiles: [
+        { ticker: 'AAPL', sector: 'Information Technology' },
+        { ticker: 'XOM', sector: 'Energy' },
+      ],
+    })
+  })
+
+  it('accepts the paper integration credential names and defaults to the paper asset API', async () => {
+    const fetchImpl = vi.fn(async (input: RequestInfo | URL) => {
+      expect(new URL(input.toString()).origin).toBe('https://paper-api.alpaca.markets')
+      return new Response(JSON.stringify([]))
+    }) as typeof fetch
+    const result = await handleMarketDataRequest(
+      new URL('http://localhost/api/market-data?mode=assets&symbols=AAPL'),
+      { ALPACA_KEY_ID: 'paper-key', ALPACA_SECRET_KEY: 'paper-secret' },
+      { fetchImpl },
+    )
+    expect(result.status).toBe(502)
+    expect((result.body as { error: { code: string } }).error.code).toBe('alpaca_empty_assets')
+    expect(fetchImpl).toHaveBeenCalledOnce()
   })
 
   it('serves symbol metadata from the Alpaca asset catalog without bundled securities', async () => {
@@ -137,7 +180,7 @@ describe('Alpaca market data middleware', () => {
     const fetchImpl = fetchMock as typeof fetch
     const result = await handleMarketDataRequest(
       new URL('http://localhost/api/market-data?mode=holdings&symbols=SPY'),
-      { ALPACA_API_KEY_ID: 'key', ALPACA_API_SECRET_KEY: 'secret' },
+      {},
       { fetchImpl },
     )
     expect(result.status).toBe(200)

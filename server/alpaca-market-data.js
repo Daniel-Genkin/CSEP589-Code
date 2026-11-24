@@ -1,5 +1,5 @@
 const DEFAULT_DATA_URL = 'https://data.alpaca.markets'
-const DEFAULT_TRADING_URL = 'https://api.alpaca.markets'
+const DEFAULT_TRADING_URL = 'https://paper-api.alpaca.markets'
 const DEFAULT_HOLDINGS_URL = 'https://tickerinside.com/api/v1'
 const ASSET_CACHE_TTL_MS = 15 * 60_000
 const HOLDINGS_CACHE_TTL_MS = 6 * 60 * 60_000
@@ -52,8 +52,8 @@ function defaultHistoryEnd(now) {
 }
 
 function credentialsFrom(env) {
-  const key = env.ALPACA_API_KEY_ID || env.APCA_API_KEY_ID
-  const secret = env.ALPACA_API_SECRET_KEY || env.APCA_API_SECRET_KEY
+  const key = env.ALPACA_API_KEY_ID || env.ALPACA_KEY_ID || env.APCA_API_KEY_ID
+  const secret = env.ALPACA_API_SECRET_KEY || env.ALPACA_SECRET_KEY || env.APCA_API_SECRET_KEY
   if (!key || !secret) {
     throw new MarketDataError(
       503,
@@ -62,6 +62,12 @@ function credentialsFrom(env) {
     )
   }
   return { key, secret }
+}
+
+function holdingsConfig(env) {
+  return {
+    holdingsUrl: String(env.TICKERINSIDE_BASE_URL || DEFAULT_HOLDINGS_URL).replace(/\/+$/, ''),
+  }
 }
 
 function alpacaConfig(env, now) {
@@ -81,7 +87,7 @@ function alpacaConfig(env, now) {
     historyEnd,
     dataUrl: String(env.ALPACA_DATA_URL || DEFAULT_DATA_URL).replace(/\/+$/, ''),
     tradingUrl: String(env.ALPACA_TRADING_API_URL || env.ALPACA_API_URL || DEFAULT_TRADING_URL).replace(/\/+$/, ''),
-    holdingsUrl: String(env.TICKERINSIDE_BASE_URL || DEFAULT_HOLDINGS_URL).replace(/\/+$/, ''),
+    ...holdingsConfig(env),
   }
 }
 
@@ -443,11 +449,11 @@ export async function handleMarketDataRequest(url, env = process.env, options = 
   const fetchImpl = options.fetchImpl ?? fetch
   const now = options.now ?? new Date()
   try {
-    const config = alpacaConfig(env, now)
     const mode = requestUrl.searchParams.get('mode') || 'latest'
     if (!['assets', 'latest', 'history', 'holdings', 'profiles'].includes(mode)) {
       throw new MarketDataError(400, 'invalid_mode', 'Mode must be assets, latest, history, holdings or profiles.')
     }
+    const config = mode === 'profiles' || mode === 'holdings' ? holdingsConfig(env) : alpacaConfig(env, now)
     if (mode === 'profiles') {
       return {
         status: 200,

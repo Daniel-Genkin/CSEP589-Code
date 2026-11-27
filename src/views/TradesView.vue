@@ -16,7 +16,8 @@ let listSignature: string | null = null
 // F7 Trade approval (paid). The trades that would carry out the what-if on the active portfolio.
 // Nothing is sent until the user approves it. For a list-only broker (and when no broker is
 // connected) the approve actions are replaced by "Copy list" and "Download CSV": a main path,
-// not a fallback. No Figma frame: built from docs/STYLE.md.
+// not a fallback. Laid out in the V7 style (docs/STYLE.md).
+import AppShell from '@/components/v7/AppShell.vue'
 import { usePortfolioData } from '@/composables/usePortfolioData'
 import { brokerById } from '@/config/brokers'
 import { provider } from '@/data'
@@ -262,350 +263,175 @@ function retry() {
   data.reload()
   void loadExtra()
 }
+
+/** Everything on the list has been sent or handed over: the basket is done. */
+const allSent = computed(() => rows.value.length > 0 && !unsent.value.length)
 </script>
 
 <template>
-  <div class="page">
-    <header class="page-head">
-      <p class="eyebrow">Your Rally · Trade approval<template v-if="demo.portfolio"> · {{ shortName(demo.portfolio) }}</template> · {{ demo.dataLabel }}</p>
-      <h1 class="page-title">Nothing moves<br />until you say so.</h1>
-      <p class="lead">
-        <template v-if="listOnly">The trades that would carry out your what-if, as a list to place at your broker.</template>
-        <template v-else>The trades that would carry out your what-if. Review them, then approve the ones you want sent.</template>
-      </p>
-    </header>
+  <AppShell active="basket" back-label="Basket · Step 2 of 3" title="Nothing moves until you say so." :body="listOnly ? 'The trades that carry out your basket, as a list to place at your broker.' : 'The trades that carry out your basket. Review them, then approve the ones you want sent.'">
+    <p v-if="demo.portfolio" class="label crumb">{{ shortName(demo.portfolio) }} · Trades · {{ demo.dataLabel }}</p>
 
-    <section v-if="live" class="orders-bar" aria-label="Open orders at Alpaca">
-      <p class="orders-bar__text">
-        <span class="label-mono">Alpaca paper account</span>
-        <span>{{ openOrders === null ? 'Checking open orders…' : `${plural(openOrders, 'open order')} waiting at Alpaca` }}</span>
-      </p>
-      <div class="orders-bar__actions">
-        <button v-if="confirmingCancel" type="button" class="btn btn-outline btn-md" @click="confirmingCancel = false">Keep them</button>
-        <button type="button" class="btn btn-outline btn-md" :disabled="cancelling || openOrders === 0" @click="cancelOpenOrders">
-          {{ cancelling ? 'Cancelling…' : confirmingCancel ? `Yes, cancel ${plural(openOrders ?? 0, 'order')}` : 'Cancel all open orders' }}
+    <section v-if="live" class="card-pad orders" aria-label="Open orders at Alpaca">
+      <p class="ot"><span class="label">Alpaca paper account</span><span>{{ openOrders === null ? 'Checking open orders…' : `${plural(openOrders, 'open order')} waiting at Alpaca` }}</span></p>
+      <div class="oa">
+        <button v-if="confirmingCancel" type="button" class="btn btn-secondary btn-sm" @click="confirmingCancel = false">Keep Them</button>
+        <button type="button" class="btn btn-secondary btn-sm" :disabled="cancelling || openOrders === 0" @click="cancelOpenOrders">
+          {{ cancelling ? 'Cancelling…' : confirmingCancel ? `Yes, Cancel ${plural(openOrders ?? 0, 'Order')}` : 'Cancel All Open Orders' }}
         </button>
       </div>
     </section>
 
-    <section v-if="!demo.portfolio" class="empty">
-      <p class="label-mono">No portfolio yet</p>
-      <p class="empty__title">There is nothing to trade until you pick what you hold.</p>
-      <div class="empty__actions">
-        <RouterLink to="/" class="btn btn-primary">Go to Home</RouterLink>
-        <RouterLink to="/connect" class="btn btn-outline">Connect brokerage</RouterLink>
-      </div>
+    <div v-if="!demo.portfolio" class="empty">
+      <p class="display">Nothing to trade.</p>
+      <p class="dim">Check a fund or connect an account first.</p>
+      <div class="btns"><RouterLink to="/check" class="btn btn-primary">Check a Fund</RouterLink><RouterLink to="/connect" class="btn btn-secondary">Connect an Account</RouterLink></div>
+    </div>
+
+    <section v-else-if="failed" class="card-pad err" role="alert">
+      <span class="tag" style="align-self: flex-start"><i class="dot" style="background: var(--flare)" />Trade list unavailable</span>
+      <b>The trade list couldn’t be worked out.</b>
+      <p class="dim">A price or holding is missing, so Rally won’t show a list that doesn’t add up. Nothing has been sent.</p>
+      <button type="button" class="btn btn-primary" style="align-self: flex-start" @click="retry">Try Again</button>
     </section>
 
-    <section v-else-if="failed" class="card card-pad failed" role="alert">
-      <span class="tag"><span class="dot" style="--dot: var(--flare)" />Trade list unavailable</span>
-      <h2 class="title-lg">The trade list couldn’t be worked out.</h2>
-      <p class="body-muted">A price or holding is missing, so no list is shown rather than one that does not add up. Nothing has been sent.</p>
-      <button type="button" class="btn btn-primary" @click="retry">Try again</button>
-    </section>
+    <div v-else-if="!ready" class="sk" style="height: 420px" role="status" aria-label="Working out the trade list" />
 
-    <div v-else-if="!ready" class="skeleton" style="height: 420px; border-radius: 28px" role="status" aria-label="Working out the trade list" />
-
-    <section v-else-if="!rows.length" class="empty">
-      <p class="label-mono">{{ hasExclusions(demo.exclusions) ? 'Nothing here to change' : 'Nothing excluded' }}</p>
-      <p class="empty__title">
-        <template v-if="hasExclusions(demo.exclusions)">Your exclusions don’t touch anything in this portfolio, so there are no trades.</template>
-        <template v-else>No trades to propose. Exclude a category or a company in What-if first.</template>
+    <div v-else-if="!rows.length" class="empty">
+      <p class="display">No trades.</p>
+      <p class="dim">
+        <template v-if="hasExclusions(demo.exclusions)">What you dropped isn’t in this fund, so there’s nothing to trade.</template>
+        <template v-else>Drop a company in your basket first.</template>
       </p>
-      <RouterLink to="/whatif" class="btn btn-primary">Open What-if</RouterLink>
-    </section>
+      <RouterLink to="/basket" class="btn btn-primary" style="align-self: flex-start">Go to Basket</RouterLink>
+    </div>
 
     <template v-else>
-      <p class="tax"><span class="dot" style="--dot: var(--sun)" />Selling can trigger a tax bill. Check before you place these.</p>
-      <p v-if="rows.some((r) => r.trade.side === 'buy')" class="why-buys">
-        <span class="dot" style="--dot: var(--brand-400)" />
-        <span>
-          <b>Why are there buys?</b> Selling frees up money, and Rally puts it back into what you keep (or into the company you swapped in) so your total stays the same and matches the What-if you tested.
-          Don’t want the buys? Untick them and approve only the sells. You’d then hold the proceeds as cash, which the What-if didn’t assume.
-        </span>
-      </p>
+      <div class="notes">
+        <p class="note"><i class="dot" style="background: var(--sun)" />Selling can trigger a tax bill. Check before you place these.</p>
+        <p v-if="rows.some((r) => r.trade.side === 'buy')" class="note">
+          <i class="dot" style="background: var(--link)" />
+          <span><b>Why are there buys?</b> Selling frees up money, and Rally puts it back into what you keep (or the company you swapped in), so your total stays the same and matches the What-if. Untick the buys to approve only the sells; you’d then hold the proceeds as cash.</span>
+        </p>
+      </div>
 
-      <section class="card list">
-        <header class="list__head">
+      <section class="card-pad trades">
+        <header class="th">
           <div>
-            <h2 id="trades-title" class="title-card">{{ plural(rows.length, 'proposed trade') }}</h2>
-            <p class="body-muted">
+            <h3 id="trades-title">{{ plural(rows.length, 'proposed trade') }}</h3>
+            <p class="dim s">
               <template v-if="broker">{{ broker.name }}{{ live ? ' paper account' : '' }} · {{ listOnly ? 'trade list only: place these yourself' : 'can place the trades you approve' }}</template>
-              <template v-else>No brokerage connected: copy or download the list, or <RouterLink to="/connect" class="link">connect one</RouterLink>.</template>
+              <template v-else>No account connected: copy or download the list, or <RouterLink to="/connect" class="lnk">connect one</RouterLink>.</template>
             </p>
           </div>
-          <div class="list__actions">
+          <div class="btns">
             <template v-if="listOnly">
-              <button type="button" class="btn btn-primary" @click="copy">Copy list</button>
-              <button type="button" class="btn btn-outline" @click="download">Download CSV</button>
+              <button type="button" class="btn btn-primary btn-sm" @click="copy">Copy List</button>
+              <button type="button" class="btn btn-secondary btn-sm" @click="download">Download CSV</button>
             </template>
             <template v-else>
-              <button type="button" class="btn btn-outline" :disabled="!selectedUnsent.length || sending" @click="approve(selectedUnsent)">Approve selected · {{ selectedUnsent.length }}</button>
-              <button type="button" class="btn btn-primary" :disabled="!unsent.length || sending" @click="approve(unsent)">{{ sending ? 'Sending…' : 'Approve all' }}</button>
+              <button type="button" class="btn btn-secondary btn-sm" :disabled="!selectedUnsent.length || sending" @click="approve(selectedUnsent)">Approve Selected · {{ selectedUnsent.length }}</button>
+              <button type="button" class="btn btn-primary btn-sm" :disabled="!unsent.length || sending" @click="approve(unsent)">{{ sending ? 'Sending…' : 'Approve All' }}</button>
             </template>
           </div>
         </header>
 
-        <div class="list__status">
-          <p v-if="confirmation && !listOnly" class="tag tag-pass"><span class="dot" style="--dot: var(--pass)" />{{ confirmation }}</p>
-          <p class="body-muted" role="status">{{ notice }}</p>
-          <p v-if="!listOnly && !confirmation && !notice" class="label-mono">Nothing has been sent</p>
-          <button v-if="live && sent.size" type="button" class="btn btn-outline btn-md" :disabled="refreshing" @click="refreshAccount">{{ refreshing ? 'Updating…' : 'Update portfolio from Alpaca' }}</button>
+        <div class="status">
+          <span v-if="confirmation && !listOnly" class="tag"><i class="dot" style="background: var(--green)" />{{ confirmation }}</span>
+          <p class="dim s" role="status">{{ notice }}</p>
+          <p v-if="!listOnly && !confirmation && !notice" class="label">Nothing has been sent</p>
+          <button v-if="live && sent.size" type="button" class="btn btn-secondary btn-sm" :disabled="refreshing" @click="refreshAccount">{{ refreshing ? 'Updating…' : 'Update From Alpaca' }}</button>
         </div>
-        <p v-if="partial && !listOnly" class="list__partial">
-          <span class="dot" style="--dot: var(--sun)" />
-          Selected: sells {{ usdCents(partial.sellUsd) }} · buys {{ usdCents(partial.buyUsd) }}. Approving part of the list leaves sells and buys unequal.
-        </p>
+        <p v-if="partial && !listOnly" class="note"><i class="dot" style="background: var(--sun)" />Selected: sells {{ usdCents(partial.sellUsd) }} · buys {{ usdCents(partial.buyUsd) }}. Approving part of the list leaves sells and buys unequal.</p>
 
         <table aria-labelledby="trades-title">
           <thead>
             <tr>
               <th v-if="!listOnly" scope="col"><span class="sr-only">Include</span></th>
               <th scope="col">Side</th>
-              <th scope="col">Ticker</th>
-              <th scope="col" class="num">Quantity</th>
+              <th scope="col">Company</th>
+              <th scope="col" class="num">Shares</th>
               <th scope="col" class="num">Estimated</th>
-              <th scope="col">Reason</th>
+              <th scope="col">Why</th>
               <th v-if="!listOnly" scope="col">Status</th>
             </tr>
           </thead>
           <tbody>
-            <tr v-for="row in rows" :key="row.key" :class="{ 'is-sent': sent.has(row.key) }">
+            <tr v-for="row in rows" :key="row.key" :class="{ sent: sent.has(row.key) }">
               <td v-if="!listOnly">
-                <input
-                  type="checkbox"
-                  :checked="selected.has(row.key)"
-                  :disabled="sent.has(row.key)"
-                  :aria-label="`Include ${row.trade.side} ${row.trade.ticker}`"
-                  @change="toggle(row)"
-                />
+                <input type="checkbox" class="cb" :checked="selected.has(row.key)" :disabled="sent.has(row.key)" :aria-label="`Include ${row.trade.side} ${row.trade.ticker}`" @change="toggle(row)" />
               </td>
-              <td>
-                <span class="side" :class="`side--${row.trade.side}`">{{ row.trade.side === 'sell' ? 'Sell' : 'Buy' }}</span>
-              </td>
-              <th scope="row" class="stock">
-                <span class="num-mono ticker">{{ row.trade.ticker }}</span>
-                <span class="name" :title="nameOf(row.trade.ticker)">{{ nameOf(row.trade.ticker) }}</span>
-              </th>
-              <td class="num num-mono">{{ row.trade.shares.toFixed(4) }}</td>
-              <td class="num num-mono">{{ usdCents(row.trade.estUsd) }}</td>
-              <td class="reason">{{ row.trade.reason }}</td>
-              <td v-if="!listOnly" class="label-mono status" :class="{ 'is-refused': orderResults.get(row.key)?.ok === false }">{{ statusOf(row) }}</td>
+              <td><span class="side" :class="row.trade.side">{{ row.trade.side === 'sell' ? 'Sell' : 'Buy' }}</span></td>
+              <th scope="row" class="co"><span class="mono tkc">{{ row.trade.ticker }}</span><span class="nm" :title="nameOf(row.trade.ticker)">{{ nameOf(row.trade.ticker) }}</span></th>
+              <td class="num mono">{{ row.trade.shares.toFixed(4) }}</td>
+              <td class="num mono">{{ usdCents(row.trade.estUsd) }}</td>
+              <td class="dim why">{{ row.trade.reason }}</td>
+              <td v-if="!listOnly" class="label st" :class="{ refused: orderResults.get(row.key)?.ok === false }">{{ statusOf(row) }}</td>
             </tr>
           </tbody>
         </table>
 
-        <p class="list__totals" :class="{ 'is-off': gap >= BALANCE_USD }">
-          <span class="num-mono">Sells {{ usdCents(totals.sellUsd) }} · Buys {{ usdCents(totals.buyUsd) }}</span>
-          <span v-if="gap < BALANCE_USD">{{ usdCents(gap) }} apart, from rounding quantities to four decimal places.</span>
+        <p class="totals" :class="{ off: gap >= BALANCE_USD }">
+          <span class="mono">Sells {{ usdCents(totals.sellUsd) }} · Buys {{ usdCents(totals.buyUsd) }}</span>
+          <span v-if="gap < BALANCE_USD">{{ usdCents(gap) }} apart, from rounding shares to four decimal places.</span>
           <span v-else>{{ usdCents(gap) }} apart: more than the {{ usdCents(BALANCE_USD) }} this list should stay within. Check it before placing anything.</span>
         </p>
       </section>
 
-      <p class="small">
-        <template v-if="live">These are market orders on your Alpaca paper account. Outside market hours they wait for the next open.</template>
-        Estimates use current Alpaca prices. A company held inside a fund cannot be sold on its own, so the fund is sold whole and the rest is bought back company by company.
-        Rally is not a broker and does not hold your money.
-      </p>
+      <div class="done">
+        <RouterLink v-if="listOnly" to="/basket/done?list=1" class="btn btn-primary">I’ve Got the List</RouterLink>
+        <RouterLink v-else to="/basket/done" class="btn btn-primary" :class="{ dis: !allSent }">Done</RouterLink>
+        <p class="caption">
+          <template v-if="live">These are market orders on your Alpaca paper account. Outside market hours they wait for the next open. </template>
+          Estimates use current Alpaca prices. A company inside a fund can’t be sold on its own, so the fund is sold whole and the rest is bought back company by company. Rally is not a broker and
+          doesn’t hold your money.
+        </p>
+      </div>
     </template>
-  </div>
+  </AppShell>
 </template>
 
 <style scoped>
-.empty {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 14px;
-  min-height: 260px;
-  padding: 24px;
-  border: 1px dashed var(--border);
-  border-radius: var(--radius-lg);
-  text-align: center;
-}
-.empty__title {
-  font-size: 20px;
-  font-weight: 600;
-}
-.empty__actions {
-  display: flex;
-  gap: 12px;
-}
-.failed {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-}
-.tax,
-.why-buys,
-.list__partial {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  color: var(--text-muted);
-}
-.orders-bar {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 16px;
-  padding: 14px 20px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-lg);
-}
-.orders-bar__text {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  font-size: 15px;
-}
-.orders-bar__actions {
-  display: flex;
-  gap: 10px;
-}
-.why-buys {
-  align-items: flex-start;
-  max-width: 72ch;
-  line-height: 1.5;
-}
-.why-buys .dot {
-  margin-top: 7px;
-}
-.why-buys b {
-  color: var(--text);
-  font-weight: 600;
-}
-.list {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-  padding: 28px 28px 24px;
-}
-.list__head {
-  display: flex;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 16px;
-}
-.list__head > div:first-child {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-.list__actions {
-  display: flex;
-  gap: 12px;
-}
-.list__status {
-  display: flex;
-  align-items: center;
-  gap: 14px;
-  min-height: 34px;
-}
-.list__status [role='status']:empty {
-  display: none;
-}
-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-thead th {
-  padding: 10px 12px;
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-align: left;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-tbody td,
-tbody th {
-  padding: 12px;
-  border-top: 1px solid var(--hairline);
-  font-size: 15px;
-  font-weight: 400;
-  text-align: left;
-  vertical-align: middle;
-}
-thead th.num,
-tbody td.num {
-  text-align: right;
-  white-space: nowrap;
-}
-.stock {
-  white-space: nowrap;
-}
-.ticker {
-  display: inline-block;
-  width: 64px;
-  color: var(--cream);
-}
-.name {
-  display: inline-block;
-  max-width: 170px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: bottom;
-  white-space: nowrap;
-  color: var(--text-muted);
-}
-.reason {
-  font-size: 14px;
-  color: var(--text-muted);
-}
-.status {
-  white-space: nowrap;
-}
-.is-sent .status {
-  color: var(--pass);
-}
-.status.is-refused {
-  color: var(--flare);
-  white-space: normal;
-}
-.is-sent td,
-.is-sent th {
-  background: rgba(74, 222, 128, 0.04);
-}
-.side {
-  display: inline-block;
-  min-width: 52px;
-  padding: 4px 10px;
-  border-radius: var(--radius-pill);
-  font-family: var(--font-mono);
-  font-size: 12px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-align: center;
-  text-transform: uppercase;
-}
-.side--sell {
-  background: var(--surface-2);
-  color: var(--text);
-}
-.side--buy {
-  background: var(--cream);
-  color: var(--ink);
-}
-.list__totals {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: baseline;
-  gap: 6px 16px;
-  padding: 16px 12px 0;
-  border-top: 1px solid var(--border);
-  font-size: 14px;
-  color: var(--text-muted);
-}
-.list__totals .num-mono {
-  font-size: 15px;
-  color: var(--text);
-}
-.list__totals.is-off span:last-child {
-  color: var(--sun);
-}
+.crumb { margin-top: -18px; }
+.orders { flex-direction: row; justify-content: space-between; align-items: center; gap: 16px; padding: 14px 18px; margin-bottom: 16px; }
+.ot { display: flex; flex-direction: column; gap: 4px; font-size: 15px; color: var(--white); }
+.oa, .btns { display: flex; gap: 10px; flex-wrap: wrap; }
+.btns .btn:disabled, .oa .btn:disabled { opacity: 0.4; pointer-events: none; }
+.notes { display: flex; flex-direction: column; gap: 10px; margin-bottom: 16px; }
+.note { display: flex; align-items: flex-start; gap: 10px; font-size: 14px; line-height: 1.45; color: var(--dim); max-width: 900px; }
+.note .dot { margin-top: 6px; flex: none; }
+.note b { color: var(--white); font-weight: 600; }
+.trades { padding: 22px; gap: 16px; }
+.th { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; }
+.th h3 { font-weight: 600; font-size: 20px; color: var(--white); }
+.s { font-size: 14px; margin-top: 4px; }
+.lnk { color: var(--link); }
+.status { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; min-height: 32px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; color: var(--white); }
+thead th { text-align: left; font-family: var(--mono); font-weight: 500; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mute); padding: 8px 10px; border-bottom: 1px solid var(--line); }
+td, tbody th { padding: 10px; border-bottom: 1px solid var(--line); vertical-align: middle; text-align: left; font-weight: 400; }
+.num { text-align: right; white-space: nowrap; }
+tr.sent td, tr.sent th { opacity: 0.55; }
+.cb { width: 18px; height: 18px; accent-color: var(--sun); }
+.side { display: inline-flex; height: 26px; align-items: center; padding: 0 10px; border-radius: 999px; font-weight: 600; font-size: 12px; }
+.side.sell { background: rgba(232, 90, 42, 0.16); color: var(--flare); }
+.side.buy { background: rgba(90, 107, 246, 0.18); color: var(--link); }
+.co { display: flex; align-items: center; gap: 10px; min-width: 0; }
+.tkc { width: 52px; font-size: 12px; color: var(--cream); flex: none; }
+.nm { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 240px; }
+.why { font-size: 13px; max-width: 320px; }
+.st { white-space: nowrap; }
+.st.refused { color: var(--flare); }
+.totals { display: flex; flex-direction: column; gap: 4px; font-size: 13px; color: var(--dim); }
+.totals .mono { color: var(--white); font-size: 14px; }
+.totals.off span:last-child { color: var(--flare); }
+.done { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; margin-top: 20px; max-width: 900px; }
+.dis { opacity: 0.4; pointer-events: none; }
+.empty { display: flex; flex-direction: column; gap: 14px; }
+.empty .display { font-size: 72px; color: var(--cream); }
+.err { gap: 12px; max-width: 640px; }
+.err b { font-size: 20px; color: var(--white); }
+.sk { border-radius: 20px; background: linear-gradient(90deg, #2a2832, #34313d, #2a2832); background-size: 200% 100%; animation: shimmer 1.4s linear infinite; }
+@keyframes shimmer { to { background-position: -200% 0; } }
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
 </style>

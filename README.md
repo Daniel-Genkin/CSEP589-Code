@@ -1,12 +1,14 @@
 # Rally
 
-A desktop Vue application that builds a portfolio from user-entered US stock and ETF symbols. Official security metadata comes from Alpaca's Assets API; current prices and historical bars come from the Alpaca Market Data API. Dated ETF constituent weights come from TickerInside's keyless API.
+Rally shows which companies are inside your funds and which ones cross the lines you care about. Pick a fund (or type a few tickers), pick your lines, and get a receipt of where every $100 goes.
 
-The production application has no bundled ETF constituent or values-tag dataset and no fabricated alert feed. Alpaca paper-trading is available when server credentials are configured; other brokerage connections use the live-priced fallback account.
+The UI is **Rally V7** (Figma page "Rally V7", described in `docs/STYLE.md`). Official security metadata comes from Alpaca's Assets API; current prices and historical bars come from the Alpaca Market Data API. Dated ETF constituent weights come from TickerInside's keyless API. Alpaca paper trading is available when server credentials are configured; other brokerage connections use a live-priced demo account.
 
-The product brief is `docs/PRD.md`. The look is defined in `docs/STYLE.md` (read from the Figma frames exported in `design/`). Build status, open conflicts and placeholders are tracked in `docs/PROGRESS.md`.
+**Sample data:** the nine lines are the issues from the Rally Investor Survey (question 11). Which companies cross which line is hand-written sample data in `src/data/lines.ts`, each tag pointing at the public record it would come from (USAspending, EPA ECHO, OSHA, FTC, FEC, EEOC, SEC EDGAR, Federal Register). The updates on Receipts, the Explore page and Redirect deposits are sample too. See `docs/PROGRESS.md` › Placeholders.
 
-> Alpaca market data; user-entered weights. Rally shares information, not investment advice.
+The product brief is `docs/PRD.md`. Build status, open conflicts and placeholders are tracked in `docs/PROGRESS.md`.
+
+> Live market data; sample values tags. Rally shares information, not investment advice.
 
 ## Run it
 
@@ -15,7 +17,7 @@ npm install
 npm run dev          # http://localhost:5173
 npm run build        # production build in dist/
 npm test             # unit tests (Vitest)
-npm run test:e2e     # the PRD's demo script in a real browser (Playwright; run `npx playwright install chromium` once)
+npm run test:e2e     # the V7 demo script in a real browser (Playwright; run `npx playwright install chromium` once)
 npm run typecheck    # vue-tsc over the TypeScript and Vue files
 ```
 
@@ -35,29 +37,36 @@ Holdings freshness varies by fund. State Street issuer files can be current with
 
 | Route | Screen | Tier |
 | --- | --- | --- |
-| `/` | Home: enter a fund or tickers | Free |
-| `/portfolio` | Portfolio: live positions, exposure and ETF look-through | Free |
-| `/whatif` | What-if: exclusions, alternatives and Alpaca history | Free |
-| `/settings` | Live TickerInside sector lines | Free |
-| `/upgrade` | Upgrade: pricing and simulated checkout | Wall |
-| `/connect` | Alpaca paper positions or a live-priced demo account | Paid |
-| `/trades` | Trade estimate, list, or approved Alpaca paper orders | Paid |
-| `/alerts` | Monitoring UI with no fabricated events | Paid |
+| `/` | Landing: scroll-driven page with a live sample check (no network calls) | Free |
+| `/check` → `/check/lines` → `/check/amount` → `/check/printing` → `/check/receipt` | Check a fund: pick a fund or tickers, pick your lines, optional amount, the receipt prints, then share or save | Free |
+| `/check/unsupported` | A ticker Rally can't find, or a fund whose holdings it can't read | Free |
+| `/home` | Dashboard: share that crosses your lines, dot grid, who crosses them, updates, what you can do (`?state=unavailable` pins the error state) | Free |
+| `/breakdown` | Companies and lines tabs, where every $100 goes, holdings by fund with the TickerInside date, why each company is flagged | Free |
+| `/whatif` | Switch off lines or companies: back-test against the S&P 500, growth chart, before and after, options to swap in | Free account |
+| `/basket` → `/basket/review` → `/trades` → `/basket/done` | Build a basket without the companies you drop, then the trades to carry it out | Trades are Plus |
+| `/receipts` | Updates on companies in your fund, and your receipt per $100 | Free (one update), Plus |
+| `/lines` | Switch any of the nine lines on or off, or add your own | Free |
+| `/explore`, `/alerts`, `/redirect` | Explore a company's record, an example alert email, redirect new deposits (sample) | Free |
+| `/connect` | Alpaca paper positions or a live-priced demo account | Plus |
+| `/upgrade`, `/signin`, `/account` | Plans, email-code sign-in (simulated), account and Reset demo | |
 
-Opening a paid screen on the free plan goes to `/upgrade?next=…` and returns there after the simulated upgrade. "Reset demo" in the footer clears everything the demo has stored.
+Opening a Plus screen on the free plan goes to `/upgrade?next=…` and returns there after the simulated upgrade. "Reset demo" in the footer clears everything the demo has stored. The old routes `/portfolio`, `/settings` and `/plans` redirect to `/home`, `/lines` and `/upgrade`.
 
 ## Layout
 
 ```
 src/types.ts        shared types (Security, Portfolio, Exclusions, …)
 src/state/          active portfolio and exclusions; persisted to localStorage
-src/router/         the eight routes and the plan gate
-src/data/           Alpaca provider and browser client; test-only legacy fixtures are not bundled
+src/router/         the routes and the plan gate
+src/data/           Alpaca provider and browser client; lines.ts holds the nine lines and their sample tags; test-only legacy fixtures are not bundled
 api/                Vercel function for the same-origin Alpaca middleware
 server/             Alpaca and TickerInside requests, pagination, validation, caching and aggregation
 src/domain/         pure functions: look-through, exposure, exclusions, back-test, trades
 src/composables/    data loading for screens (provider calls + domain functions)
-src/components/     layout (app shell), rally (nav, footer, receipt, chips, input), ui (toast, modal, toggle)
+src/components/v7/  the V7 components (shells, nav, rows, receipt, dot grid, toggle, dialogs); previews/ for the landing page
+src/components/ui/  the toast host
+src/landing/        sample data for the landing page previews
+src/v7/             scroll and number-tween helpers for the V7 motion
 src/views/          one file per screen
 src/styles/main.css design tokens and shared classes
 scripts/            screenshots for design review; legacy data-generation scripts are not used at runtime
@@ -67,7 +76,7 @@ The PRD's layers (data, domain, state, ui) arrive in that order; `docs/PROGRESS.
 
 ## Live Alpaca paper account (optional)
 
-With keys set, **Connect brokerage → Alpaca** reads a real Alpaca *paper-trading* account, and **Approve** on the Trades page places the approved trades there as market orders. Without keys everything stays simulated.
+With keys set, **Connect an account → Alpaca** reads a real Alpaca *paper-trading* account, and **Approve All** on the Trades page (Basket → Build My Basket → See the Trades) places the approved trades there as market orders. Without keys everything stays simulated.
 
 1. Create a free paper account at <https://app.alpaca.markets> and generate Paper Trading API keys.
 2. Copy `.env.example` to `.env.local` and fill in `ALPACA_API_KEY_ID` and `ALPACA_API_SECRET_KEY`. Never commit it. On Vercel, set the same two variables in the project settings.

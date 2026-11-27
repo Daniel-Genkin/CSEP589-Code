@@ -10,16 +10,16 @@ export const PLAN_PRICE_USD = 5
 export const planPriceLabel = (price = PLAN_PRICE_USD) => (Number.isInteger(price) ? `$${price}` : `$${price.toFixed(2)}`)
 
 export const FREE_FEATURES = [
-  'The one-line conflict count, with no signup',
-  'Every holding, with the reason and source for each tag',
-  'What-if: exclusions, back-tested against the S&P 500',
-  'Alternatives for what you exclude',
-  'Your own choice of values categories',
+  'Check a fund, no signup',
+  'Every company, flag and source',
+  'What-if, back-tested against the S&P 500',
+  'Options for what you switch off',
+  'Pick your own lines',
 ]
 
-/** What the paid plan adds (PRD F5). */
+/** What Plus adds (PRD F5): a connected account, updates on it, and trades you approve. */
 export const PAID_FEATURES = [
-  { title: 'Connect your brokerage', detail: 'Read-only. Rally checks what you actually hold; the money stays at your broker.' },
-  { title: 'Live monitoring', detail: 'Alerts when a company you hold is newly tagged, loses a tag, files, or drifts.' },
-  { title: 'Approval-gated trades', detail: 'Review the trades for your what-if. Nothing is sent until you approve it.' },
+  { title: 'Connect your account', detail: 'Read-only. Rally checks what you actually hold; the money stays at your broker.' },
+  { title: 'Updates on what you own', detail: 'Hear when a company you hold has something new on file.' },
+  { title: 'Build a basket', detail: 'Drop the companies you pick and approve every trade. Nothing is sent without you.' },
 ]

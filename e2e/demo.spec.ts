@@ -95,7 +95,7 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
-test('preserves the hosted flow with Alpaca quotes and TickerInside ETF holdings', async ({ page, baseURL }) => {
+test('runs the V7 demo script on Alpaca quotes and TickerInside ETF holdings', async ({ page, baseURL }) => {
   const consoleErrors: string[] = []
   const outside: string[] = []
   page.on('pageerror', (error) => consoleErrors.push(error.message))
@@ -109,38 +109,71 @@ test('preserves the hosted flow with Alpaca quotes and TickerInside ETF holdings
   // The demo script runs on the simulated account: keep the live Alpaca endpoint (set up on some machines) out of it.
   await page.route('**/api/alpaca', (route) => route.fulfill({ json: { configured: false } }))
 
+  // Landing, then the check flow: fund, lines, amount (skipped), printing, receipt.
   await page.goto('/')
+  await page.goto('/check')
   await expect(page.locator('.sample-banner')).toContainText('Live market data')
-
   const input = page.getByRole('combobox', { name: 'Fund or tickers' })
   await input.fill('SPY')
   await input.press('Enter')
-  await expect(page.locator('.teaser__line')).toContainText('holdings conflict.')
-  await page.locator('#teaser-email').fill('alex@example.com')
-  await page.getByRole('button', { name: 'Create free account' }).click()
-  await expect(page).toHaveURL(/\/portfolio$/)
+  await expect(page).toHaveURL(/\/check\/lines$/)
+  await page.getByRole('link', { name: 'Continue' }).click()
+  await page.getByRole('button', { name: 'Skip for Now' }).click()
+  await expect(page).toHaveURL(/\/check\/receipt$/, { timeout: 20_000 })
+  await expect(page.locator('h1.title')).toContainText('crosses')
+  await expect(page.locator('h1.title span')).not.toHaveText('…')
+
+  // Save the lines with a free account, then the dashboard and the breakdown with its source line.
+  await page.getByRole('button', { name: 'See What’s Inside' }).click()
+  await page.getByLabel('Email').fill('alex@example.com')
+  await page.getByRole('button', { name: 'Create Free Account' }).click()
+  await expect(page).toHaveURL(/\/home$/)
+  await expect(page.getByRole('heading', { name: 'Who crosses your lines' })).toBeVisible()
+  await page.getByRole('link', { name: 'See Breakdown' }).click()
   await expect(page.locator('.holdings tbody .group')).toHaveCount(1)
   await expect(page.locator('.holdings')).toContainText('SPY')
   await expect(page.locator('.holdings')).toContainText('2026-11-19')
   await expect(page.locator('.holdings')).toContainText('TickerInside')
 
-  await page.goto('/')
+  // A ticker list: two companies held directly, no fund rows.
+  await page.goto('/check')
   await input.fill('AAPL, MSFT')
   await input.press('Enter')
-  await expect(page.locator('.teaser__line')).toContainText('holdings conflict.')
-  await page.getByRole('button', { name: 'See the breakdown' }).click()
+  await page.getByRole('link', { name: 'Continue' }).click()
+  await page.getByRole('button', { name: 'Skip for Now' }).click()
+  await expect(page).toHaveURL(/\/check\/receipt$/, { timeout: 20_000 })
+  await page.getByRole('button', { name: 'See What’s Inside' }).click()
+  await expect(page).toHaveURL(/\/home$/)
+  await page.goto('/breakdown')
   await expect(page.locator('.holdings tbody tr:not(.group)')).toHaveCount(2)
-  await expect(page.locator('.holdings tbody tr').nth(0)).toContainText('AAPL')
+  await expect(page.locator('.holdings tbody')).toContainText('AAPL')
+  await expect(page.locator('.holdings tbody')).toContainText('MSFT')
 
-  await page.locator('.nav-pill .tabs').getByRole('link', { name: 'What-if' }).click()
-  await expect(page.locator('.results__three dd')).toHaveCount(3)
-  await page.getByRole('switch', { name: /Microsoft Corporation/ }).check({ force: true })
-  await expect(page.locator('.results__diff .stat-md')).not.toHaveText('0.00')
-  await expect(page.locator('.chart__line')).toHaveCount(3)
+  // What-if: switch Microsoft off and the back-test moves.
+  await page.locator('.nav-pill').getByRole('link', { name: 'What-if' }).click()
+  await expect(page.locator('.trio dd')).toHaveCount(3)
+  await expect(page.locator('.chart-line')).toHaveCount(3)
+  await page.getByRole('switch', { name: /Microsoft/ }).first().click()
+  await expect(page.getByRole('switch', { name: /Microsoft/ }).first()).toHaveAttribute('aria-checked', 'true')
+  await expect(page.locator('.points')).not.toHaveText('0.00')
 
+  // Basket: review, then the trades behind the Plus gate, handed over as a list.
+  await page.locator('.nav-pill').getByRole('link', { name: 'Basket' }).click()
+  await expect(page.locator('.list').first()).toContainText('MSFT')
+  await page.getByRole('link', { name: 'Build My Basket' }).click()
+  await expect(page).toHaveURL(/\/basket\/review$/)
+  await page.getByRole('link', { name: /See the Trades/ }).click()
+  await expect(page).toHaveURL(/\/upgrade\?next=/)
+  await page.getByRole('button', { name: 'Try Plus' }).click()
+  await expect(page).toHaveURL(/\/trades$/)
+  await expect(page.locator('table tbody tr').first()).toContainText('MSFT')
+  await page.getByRole('link', { name: 'I’ve Got the List' }).click()
+  await expect(page.getByRole('heading', { name: 'Your list is ready.' })).toBeVisible()
+
+  // Reset clears everything saved on this device.
   await page.getByRole('button', { name: 'Reset demo' }).click()
   await expect(page).toHaveURL(/\/$/)
-  await expect(page.locator('.teaser')).toHaveCount(0)
+  expect(await page.evaluate(() => localStorage.getItem('rally.demo.v1'))).toBeNull()
 
   expect(consoleErrors).toEqual([])
   expect(outside).toEqual([])

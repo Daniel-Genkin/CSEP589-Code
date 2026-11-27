@@ -21,26 +21,8 @@ import type {
   ValuesTag,
 } from '@/types'
 import { AlpacaMarketDataClient, type AlpacaAsset, type MarketDataReader, type SecurityProfile } from './alpaca-client'
+import { lineCategories, SAMPLE_ALERTS, sampleLineTags } from './lines'
 import type { DataProvider } from './provider'
-
-const CATEGORY_ORDER = [
-  'Information Technology',
-  'Financials',
-  'Health Care',
-  'Consumer Discretionary',
-  'Energy',
-  'Industrials',
-  'Communication Services',
-  'Consumer Staples',
-  'Materials',
-  'Real Estate',
-  'Utilities',
-]
-const FEATURED_COUNT = 7
-const CATEGORY_COLORS = ['var(--bubblegum)', 'var(--flare)', 'var(--sun)', 'var(--violet)', 'var(--brand-300)', 'var(--cream)', 'var(--pass)']
-
-const categoryId = (sector: string) => `sector:${sector.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`
-const categoryBySector = (sector: string) => categoryId(sector)
 
 const SAMPLE_TICKERS = ['AAPL', 'MSFT', 'NVDA', 'AMZN', 'GOOGL', 'XOM', 'TSLA', 'COST', 'LMT', 'DIS', 'JPM', 'MO']
 const CONNECTED_SPEC = [
@@ -135,30 +117,20 @@ export class AlpacaProvider implements DataProvider {
     }
   }
 
+  /** Which lines each company crosses. Sample tags for the V7 demo (src/data/lines.ts), not live data. */
   async getTags(tickers: string[]): Promise<ValuesTag[]> {
-    const profiles = await this.profileMap()
-    return [...new Set(tickers.map((ticker) => ticker.toUpperCase()))].flatMap((ticker) => {
-      const profile = profiles.get(ticker)
-      if (!profile) return []
-      return [
-        {
-          ticker,
-          category: categoryBySector(profile.sector),
-          strength: 3 as const,
-          reason: `TickerInside sector: ${profile.sector}.`,
-          sourceUrl: profile.sourceUrl,
-        },
-      ]
-    })
+    return sampleLineTags(tickers)
   }
 
+  /** Up to three companies in the same TickerInside sector that cross none of the excluded lines. */
   async getAlternatives(ticker: string, excluded: CategoryId[]): Promise<Security[]> {
     const profiles = [...(await this.profileMap()).values()]
     const target = profiles.find((profile) => profile.ticker === ticker.toUpperCase())
     if (!target) return []
     const blocked = new Set(excluded)
+    const crossing = new Set(sampleLineTags(profiles.map((p) => p.ticker)).filter((tag) => blocked.has(tag.category)).map((tag) => tag.ticker))
     const alternatives = profiles
-      .filter((profile) => profile.ticker !== target.ticker && profile.sector === target.sector && !blocked.has(categoryBySector(profile.sector)))
+      .filter((profile) => profile.ticker !== target.ticker && profile.sector === target.sector && !crossing.has(profile.ticker))
       .slice(0, 3)
     return this.getSecurities(alternatives.map((profile) => profile.ticker))
   }
@@ -186,24 +158,18 @@ export class AlpacaProvider implements DataProvider {
     return runBacktest(original, filtered, history, history.benchmark)
   }
 
+  /** Sample updates on held companies (src/data/lines.ts) until live monitoring exists. */
   async getAlerts(): Promise<Alert[]> {
-    return []
+    return SAMPLE_ALERTS
   }
 
   async parseScreenshot(_image: Blob): Promise<Holding[]> {
     return (await this.getSamplePortfolio('sample')).holdings
   }
 
+  /** The nine lines from the investor survey. */
   async getCategories(): Promise<Category[]> {
-    const present = new Set((await this.market.getSecurityProfiles()).map((profile) => profile.sector))
-    const sectors = [...CATEGORY_ORDER.filter((sector) => present.has(sector)), ...[...present].filter((sector) => !CATEGORY_ORDER.includes(sector)).sort()]
-    return sectors.map((sector, index) => ({
-      id: categoryBySector(sector),
-      label: sector,
-      featured: index < FEATURED_COUNT,
-      basis: 'TickerInside sector classification',
-      color: CATEGORY_COLORS[index % FEATURED_COUNT] ?? 'var(--bar-muted)',
-    }))
+    return lineCategories()
   }
 
   private async profileMap(): Promise<Map<string, SecurityProfile>> {

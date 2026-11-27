@@ -1,7 +1,42 @@
-# Rally v1 progress
+# Rally progress
 
 Working notes for the build described in `docs/AGENT_TASK.md`. Updated after every PR.
 If you are picking this up cold: read this file and `docs/STYLE.md` first.
+
+## Rally V7 UI (branch `rally-v7-demo`)
+
+The V7 design (Figma page "Rally V7") replaces the whole UI. The data, domain and server layers stay: live Alpaca prices and history, dated TickerInside fund holdings with attribution, the back-test, exclusions and redistribution, trade proposals, Alpaca paper orders, the plan gate and Reset demo. Sections further down describe the v1 build before V7; where they disagree, this section wins.
+
+**Screens** (see the README table): Landing, the check flow (fund, lines, amount, printing, receipt, unsupported), Home, Breakdown, What-if, Basket (review, trades, done), Receipts, Lines, Explore, Alerts example, Redirect, Connect, Plans, Sign in, Account, Not found. Old screens and components (`PortfolioView`, `SettingsView`, `UpgradeView`, `components/rally`, `components/layout`, `UiModal`, `UiToggle`, `InfoTip`) are removed with their tests. `/portfolio`, `/settings` and `/plans` redirect.
+
+**What is real and what is sample**
+
+| Live | Sample (marked on screen) |
+| --- | --- |
+| Fund and stock search, prices, history (Alpaca) | Which companies cross which line (`src/data/lines.ts`) |
+| Fund holdings with date and CC BY 4.0 attribution (TickerInside) | Updates on Receipts (`SAMPLE_ALERTS`) |
+| Exposure, receipt, dot grid, breakdown, back-test, swaps, trades | Explore, the example alert email, Redirect deposits, landing previews |
+| Alpaca paper account and orders, when keys are set | Sign-in code (any six digits), Plus upgrade (no payment) |
+
+**Verification:** `npm run typecheck` and `npm test` pass. `e2e/demo.spec.ts` is rewritten for the V7 flow (check SPY → receipt → save → Home → Breakdown with the TickerInside line; tickers AAPL, MSFT → Breakdown; What-if switch; Basket → review → Plus gate → trades → done; Reset demo). It was not run on this machine because Playwright's Chromium isn't installed (`npx playwright install chromium`). The same steps were walked by hand in a browser against a local mock of `/api/market-data`.
+
+### Conflicts logged with V7
+
+16. **Sample values tags.** v1 removed every fabricated dataset ("no bundled values-tag dataset, no fabricated alert feed"). V7 needs companies on the nine survey lines, and no source-checked tags exist yet, so the team chose hand-written sample tags. Every tag carries a reason and the public record it would come from, and every screen that shows one says it is sample. Replace with real tags before anyone relies on a result.
+17. **Lines replace categories.** The PRD's values categories and the v1 sector lines are replaced by the nine issues from the Rally Investor Survey (question 11): Military & defense, Environment & climate, Human rights & conflict, Labor practices, Data privacy (picked by default), Political donations, Diversity & inclusion, Corporate taxes, Animal welfare. Each has a one-line description.
+18. **Vocabulary and navigation.** V7 uses Figma's words throughout: lines, receipts, basket, Home. Tabs are Home, What-if, Basket, Receipts, Lines, Explore. This settles conflicts 4 and 11 in V7's favour.
+19. **Result before signup.** The PRD allowed only a one-line count before a free account (conflict 13). V7 shows the full receipt and lets people share it; the breakdown, What-if and Basket come after a free account.
+20. **Sharing the receipt.** Conflict 10 removed sharing; V7 brings back Share and Save Image. The share card shows holdings and lines per $100 only, never balances or returns. The buttons close the dialog; no image is made yet.
+21. **Basket and trades.** V7's basket flow in Figma opens a brokerage account, takes an SSN and moves money. The app keeps the PRD's behaviour instead: Basket uses the What-if exclusions, Review shows what changes, and the existing approval-gated trade list carries it out (Plus). No account opening or money movement.
+22. **Growth chart table view.** The v1 chart had a "View as a table" and arrow-key navigation on the plot. The V7 chart has a hover crosshair, a keyboard slider and a readout of every series; the table view is gone. For design review.
+
+### Placeholders added with V7
+
+- **Line tags** (`src/data/lines.ts`): about 55 large US companies, hand-written. Companies outside that list are never flagged, so a fund can read lower than it should.
+- **Updates** (`SAMPLE_ALERTS`): five invented examples on XOM, LMT, PLTR, META and AMZN.
+- **Lines you add yourself**: kept for the visit and shown on Lines, not checked against anything.
+- **Explore, Redirect, the alert email and the landing previews** run on `src/landing/sample.js`.
+- **Plan name and price**: "Plus" at `PLAN_PRICE_USD` ($5), still a placeholder.
 
 ## Status
 

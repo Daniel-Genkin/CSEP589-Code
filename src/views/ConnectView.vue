@@ -1,52 +1,48 @@
 <script setup lang="ts">
-// F6 Connect brokerage (paid). Pick a broker; Alpaca can read a paper account, while the other
-// brokers load a live-priced demo account. Rally only reads what you own: the money stays at your broker, and trades
-// need separate approval. No Figma frame: built from docs/STYLE.md.
-import ConnectedBadge from '@/components/rally/ConnectedBadge.vue'
-import UiModal from '@/components/ui/UiModal.vue'
+// Connect an account (paid). Pick a broker; Alpaca can read a real paper account, the others load
+// a live-priced demo account. Rally only reads what you hold: the money stays at your broker, and
+// trades need your approval one by one.
+import { computed, onBeforeUnmount, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import FlowShell from '@/components/v7/FlowShell.vue'
+import Row from '@/components/v7/Row.vue'
 import { BROKERS, CAPABILITY_LABEL, CONNECT_MS, type Broker, brokerById } from '@/config/brokers'
 import { loadAlpaca } from '@/data/alpaca'
 import { provider } from '@/data'
+import { whole } from '@/composables/useLinesResult'
 import { useDemoStore } from '@/state/demo'
-import { plural, usd } from '@/utils/format'
-import { computed, nextTick, onBeforeUnmount, ref } from 'vue'
-import { useRouter } from 'vue-router'
+import type { BrokerId } from '@/types'
+import { plural } from '@/utils/format'
 
-const demo = useDemoStore()
+const props = defineProps<{ step?: string }>()
+const route = useRoute()
 const router = useRouter()
+const demo = useDemoStore()
 
-const connecting = ref<Broker | null>(null)
-const failed = ref(false)
+const n = computed(() => Number(props.step || 1))
+const picked = computed<Broker>(() => brokerById(route.query.b as BrokerId) ?? brokerById(demo.portfolio?.brokerId) ?? BROKERS[0])
+const connected = computed(() => (demo.isConnected ? brokerById(demo.portfolio?.brokerId) : null))
+const TILE: Record<string, string> = { alpaca: 'ALP', webull: 'WB', schwab: 'SCHW', robinhood: 'RH', fidelity: 'FID' }
+
+const connecting = ref(false)
 const failure = ref('')
-/** True when `notice` is a warning (the sample account was loaded instead of the live one) */
-const noticeWarns = ref(false)
+/** Set when the live Alpaca account couldn't be reached and the demo account was loaded instead. */
+const fellBack = ref('')
 const refreshing = ref(false)
-let attempt = 0
-/** The button that opened the dialog, so focus can go back to it. */
-let trigger: HTMLElement | null = null
-const modal = ref<{ focus: () => void } | null>(null)
-const brokersTitle = ref<HTMLElement | null>(null)
-/** What just happened, for a screen reader: the section it describes may have been removed. */
 const notice = ref('')
+let attempt = 0
 
-/** The paper account answered but holds nothing: the person has to fix that, so it is shown, not hidden by a fallback. */
+/** The paper account answered but holds nothing: that needs fixing at Alpaca, so it is shown, not hidden by a fallback. */
 class EmptyAccount extends Error {}
 
-const connected = computed(() => (demo.isConnected ? brokerById(demo.portfolio?.brokerId) : null))
-const DOT: Record<Broker['capability'], string> = { trades: 'var(--pass)', case_by_case: 'var(--sun)', list_only: 'var(--brand-400)' }
-
-async function connect(broker: Broker, event?: Event) {
+async function connect() {
+  const broker = picked.value
   const mine = ++attempt
-  if (event?.currentTarget instanceof HTMLElement && !connecting.value) trigger = event.currentTarget
-  connecting.value = broker
-  failed.value = false
+  connecting.value = true
   failure.value = ''
-  notice.value = ''
-  noticeWarns.value = false
+  fellBack.value = ''
   try {
-    // Alpaca reads the real paper account when the server has keys for one. Every other broker
-    // (and Alpaca without keys) is simulated with current market prices.
-    let fellBack = ''
+    let fell = ''
     const load = async () => {
       if (broker.id === 'alpaca') {
         try {
@@ -57,306 +53,129 @@ async function connect(broker: Broker, event?: Event) {
           }
         } catch (error) {
           if (error instanceof EmptyAccount) throw error
-          // Alpaca is unreachable or refused the keys: keep the demo going on the sample account, and say so.
-          fellBack = error instanceof Error ? error.message : 'no answer'
+          fell = error instanceof Error ? error.message : 'no answer'
         }
       }
       return { ...(await provider.getSamplePortfolio('connected')), brokerId: broker.id }
     }
     const [account] = await Promise.all([load(), new Promise((resolve) => setTimeout(resolve, CONNECT_MS))])
-    if (mine !== attempt) return // cancelled, or another broker was picked meanwhile
+    if (mine !== attempt) return
     demo.connect(account)
-    connecting.value = null
-    if (fellBack) {
-      // Stay here so the note is seen: the simulated account is loaded, not the live one.
-      notice.value = `Couldn’t reach your Alpaca paper account (${fellBack}). Rally loaded the live-priced demo account instead. Connect Alpaca again to retry.`
-      noticeWarns.value = true
-      void nextTick(() => brokersTitle.value?.focus())
-      return
-    }
-    router.push('/portfolio')
+    fellBack.value = fell
+    connecting.value = false
+    router.replace({ path: '/connect/3', query: { b: broker.id } })
   } catch (error) {
     if (mine !== attempt) return
-    failed.value = true
-    failure.value = error instanceof Error ? error.message : ''
+    connecting.value = false
+    failure.value = error instanceof Error ? error.message : 'The account didn’t answer.'
   }
 }
 
-/** Read the live account again, for example after trades were placed outside Rally. */
 async function refresh() {
   refreshing.value = true
-  noticeWarns.value = false
   try {
     const live = await loadAlpaca()
     if (live.configured && live.portfolio) {
       demo.updatePortfolio(live.portfolio)
-      notice.value = `Alpaca paper account refreshed: ${plural(live.portfolio.holdings.length, 'holding')}.`
+      notice.value = `Refreshed: ${plural(live.portfolio.holdings.length, 'holding')}.`
     }
   } catch (error) {
-    notice.value = error instanceof Error ? error.message : 'Could not refresh the account.'
+    notice.value = error instanceof Error ? error.message : 'Couldn’t read the account.'
   } finally {
     refreshing.value = false
   }
 }
-
-function cancel() {
-  attempt += 1
-  connecting.value = null
-  failed.value = false
-  const back = trigger
-  trigger = null
-  void nextTick(() => back?.isConnected && back.focus())
-}
-
-/** "Try again" is removed when the attempt restarts, so move focus to the dialog. */
-function retry(broker: Broker) {
-  void connect(broker)
-  modal.value?.focus()
-}
-
 function disconnect() {
   const name = connected.value?.name ?? 'Your broker'
   demo.disconnect()
-  noticeWarns.value = false
   notice.value = demo.portfolio ? `${name} disconnected. Back to ${demo.portfolio.name}.` : `${name} disconnected.`
-  // The card that held the button is gone.
-  void nextTick(() => brokersTitle.value?.focus())
+  router.replace('/connect')
 }
 onBeforeUnmount(() => (attempt += 1))
+
+const top = computed(() => [...(demo.portfolio?.holdings ?? [])].sort((a, b) => b.valueUsd - a.valueUsd).slice(0, 5))
 </script>
 
 <template>
-  <div class="page">
-    <header class="page-head">
-      <p class="eyebrow">Your Rally · Connect brokerage · paid plan · {{ demo.dataLabel }}</p>
-      <h1 class="page-title">Bring your<br />account.</h1>
-      <p class="lead">Rally reads what you own. The money stays at your broker.</p>
-      <ul class="trust">
-        <li class="tag"><span class="dot" />Read-only connection</li>
-        <li class="tag"><span class="dot" />Rally never holds your money</li>
-        <li class="tag"><span class="dot" />Trades need your approval, every time</li>
-      </ul>
-    </header>
-
-    <section v-if="connected" class="card linked">
-      <div class="linked__text">
-        <ConnectedBadge :portfolio="demo.portfolio" />
-        <h2 class="title-lg">{{ connected.name }} is connected.</h2>
-        <p class="body-muted">
-          {{ plural(demo.portfolio!.holdings.length, 'holding') }} · {{ usd(demo.portfolio!.totalUsd) }} · {{ demo.portfolio!.live ? 'paper account, live from Alpaca' : 'simulated account with live prices' }} · {{ CAPABILITY_LABEL[connected.capability].toLowerCase() }}
-        </p>
-      </div>
-      <div class="linked__actions">
-        <RouterLink to="/portfolio" class="btn btn-primary">See connected holdings</RouterLink>
-        <RouterLink to="/trades" class="btn btn-outline">Review trades</RouterLink>
-        <button v-if="demo.portfolio!.live" type="button" class="btn btn-outline" :disabled="refreshing" @click="refresh">{{ refreshing ? 'Refreshing…' : 'Refresh' }}</button>
-        <button type="button" class="btn btn-outline" @click="disconnect">Disconnect</button>
-      </div>
-    </section>
-
-    <div class="page-cols">
-      <section class="col-main card card-pad brokers">
-        <header class="row-between">
-          <h2 ref="brokersTitle" class="title-card" tabindex="-1">{{ connected ? 'Switch broker' : 'Choose your broker' }}</h2>
-          <p class="label-mono">{{ BROKERS.length }} brokers · Alpaca paper + demo</p>
-        </header>
-        <p class="brokers__notice" :class="{ 'is-warn': noticeWarns }" role="status">{{ notice }}</p>
-        <ul>
-          <li v-for="broker in BROKERS" :key="broker.id" class="broker rule-top">
-            <span class="ticker-tile ticker-tile-lg broker__tile">{{ broker.name.slice(0, 2).toUpperCase() }}</span>
-            <div class="broker__text">
-              <h3 class="broker__name">{{ broker.name }}</h3>
-              <p class="broker__can"><span class="dot" :style="{ '--dot': DOT[broker.capability] }" />{{ CAPABILITY_LABEL[broker.capability] }}</p>
-              <p class="small">{{ broker.note }}</p>
-            </div>
-            <span v-if="connected?.id === broker.id" class="label-mono">Connected</span>
-            <button v-else type="button" class="btn btn-outline btn-md" :aria-label="`Connect ${broker.name}`" @click="connect(broker, $event)">Connect</button>
-          </li>
-        </ul>
-      </section>
-
-      <aside class="col-side">
-        <section class="card card-pad facts">
-          <h2 class="title-card">What connecting does.</h2>
-          <ul>
-            <li class="rule-top">
-              <b>Reads what you hold</b>
-              <span>So the portfolio, what-if and trades are about your real account, not a sample you typed.</span>
-            </li>
-            <li class="rule-top">
-              <b>Never moves money</b>
-              <span>Rally is not a broker, a fund or an adviser. Your money and your shares stay where they are.</span>
-            </li>
-            <li class="rule-top">
-              <b>Sends nothing unapproved</b>
-              <span>Where the broker allows it, Rally places the trades you approve. Otherwise you get a list to place yourself.</span>
-            </li>
-          </ul>
-          <p class="small">Other brokers load a fixed demo account with current market prices. Alpaca can read your paper-trading account when its keys are configured; no real money moves.</p>
-        </section>
-      </aside>
+  <!-- Already connected: what's linked, and how to undo it -->
+  <FlowShell
+    v-if="n === 1 && connected"
+    :steps="3"
+    :step="3"
+    label="Connect"
+    back="/home"
+    logo-to="/home"
+    :title="`Connected to ${connected.name}.`"
+    :body="demo.isLive ? 'Rally reads your Alpaca paper account. Disconnect any time.' : 'Rally reads a live-priced demo account for this broker. Disconnect any time.'"
+  >
+    <div class="section-head"><h3>{{ connected.name }}{{ demo.isLive ? ' · Paper account' : ' · Demo account' }}</h3><span class="meta">{{ CAPABILITY_LABEL[connected.capability] }}</span></div>
+    <div class="list">
+      <Row v-for="h in top" :key="h.ticker" :tk="h.ticker" :title="h.ticker" :sub="`${(h.weight * 100).toFixed(1)}% of the account`" :right="whole(h.valueUsd)" />
     </div>
+    <p v-if="notice" class="caption" role="status">{{ notice }}</p>
+    <RouterLink to="/home" class="btn btn-primary btn-block">See What Crosses Your Lines</RouterLink>
+    <button v-if="demo.isLive" class="btn btn-secondary btn-block" :disabled="refreshing" @click="refresh">{{ refreshing ? 'Refreshing…' : 'Refresh From Alpaca' }}</button>
+    <button class="btn-link" style="align-self: flex-start" @click="disconnect">Disconnect {{ connected.name }}</button>
+  </FlowShell>
 
-    <UiModal ref="modal" :open="connecting !== null" size="sm" :label="connecting ? `Connecting to ${connecting.name}` : 'Connecting'" @close="cancel">
-      <div v-if="connecting" class="dialog">
-        <template v-if="failed">
-          <span class="tag"><span class="dot" style="--dot: var(--flare)" />Not connected</span>
-          <div role="alert">
-            <h2 class="title-lg">That didn’t connect.</h2>
-            <p class="body-muted">{{ failure || 'Nothing was loaded and nothing changed.' }}</p>
-          </div>
-          <div class="dialog__actions">
-            <button type="button" class="btn btn-primary" @click="retry(connecting)">Try again</button>
-            <button type="button" class="btn btn-outline" @click="cancel">Close</button>
-          </div>
-        </template>
-        <template v-else>
-          <span class="tag"><span class="dot" />{{ connecting.id === 'alpaca' ? 'Read-only · paper trading' : 'Read-only · simulated' }}</span>
-          <h2 class="title-lg">Connecting to {{ connecting.name }}…</h2>
-          <p class="body-muted">Reading the holdings in your account. Rally can see what you own; it cannot move it.</p>
-          <div class="dialog__bar" role="progressbar" :aria-label="`Connecting to ${connecting.name}`"><span /></div>
-          <button type="button" class="btn btn-outline btn-md" @click="cancel">Cancel</button>
-        </template>
+  <FlowShell v-else-if="n === 1" :steps="3" :step="1" label="Connect · Step 1 of 3" back="/home" logo-to="/home" title="Where do you invest?" body="Rally reads what you hold. It can’t move money, and every trade needs your approval.">
+    <div class="section-head"><h3>Choose your app</h3></div>
+    <div class="list">
+      <RouterLink v-for="b in BROKERS" :key="b.id" :to="{ path: '/connect', query: { b: b.id } }" replace class="pick" :aria-current="picked.id === b.id">
+        <Row :tk="TILE[b.id]" :title="b.name" :sub="`${CAPABILITY_LABEL[b.capability]} · ${b.note}`" :icon="picked.id === b.id ? 'check' : undefined" />
+      </RouterLink>
+    </div>
+    <p v-if="notice" class="caption" role="status">{{ notice }}</p>
+    <RouterLink :to="{ path: '/connect/2', query: { b: picked.id } }" class="btn btn-primary btn-block">Continue With {{ picked.name }}</RouterLink>
+    <RouterLink to="/check" class="btn-link" style="align-self: flex-start">Type a Fund Instead</RouterLink>
+  </FlowShell>
+
+  <FlowShell v-else-if="n === 2" :steps="3" :step="2" label="Connect · Step 2 of 3" :back="`/connect?b=${picked.id}`" logo-to="/home" title="Here’s what Rally sees." :body="`You sign in on ${picked.name}’s own site, so Rally never sees your password. You can disconnect any time.`">
+    <div class="section-head"><h3>Rally can see</h3></div>
+    <div class="list">
+      <Row title="Which funds and stocks you hold" icon="check" />
+      <Row title="How much is in each one" icon="check" />
+    </div>
+    <div class="section-head"><h3>Rally can’t</h3></div>
+    <div class="list">
+      <Row title="Move money in or out" icon="close" />
+      <Row title="Place a trade without your approval" icon="close" />
+      <Row title="See your password" icon="close" />
+    </div>
+    <div v-if="failure" class="note" role="alert"><p class="label" style="color: var(--flare)">Couldn’t connect</p><p>{{ failure }}</p></div>
+    <button class="btn btn-primary btn-block" :disabled="connecting" @click="connect">{{ connecting ? `Connecting to ${picked.name}…` : failure ? 'Try Again' : `Continue to ${picked.name}` }}</button>
+    <RouterLink to="/home" class="btn-link" style="align-self: flex-start">Not Now</RouterLink>
+    <p class="caption">{{ picked.id === 'alpaca' ? 'Reads your Alpaca paper account when this server has keys for one; otherwise a live-priced demo account.' : 'Demo: loads a live-priced sample account for this broker.' }}</p>
+  </FlowShell>
+
+  <FlowShell
+    v-else
+    :steps="3"
+    :step="3"
+    label="Connect · Step 3 of 3"
+    :back="false"
+    logo-to="/home"
+    :title="demo.portfolio ? `We found ${plural(demo.portfolio.holdings.length, 'holding')}.` : 'Nothing connected yet.'"
+    :body="demo.portfolio ? `In your ${picked.name} account, worth ${whole(demo.portfolio.totalUsd)}. Rally checks them all against your lines.` : 'Pick an app to connect first.'"
+  >
+    <div v-if="fellBack" class="note" role="status"><p class="label" style="color: var(--sun)">Demo account loaded</p><p>Couldn’t reach your Alpaca paper account ({{ fellBack }}). Rally loaded the live-priced demo account instead.</p></div>
+    <template v-if="demo.portfolio">
+      <div class="section-head"><h3>{{ picked.name }} · {{ demo.isLive ? 'Paper account' : 'Demo account' }}</h3></div>
+      <div class="list">
+        <Row v-for="h in top" :key="h.ticker" :tk="h.ticker" :title="h.ticker" :sub="`${(h.weight * 100).toFixed(1)}% of the account`" :right="whole(h.valueUsd)" />
       </div>
-    </UiModal>
-  </div>
+      <p class="caption">Connected to {{ picked.name }}. {{ CAPABILITY_LABEL[picked.capability] }}.</p>
+      <RouterLink to="/home" class="btn btn-primary btn-block">See What Crosses Your Lines</RouterLink>
+    </template>
+    <RouterLink v-else to="/connect" class="btn btn-primary btn-block">Choose an App</RouterLink>
+  </FlowShell>
 </template>
 
 <style scoped>
-.brokers__notice {
-  font-size: 15px;
-  color: var(--text-muted);
-}
-.brokers__notice.is-warn {
-  padding: 12px 16px;
-  border: 1px solid var(--sun);
-  border-radius: var(--radius-md, 14px);
-  color: var(--text);
-}
-.brokers__notice:empty {
-  display: none;
-}
-.title-card:focus {
-  outline: none;
-}
-.trust {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  padding-top: 6px;
-}
-.linked {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  padding: 28px 36px;
-}
-.linked__text {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 10px;
-}
-.linked__actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  gap: 12px;
-}
-.brokers {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  padding-bottom: 12px;
-}
-.broker {
-  display: flex;
-  align-items: center;
-  gap: 18px;
-  padding: 18px 0;
-}
-.broker:first-child {
-  border-top: 0;
-}
-.broker__tile {
-  background: var(--track);
-}
-.broker__text {
-  flex: 1 1 0;
-  min-width: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-.broker__name {
-  font-size: 19px;
-  font-weight: 600;
-  line-height: 1.25;
-}
-.broker__can {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  font-size: 14px;
-  font-weight: 500;
-}
-.facts {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-.facts li {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-  padding: 16px 0;
-}
-.facts li:first-child {
-  border-top: 0;
-  padding-top: 4px;
-}
-.facts b {
-  font-size: 17px;
-  font-weight: 600;
-}
-.facts span {
-  font-size: 14px;
-  line-height: 1.5;
-  color: var(--text-muted);
-}
-.dialog {
-  display: flex;
-  flex-direction: column;
-  align-items: flex-start;
-  gap: 16px;
-}
-.dialog__actions {
-  display: flex;
-  gap: 12px;
-}
-.dialog__bar {
-  position: relative;
-  width: 100%;
-  height: 12px;
-  border-radius: var(--radius-pill);
-  background: var(--track);
-  overflow: hidden;
-}
-.dialog__bar span {
-  position: absolute;
-  inset: 0 auto 0 0;
-  width: 40%;
-  border-radius: var(--radius-pill);
-  background: var(--brand-400);
-  animation: sweep 1.2s var(--ease) infinite alternate;
-}
-@keyframes sweep {
-  from {
-    left: 0;
-  }
-  to {
-    left: 60%;
-  }
-}
+.pick { display: block; }
+.pick :deep(.row) { border-bottom: 1px solid var(--line); }
+.pick:last-child :deep(.row) { border-bottom: 0; }
+.pick:hover :deep(.title) { color: var(--link); }
+.note { background: var(--surf); border-radius: 14px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; font-size: 15px; color: var(--white); line-height: 1.45; }
+.btn:disabled { opacity: 0.6; pointer-events: none; }
 </style>

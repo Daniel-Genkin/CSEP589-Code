@@ -13,8 +13,8 @@ describe('plan', () => {
     expect(planPriceLabel(7.5)).toBe('$7.50')
   })
 
-  it('lists what the paid plan adds: brokerage connection, live monitoring, approval-gated trades (PRD F5)', () => {
-    expect(PAID_FEATURES.map((f) => f.title)).toEqual(['Connect your brokerage', 'Live monitoring', 'Approval-gated trades'])
+  it('lists what Plus adds: a connected account, updates, approval-gated trades (PRD F5)', () => {
+    expect(PAID_FEATURES.map((f) => f.title)).toEqual(['Connect your account', 'Updates on what you own', 'Build a basket'])
     expect(FREE_FEATURES.length).toBeGreaterThan(0)
   })
 })

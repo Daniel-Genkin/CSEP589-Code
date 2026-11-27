@@ -1,23 +1,13 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+import FlowShell from '@/components/v7/FlowShell.vue'
+import { useDemoStore } from '@/state/demo'
+
+const demo = useDemoStore()
+</script>
 
 <template>
-  <div class="page">
-    <header class="page-head">
-      <p class="eyebrow">Your Rally · 404</p>
-      <h1 class="page-title">Nothing<br />at this address.</h1>
-      <p class="lead">The link may be old. Everything in the demo is one click from here.</p>
-      <div class="actions">
-        <RouterLink to="/" class="btn btn-primary">Back to Home</RouterLink>
-        <RouterLink to="/portfolio" class="btn btn-outline">Open Portfolio</RouterLink>
-      </div>
-    </header>
-  </div>
+  <FlowShell label=" " back="/" title="Nothing here." body="The link may be old. Everything in Rally is one click from here.">
+    <RouterLink :to="demo.portfolio ? '/home' : '/'" class="btn btn-primary btn-block">{{ demo.portfolio ? 'Back to Home' : 'Back to Rally' }}</RouterLink>
+    <RouterLink to="/check" class="btn btn-secondary btn-block">Check a Fund</RouterLink>
+  </FlowShell>
 </template>
-
-<style scoped>
-.actions {
-  display: flex;
-  gap: 12px;
-  padding-top: 6px;
-}
-</style>

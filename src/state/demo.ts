@@ -141,6 +141,10 @@ export const useDemoStore = defineStore('demo', () => {
   function createAccount(email: string) {
     account.value = { email: email.trim() }
   }
+  /** Forget the account on this device. Lines, the fund and the plan stay. */
+  function signOut() {
+    account.value = null
+  }
 
   function setCategories(ids: CategoryId[]) {
     selectedCategories.value = [...ids]
@@ -251,6 +255,7 @@ export const useDemoStore = defineStore('demo', () => {
     dataLabel,
     upgrade,
     createAccount,
+    signOut,
     setCategories,
     toggleCategory,
     setPortfolio,

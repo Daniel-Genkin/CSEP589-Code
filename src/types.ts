@@ -116,6 +116,8 @@ export interface Category {
   basis: string
   /** CSS colour for the category's dot */
   color: string
+  /** One plain line explaining what the line covers */
+  description?: string
 }
 
 /** The simulated free account: email only, never a brokerage link. */

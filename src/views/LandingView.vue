@@ -395,7 +395,7 @@ function footLink(to) {
 .sg:hover { background: rgba(255, 255, 255, 0.06); }
 .sg .tk { width: 46px; font-weight: 500; font-size: 14px; color: var(--cream); }
 .sg .sn { flex: 1; font-size: 15px; color: var(--white); }
-.sg .sb { font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--flare); }
+.sg .sb { font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--flare); }
 .sg .sb.ok { color: var(--green); }
 @keyframes drop { from { opacity: 0; transform: translateY(-6px); } }
 .message { position: absolute; top: 150px; left: 0; right: 0; display: flex; flex-direction: column; align-items: center; text-align: center; z-index: 2; }

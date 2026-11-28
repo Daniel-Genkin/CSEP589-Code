@@ -30,6 +30,34 @@ The V7 design (Figma page "Rally V7") replaces the whole UI. The data, domain an
 21. **Basket and trades.** V7's basket flow in Figma opens a brokerage account, takes an SSN and moves money. The app keeps the PRD's behaviour instead: Basket uses the What-if exclusions, Review shows what changes, and the existing approval-gated trade list carries it out (Plus). No account opening or money movement.
 22. **Growth chart table view.** The v1 chart had a "View as a table" and arrow-key navigation on the plot. The V7 chart has a hover crosshair, a keyboard slider and a readout of every series; the table view is gone. For design review.
 
+### Conflicts 1 to 15 with V7 (issue #24 review, 2026-11-27)
+
+Each of the 15 conflicts logged under "Open conflicts" below, checked against the V7 app and the "Rally V7" Figma page.
+
+| # | Conflict | Status with V7 | Decision |
+| --- | --- | --- | --- |
+| 1 | Ground colour | V7 is near-black with cream headlines | Closed: dark ground. Update the PRD's "cream background". |
+| 2 | Which Figma file | V7 lives in `Rz7e0qpk8bVIEn4teghPfP` (the file the PRD links), page "Rally V7" | Closed: that page is the source of truth. |
+| 3 | Ask vs don't stop | Process note for the agent | Closed. |
+| 4 | Vocabulary | V7 uses Figma's words: lines, receipts, basket, Home | Closed. Update the PRD's wording. |
+| 5 | Lines vs the seven categories | Replaced by the nine survey lines (conflict 17) | Closed. **Open:** confirm the five picked by default. |
+| 6 | Funds on First visit | VOO, SPY, IVV, as in the V7 frame | Closed in Figma's favour. |
+| 7 | Receipts frame metrics | Every V7 screen uses the same 800 + 456 layout | Closed. |
+| 8 | Performance numbers on the dashboard | Basket shows the real back-test gap against the S&P 500 | Closed. |
+| 9 | Flare contrast | The 13px flare label on `#2f2c39` is gone. The Trades Sell pill was 3.8:1 (flare on its own tint) | Fixed: Sell text is `#ff8a62`, 5.8:1. Flare text is 5.1:1 on the page and 4.6:1 on cards. The landing search badge went from 10px to 11px. |
+| 10 | Sharing the receipt | V7 brings back Share and Save Image ("Reveal · Share" frame); the PRD puts sharing out of scope | **Open.** The buttons close the dialog; no image is made yet. |
+| 11 | Navigation labels | Tabs: Home, What-if, Basket, Receipts, Lines, Explore | Closed. The What-if screen is not on the V7 Figma page yet. |
+| 12 | Two navs | The landing page has its own marketing nav again; app screens use the app nav; flows use the step bar | Accepted. Update the PRD's "one shell". |
+| 13 | Landing content before signup | V7 shows the full receipt before signup (conflict 19) | **Open.** Recommended: accept V7 and update the PRD. |
+| 14 | Redirect new money | Back in V7 (two frames); a sample page in the app | **Open:** keep as a sample or cut. |
+| 15 | Home tab | V7 has one | Closed. |
+
+**Still open for the team:** sample values tags (16), the receipt and sharing before signup (10, 13, 19, 20), the basket flow (21: Figma opens an account and adds money; the app uses trade approval), Redirect deposits (14), and the five default lines (5).
+
+**Screens and states in the app with no V7 frame:** What-if (the whole screen); Trades and the Done page's "Your list is ready" version; Breakdown's holdings table and "why flagged" dialog; Home's loading and "check a fund first" states; the Receipts locked preview on the free plan; Connect's "already connected" state and step 3 (the frame shows "Choose a fund"; the app shows the holdings found); the printing error; Not found.
+
+The two frames once measured from PNG exports (Zero conflicts, Data unavailable) now have V7 frames read from Figma. `docs/STYLE.md` was rewritten for V7.
+
 ### Placeholders added with V7
 
 - **Line tags** (`src/data/lines.ts`): about 55 large US companies, hand-written. Companies outside that list are never flagged, so a fund can read lower than it should.
@@ -179,6 +207,8 @@ Numeric acceptance criteria covered by tests:
 ## Open conflicts (Figma vs PRD vs existing code)
 
 Rule from AGENT_TASK: Figma wins for the look, the PRD wins for behaviour, log and continue.
+
+These are the v1 conflicts as first logged. Their status with V7 is in "Conflicts 1 to 15 with V7" near the top of this file.
 
 1. **Ground colour.** PRD brand cues say "cream background"; every Figma frame is on an ink (near-black) ground with cream only for display type, the receipt and one landing section. Followed Figma.
 2. **Which Figma file.** The PRD links `Rz7e0qpk8bVIEn4teghPfP` ("Rallie Dashboard"); AGENT_TASK names `0TV8YD5J0HeUampygg1DqE` ("Rallie Dashboard (Copy)") as the source of truth. Used the copy.

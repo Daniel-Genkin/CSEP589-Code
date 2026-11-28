@@ -414,7 +414,7 @@ td, tbody th { padding: 10px; border-bottom: 1px solid var(--line); vertical-ali
 tr.sent td, tr.sent th { opacity: 0.55; }
 .cb { width: 18px; height: 18px; accent-color: var(--sun); }
 .side { display: inline-flex; height: 26px; align-items: center; padding: 0 10px; border-radius: 999px; font-weight: 600; font-size: 12px; }
-.side.sell { background: rgba(232, 90, 42, 0.16); color: var(--flare); }
+.side.sell { background: rgba(232, 90, 42, 0.16); color: #ff8a62; } /* lighter flare: 5.8:1 on this tint (flare itself is 3.8:1) */
 .side.buy { background: rgba(90, 107, 246, 0.18); color: var(--link); }
 .co { display: flex; align-items: center; gap: 10px; min-width: 0; }
 .tkc { width: 52px; font-size: 12px; color: var(--cream); flex: none; }

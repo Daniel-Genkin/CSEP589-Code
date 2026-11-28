@@ -18,7 +18,7 @@ The V7 design (Figma page "Rally V7") replaces the whole UI. The data, domain an
 | Exposure, receipt, dot grid, breakdown, back-test, swaps, trades | Explore, the example alert email, Redirect deposits, landing previews |
 | Alpaca paper account and orders, when keys are set | Sign-in code (any six digits), Plus upgrade (no payment) |
 
-**Verification:** `npm run typecheck` and `npm test` pass. `e2e/demo.spec.ts` is rewritten for the V7 flow (check SPY → receipt → save → Home → Breakdown with the TickerInside line; tickers AAPL, MSFT → Breakdown; What-if switch; Basket → review → Plus gate → trades → done; Reset demo). It was not run on this machine because Playwright's Chromium isn't installed (`npx playwright install chromium`). The same steps were walked by hand in a browser against a local mock of `/api/market-data`.
+**Verification:** `npm run typecheck` and `npm test` pass. `e2e/demo.spec.ts` is rewritten for the V7 flow (check SPY → receipt → save → Home → Breakdown with the TickerInside line; tickers AAPL, MSFT → Breakdown; What-if switch; Basket → review → Plus gate → trades → done; Reset demo). Last run: 2026-11-27, passing, with no console errors and no request beyond the app's own files. The same steps were also walked by hand in a browser against a local mock of `/api/market-data`.
 
 ### Conflicts logged with V7
 

@@ -146,8 +146,8 @@ test('runs the V7 demo script on Alpaca quotes and TickerInside ETF holdings', a
   await expect(page).toHaveURL(/\/home$/)
   await page.goto('/breakdown')
   await expect(page.locator('.holdings tbody tr:not(.group)')).toHaveCount(2)
-  await expect(page.locator('.holdings tbody')).toContainText('AAPL')
-  await expect(page.locator('.holdings tbody')).toContainText('MSFT')
+  await expect(page.locator('.holdings table')).toContainText('AAPL')
+  await expect(page.locator('.holdings table')).toContainText('MSFT')
 
   // What-if: switch Microsoft off and the back-test moves.
   await page.locator('.nav-pill').getByRole('link', { name: 'What-if' }).click()
